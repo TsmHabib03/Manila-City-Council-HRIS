@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+		
+		<!-- Main content -->
+		<div class="content-wrapper">
+			
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row mt-3">
+					<div class="col-xl-12">
+						
+						
+						<div class="card">
+							<div class="card-header">
+								<h5 class="card-title">Report on Appointments Issued (RAI)</h5>
+								<span class="d-block text-primary">This report fetches records based on the <span class="font-weight-bold text-danger">"Entrance date"</span> in the <span class="font-weight-bold text-danger">Service Record</span> of an employee.</span>
+							</div>					
+							
+							<div class="card-body mt-2">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-4">
+												<label for="agency">Agency</label>
+												<input id="agency" name="agency" type="text" placeholder="Agency" class="form-control" >
+											</div>
+											<div class="col-sm-4">
+												<label for="resolutionNo">CSC Resolution No.</label>
+												<input id="resolutionNo" name="resolutionNo" type="text" placeholder="CSC Resolution No." class="form-control" >
+											</div>		
+											<div class="col-sm-4">
+												<label for="cscfo">CSCFO In-Charge</label>
+												<input id="cscfo" name="cscfo" type="text" placeholder="CSCFO In-Charge" class="form-control" >
+											</div>												
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-4">
+												<label for="hrmo">HRMO</label>
+												<input id="hrmo" name="hrmo" type="text" placeholder="HRMO" class="form-control" >
+											</div>
+											<div class="col-sm-4">
+												<label for="agencyHead">Agency Head</label>
+												<input id="agencyHead" name="agencyHead" type="text" placeholder="Agency Head" class="form-control" >
+											</div>
+											<div class="col-sm-4">
+												<label for="cscOfficial">CSC Official</label>
+												<input id="cscOfficial" name="cscOfficial" type="text" placeholder="CSC Official" class="form-control" >
+											</div>												
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="month">Select Month Accession</label>
+												<select name="month" id="month" class="form-control">
+												  <option value="JANUARY">JANUARY</option>
+												  <option value="FEBRUARY">FEBRUARY</option>
+												  <option value="MARCH">MARCH</option>
+												  <option value="APRIL">APRIL</option>
+												  <option value="MAY">MAY</option>
+												  <option value="JUNE">JUNE</option>
+												  <option value="JULY">JULY</option>
+												  <option value="AUGUST">AUGUST</option>
+												  <option value="SEPTEMBER">SEPTEMBER</option>
+												  <option value="OCTOBER">OCTOBER</option>
+												  <option value="NOVEMBER">NOVEMBER</option>
+												  <option value="DECEMBER">DECEMBER</option>
+												</select>
+											</div>
+											<div class="col-sm-6">
+												<label for="year">Year of Accession</label>
+												<input id="year" name="year" type="text" placeholder="Year" class="form-control" >
+											</div>												
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-12">
+												 <div class="card">
+											        <div class="card-body">
+											            <h5 class="card-title text-center mb-4">CHECKLIST OF COMMON REQUIREMENTS</h5>
+											            <p class="card-text">
+											                <strong>Instructions:</strong> Put a check if the requirements are complete. If incomplete, use the space provided to indicate the name of the appointee and the lacking requirement/s.
+											            </p>
+											
+											            <div class="table-responsive">
+											                <table class="table table-bordered">
+											                    <thead class="thead-light">
+											                        <tr>
+											                            <th class="text-center">CHECKLIST OF COMMON REQUIREMENTS</th>
+											                            <th class="text-center">HRMO</th>
+											                            <th class="text-center">CSC FO</th>
+											                        </tr>
+											                    </thead>
+											                    <tbody>
+											                        <!-- Row 1 -->
+											                        <tr>
+											                            <td>
+											                                <div class="font-weight-bold">1. APPOINTMENT FORMS (CS Form No. 33-B, Revised 2017)</div>
+											                                <small>Original CSC copy of appointment form</small>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="1A" name="1A" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="1B" name="1B" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                        </tr>
+											                        <!-- Row 2 -->
+											                        <tr>
+											                            <td>
+											                                <div class="font-weight-bold">2. PLANTILLA OF CASUAL APPOINTMENT (CSC Form No. 34-B, D, E, or F)</div>
+											                                <small>Original CSC copy</small>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="2A" name="2A" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="2B" name="2B" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                        </tr>
+											                        <!-- Row 3 -->
+											                        <tr>
+											                            <td>
+											                                <div class="font-weight-bold">3. PERSONAL DATA SHEET (CS Form No. 212, Revised 2017)</div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="3A" name="3A" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="3B" name="3B" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                        </tr>
+											                        <!-- Row 4 -->
+											                        <tr>
+											                            <td>
+											                                <div class="font-weight-bold">4. ORIGINAL COPY OF AUTHENTICATED CERTIFICATE OF ELIGIBILITY RATING / LICENSE</div>
+											                                <small>Except if the eligibility has been previously authenticated in 2004 or onward and recorded by the CSC</small>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="4A" name="4A" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="4B" name="4B" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                        </tr>
+											                        <!-- Row 5 -->
+											                        <tr>
+											                            <td>
+											                                <div class="font-weight-bold">5. POSITION DESCRIPTION FORM (DBM-CSC Form No. 1, Revised 2017)</div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="5A" name="5A" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="5B" name="5B" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                        </tr>
+											                        <!-- Row 6 -->
+											                        <tr>
+											                            <td>
+											                                <div class="font-weight-bold">6. OATH OF OFFICE (CS Form No. 32, Revised 2017)</div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="6A" name="6A" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="6B" name="6B" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                        </tr>
+											                        <!-- Row 7 -->
+											                        <tr>
+											                            <td>
+											                                <div class="font-weight-bold">7. CERTIFICATE OF ASSUMPTION TO DUTY (CS Form No. 4)</div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="7A" name="7A" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                            <td>
+											                                <div class="form-group">
+											                                    <textarea id="7B" name="7B" class="form-control" rows="3"></textarea>
+											                                </div>
+											                            </td>
+											                        </tr>
+											                    </tbody>
+											                </table>
+											            </div>
+											        </div>
+											    </div>
+											</div>																					
+										</div>
+									</div>
+							</div>
+							
+							<div class="card-footer">																
+								<button type="button" class="btn bg-primary" onclick="openReport();">View Report</button>								
+							</div>
+					
+						</div>
+						
+						
+								
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		
+		// All jQuery-dependent code must be inside this function
+		$(document).ready(function() {
+			
+			let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+		
+			window.openReport = function() {
+				// 1. Create a DTO object with keys matching RaiReportDto fields
+				var raiReportDto = {
+					agency: $('#agency').val(),
+					resolutionNo: $('#resolutionNo').val(),
+					cscOfficer: $('#cscfo').val(),
+					month: $('#month').val(),
+					year: $('#year').val(),
+
+					// Signatories
+					signatory1: $('#hrmo').val(),
+					signatory2: $('#agencyHead').val(),
+					signatory3: $('#cscOfficial').val(),
+
+					// HRMO Comments
+					hrmoComment1: $('#1A').val(),
+					hrmoComment2: $('#2A').val(),
+					hrmoComment3: $('#3A').val(),
+					hrmoComment4: $('#4A').val(),
+					hrmoComment5: $('#5A').val(),
+					hrmoComment6: $('#6A').val(),
+					hrmoComment7: $('#7A').val(),
+
+					// CSCFO Comments
+					cscfoComment1: $('#1B').val(),
+					cscfoComment2: $('#2B').val(),
+					cscfoComment3: $('#3B').val(),
+					cscfoComment4: $('#4B').val(),
+					cscfoComment5: $('#5B').val(),
+					cscfoComment6: $('#6B').val(),
+					cscfoComment7: $('#7B').val()
+				};
+	
+				// 2. Basic Validation
+				if (!raiReportDto.agency || !raiReportDto.signatory1 || !raiReportDto.signatory2 || !raiReportDto.month || !raiReportDto.year) {
+				    swal({
+						title: "Error!",
+						text: "Agency, HRMO, Agency Head, Month, and Year are mandatory fields.",
+						icon: "error",
+						buttons: false,
+			            timer: 2000,
+					});
+				    return false;
+				}
+				
+				// 3. Construct URL with parameters
+				var urlParams = new URLSearchParams(raiReportDto);
+				var url = contextRoot + "/viewRaiReport?" + urlParams.toString();
+				
+				// 4. Open the report in a new tab
+				window.open(url, '_blank');
+			}	
+		
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#employeeReportsNav").addClass("nav-item-expanded nav-item-open");
+			$("#raiReportNav").addClass("active");	
+						
+		});
+		
+	</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+		
+		<!-- Main content -->
+		<div class="content-wrapper">
+			
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row mt-3">
+					<div class="col-xl-12">
+						
+						
+						<div class="card">
+							<div class="card-header">
+								<h5 class="card-title">Accession Report</h5>
+								<span class="d-block text-primary">This report fetches records based on the <span class="font-weight-bold text-danger">"Entrance date"</span> in the <span class="font-weight-bold text-danger">Service Record</span> of an employee. All below fields are mandatory to generate the report.</span>
+							</div>					
+							
+							<div class="card-body mt-2">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="signatoryName">Signatory Name</label>
+												<input id="signatoryName" name="signatoryName" type="text" placeholder="Signatory Name" class="form-control" >
+											</div>
+											<div class="col-sm-6">
+												<label for="signatoryPosition">Signatory Position</label>
+												<input id="signatoryPosition" name="signatoryPosition" type="text" placeholder="Signatory Position" class="form-control" >
+											</div>												
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="attestedBy">Select Month Accession</label>
+												<select name="month" id="month" class="form-control">
+												  <option value="JANUARY">JANUARY</option>
+												  <option value="FEBRUARY">FEBRUARY</option>
+												  <option value="MARCH">MARCH</option>
+												  <option value="APRIL">APRIL</option>
+												  <option value="MAY">MAY</option>
+												  <option value="JUNE">JUNE</option>
+												  <option value="JULY">JULY</option>
+												  <option value="AUGUST">AUGUST</option>
+												  <option value="SEPTEMBER">SEPTEMBER</option>
+												  <option value="OCTOBER">OCTOBER</option>
+												  <option value="NOVEMBER">NOVEMBER</option>
+												  <option value="DECEMBER">DECEMBER</option>
+												</select>
+											</div>
+											<div class="col-sm-6">
+												<label for="year">Year of Accession</label>
+												<input id="year" name="year" type="text" placeholder="Year" class="form-control" >
+											</div>												
+										</div>
+									</div>
+							</div>
+							
+							<div class="card-footer">																
+								<button type="button" class="btn bg-primary" onclick="openReport();">View Report</button>								
+							</div>
+					
+						</div>
+						
+						
+								
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+		
+	    
+	    function openReport() {
+			    var signatoryName = document.getElementById('signatoryName').value.trim();
+			    var signatoryPosition = document.getElementById('signatoryPosition').value.trim();
+			    var month = document.getElementById('month').value.trim();
+			    var year = document.getElementById('year').value.trim();
+			
+			    // Check if any field is empty
+			    if (!signatoryName || !signatoryPosition || !month || !year) {
+			        swal({
+						title: "Error!",
+						text: "All fields are mandatory.",
+						icon: "error",
+						buttons: false,
+			            timer: 2000,
+					});
+			        return false;
+			    }
+			
+			    // Check if year is a valid 4-digit number between 1900 and current year + 10
+			    var yearPattern = /^\d{4}$/;
+			    var year = parseInt(year, 10);
+			    var currentYear = new Date().getFullYear();
+			
+			    if (!yearPattern.test(year) || year < 1900 || year > currentYear + 10) {
+					swal({
+						title: "Error!",
+						text: "Please enter a valid 4-digit year between 1900 and " + (currentYear) + ".",
+						icon: "error",
+						buttons: false,
+			            timer: 2000,
+					});
+			        
+			        return false;
+			    }
+			
+			    var jsonData = {
+			        signatoryName: signatoryName,
+			        signatoryPosition: signatoryPosition,
+			        month: month,
+			        year: year
+			    };
+			
+			    var urlParams = new URLSearchParams();
+			    urlParams.append('signatoryName', jsonData.signatoryName);
+			    urlParams.append('signatoryPosition', jsonData.signatoryPosition);
+			    urlParams.append('month', jsonData.month);
+			    urlParams.append('year', jsonData.year);
+			
+			    var url = contextRoot + "/viewReportOfAccession?" + urlParams.toString();
+			    window.open(url, '_blank');
+		}	
+	
+		$(document).ready(function() {
+			
+					
+			//$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			//$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			//$("#appointmentsListNav").addClass("active");
+			
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#employeeReportsNav").addClass("nav-item-expanded nav-item-open");
+			$("#accessionReportNav").addClass("active");
+			
+			
+						
+		});
+		
+		$('#table-list').DataTable({});
+		
+		
+	</script>
+</body>
+</html>

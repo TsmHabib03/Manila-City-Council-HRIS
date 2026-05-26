@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4><span class="font-weight-semibold">Position Description Form Management</span></h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>					
+				</div>
+			</div>
+			<!-- /page header -->
+			
+			
+			<!-- =================================================================== -->
+<!--    Position Description Form Modal                                -->
+<!-- =================================================================== -->
+<div id="modal_position_desc_form" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-xl"> <!-- Using modal-xl for a wider form -->
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Position Description Form</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- The th:action should point to your save/update endpoint -->
+            <form id="positionDescriptionForm" th:action="@{/savePositionDescription}" method="post" th:object="${positionDescriptionForm}">
+                <!-- Hidden field for the form ID (for updates) -->
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="modal-body">
+
+                    <!-- =================== PAGE 1 =================== -->
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label><b>1. Position Title:</b></label>
+                            <select id="positionTitleSelect" th:field="*{positionTitle.id}" class="form-control">
+                                <option value="">-- Select Position Title --</option>
+                                <option th:each="pt : ${positionTitleList}" th:value="${pt.id}" th:text="${pt.positionTitleName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label><b>2. Item Number:</b></label>
+                            <input type="text" th:field="*{itemNumber}" class="form-control" placeholder="Item Number">
+                        </div>
+                        <div class="col-md-3">
+                            <label><b>3. Salary Grade:</b></label>
+                            <input type="text" th:field="*{salaryGrade}" class="form-control" placeholder="Salary Grade">
+                        </div>
+                    </div>
+
+                    <fieldset class="mb-3">
+                        <legend class="text-uppercase font-size-sm font-weight-bold"><b>4. For Local Government Position</b></legend>
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label>Governmental Unit:</label>
+                                <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguProvince}" class="form-check-input"> Province</label></div>
+                                <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguCity}" class="form-check-input"> City</label></div>
+                                <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguMunicipality}" class="form-check-input"> Municipality</label></div>
+                            </div>
+                            <div class="col-md-8">
+                                <label>Class:</label>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguClass1}" class="form-check-input"> 1st Class</label></div>
+                                        <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguClass2}" class="form-check-input"> 2nd Class</label></div>
+                                        <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguClass3}" class="form-check-input"> 3rd Class</label></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguClass4}" class="form-check-input"> 4th Class</label></div>
+                                        <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguClass5}" class="form-check-input"> 5th Class</label></div>
+                                        <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguClass6}" class="form-check-input"> 6th Class</label></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                         <div class="form-check"><label class="form-check-label"><input type="checkbox" th:field="*{lguClassSpecial}" class="form-check-input"> Special</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label><b>5. Department / Agency:</b></label>
+                            <input type="text" th:field="*{departmentAgency}" class="form-control" placeholder="Department / Agency">
+                        </div>
+                        <div class="col-md-6">
+                            <label><b>6. Bureau / Office:</b></label>
+                            <input type="text" th:field="*{bureauOffice}" class="form-control" placeholder="Bureau / Office">
+                        </div>
+                    </div>
+                     <div class="form-group row">
+                        <div class="col-md-6">
+                            <label><b>7. Branch / Division:</b></label>
+                            <input type="text" th:field="*{branchDivision}" class="form-control" placeholder="Branch / Division">
+                        </div>
+                        <div class="col-md-6">
+                            <label><b>8. Workstation:</b></label>
+                            <input type="text" th:field="*{workstation}" class="form-control" placeholder="Workstation">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label><b>9. Present Appropriation Act:</b></label>
+                            <input type="text" th:field="*{presentAppropriationAct}" class="form-control" placeholder="Present Appropriation Act">
+                        </div>
+                        <div class="col-md-6">
+                            <label><b>10. Previous Appropriation Act:</b></label>
+                            <input type="text" th:field="*{previousAppropriationAct}" class="form-control" placeholder="Previous Appropriation Act">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label><b>11. Salary Authorized:</b></label>
+                            <input type="text" th:field="*{salaryAuthorized}" class="form-control" placeholder="Salary Authorized">
+                        </div>
+                        <div class="col-md-6">
+                            <label><b>12. Other Compensation:</b></label>
+                            <input type="text" th:field="*{otherCompensation}" class="form-control" placeholder="Other Compensation">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label><b>13. Immediate Supervisor Title:</b></label>
+                            <input type="text" th:field="*{immediateSupervisorTitle}" class="form-control" placeholder="Immediate Supervisor">
+                        </div>
+                        <div class="col-md-6">
+                            <label><b>14. Next Higher Supervisor Title:</b></label>
+                            <input type="text" th:field="*{nextHigherSupervisorTitle}" class="form-control" placeholder="Next Higher Supervisor">
+                        </div>
+                    </div>
+                    
+                    <fieldset class="mb-3">
+                        <legend class="text-uppercase font-size-sm font-weight-bold"><b>15. Position Title, and Item of those directly supervised</b></legend>
+                         <div class="form-group row">
+                            <div class="col-md-6">
+                                <label>Position Title(s):</label>
+                                <textarea th:field="*{supervisedStaffPositionTitle}" rows="3" class="form-control" placeholder="Enter position titles, separated by commas"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Item Number(s):</label>
+                                <textarea th:field="*{supervisedStaffItemNumber}" rows="3" class="form-control" placeholder="Enter item numbers, separated by commas"></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-group">
+                        <label><b>16. Machine, Equipment, Tools, etc., used regularly in performance of work</b></label>
+                        <textarea th:field="*{equipmentUsed}" rows="3" class="form-control" placeholder="List equipment..."></textarea>
+                    </div>
+
+                    <fieldset class="mb-3">
+                        <legend class="text-uppercase font-size-sm font-weight-bold"><b>17. Contacts / Clients / Stakeholders</b></legend>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-center">Occasional</th>
+                                        <th class="text-center">Frequent</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><b>a. Internal</b><br>Executive / Managerial</td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactInternalExec}" value="Occasional"></td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactInternalExec}" value="Frequent"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Supervisors</td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactInternalSupervisor}" value="Occasional"></td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactInternalSupervisor}" value="Frequent"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Non-Supervisors</td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactInternalNonSupervisor}" value="Occasional"></td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactInternalNonSupervisor}" value="Frequent"></td>
+                                    </tr>
+                                     <tr>
+                                        <td>Staff</td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactInternalStaff}" value="Occasional"></td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactInternalStaff}" value="Frequent"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>b. External</b><br>General Public</td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactExternalPublic}" value="Occasional"></td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactExternalPublic}" value="Frequent"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Other Agencies</td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactExternalAgencies}" value="Occasional"></td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{contactExternalAgencies}" value="Frequent"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3">
+                                            Others (Please Specify):
+                                            <input type="text" th:field="*{contactExternalOthersText}" class="form-control form-control-sm mt-1" placeholder="Specify other contacts">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="mb-3">
+                        <legend class="text-uppercase font-size-sm font-weight-bold"><b>18. Working Condition</b></legend>
+                        <div class="table-responsive">
+                             <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-center">Occasional</th>
+                                        <th class="text-center">Frequent</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Office Work</td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{workConditionOffice}" value="Occasional"></td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{workConditionOffice}" value="Frequent"></td>
+                                    </tr>
+                                     <tr>
+                                        <td>Field Work</td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{workConditionField}" value="Occasional"></td>
+                                        <td class="text-center align-middle"><input type="radio" th:field="*{workConditionField}" value="Frequent"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3">
+                                            Others (Please Specify):
+                                            <input type="text" th:field="*{workConditionOthersText}" class="form-control form-control-sm mt-1" placeholder="Specify other conditions">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-group">
+                        <label><b>19. Brief Description of the General Function of the Unit or Section</b></label>
+                        <textarea th:field="*{functionOfUnit}" rows="3" class="form-control" placeholder="Describe function of the unit..."></textarea>
+                    </div>
+                    
+                    <hr>
+                    <!-- =================== PAGE 2 =================== -->
+                    <h5 class="font-weight-semibold mt-4">Job and Qualification Details</h5>
+                    
+                    <div class="form-group">
+                        <label><b>20. Brief Description of the General Function of the Position (Job Summary)</b></label>
+                        <textarea th:field="*{jobSummary}" rows="4" class="form-control" placeholder="Job Summary"></textarea>
+                    </div>
+                    
+                    <fieldset class="mb-3">
+                        <legend class="text-uppercase font-size-sm font-weight-bold"><b>21. Qualification Standards</b></legend>
+                        <div class="form-group row">
+                            <div class="col-md-6"><label>a. Education:</label><input type="text" th:field="*{qsEducation}" class="form-control"></div>
+                            <div class="col-md-6"><label>b. Experience:</label><input type="text" th:field="*{qsExperience}" class="form-control"></div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-6"><label>c. Training:</label><input type="text" th:field="*{qsTraining}" class="form-control"></div>
+                            <div class="col-md-6"><label>d. Eligibility:</label><input type="text" th:field="*{qsEligibility}" class="form-control"></div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-6"><label>e. Core Competencies:</label><textarea th:field="*{coreCompetencies}" rows="4" class="form-control"></textarea></div>
+                            <div class="col-md-6"><label>Competency Level:</label><textarea th:field="*{coreCompetencyLevel}" rows="4" class="form-control"></textarea></div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-6"><label>f. Leadership Competencies:</label><textarea th:field="*{leadershipCompetencies}" rows="4" class="form-control"></textarea></div>
+                            <div class="col-md-6"><label>Competency Level:</label><textarea th:field="*{leadershipCompetencyLevel}" rows="4" class="form-control"></textarea></div>
+                        </div>
+                    </fieldset>
+                    
+                     <fieldset class="mb-3">
+                        <legend class="text-uppercase font-size-sm font-weight-bold"><b>22. Statement of Duties and Responsibilities</b></legend>
+                        <div class="form-group row">
+                            <div class="col-md-2">
+                                <label>Percentage of Working Time:</label>
+                                <textarea th:field="*{dutyPercentage}" rows="8" class="form-control" placeholder="e.g., 50%"></textarea>
+                            </div>
+                             <div class="col-md-7">
+                                <label>Duty Description:</label>
+                                <textarea th:field="*{dutyDescription}" rows="8" class="form-control" placeholder="Describe the duties..."></textarea>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Competency Level:</label>
+                                <textarea th:field="*{dutyCompetencyLevel}" rows="8" class="form-control" placeholder="e.g., Competent"></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset class="mb-3">
+                        <legend class="text-uppercase font-size-sm font-weight-bold"><b>23. Signatories</b></legend>
+                         <div class="form-group row">
+                            <div class="col-md-6">
+                                <label>Employee Name:</label>
+                                <input type="text" th:field="*{employeeName}" class="form-control" placeholder="Employee's Full Name">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Supervisor Name:</label>
+                                <input type="text" th:field="*{supervisorName}" class="form-control" placeholder="Supervisor's Full Name">
+                            </div>
+                        </div>
+                    </fieldset>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn bg-primary">Save Form</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- /Vertical form modal -->
+
+
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row">
+					<div class="col-xl-12">
+						<!-- Basic datatable -->
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">Position Description Form List</h5>
+								<div class="header-elements">
+									<div class="list-icons">				                				
+				                		<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modal_position_desc_form">Add Record</button>
+				                	</div>
+			                	</div>
+							</div>
+		
+		
+							<table class="table table-basic table-hover" id="table-list">
+								<thead>
+									<tr>
+										<th>Position Title</th>
+										<th>Item Number</th>
+										<th>Salary Grade</th>
+										<th class="text-center">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="pdf : ${positionDescriptionFormList}">
+										<tr>
+											<td th:text="${pdf.getPositionTitle() != null ? pdf.getPositionTitle().getPositionTitleName() : ''}"></td>
+											<td th:text="${pdf.getItemNumber()}"></td>
+											<td th:text="${pdf.getSalaryGrade()}"></td>
+											<td class="text-center" width="250px;">
+												<button type="button" class="showDetails btn btn-primary"
+                                                 th:attr="data-form-id=${pdf.id}, 
+                                                          data-position-title-id=${pdf.positionTitle != null ? pdf.positionTitle.id : ''},
+                                                          data-item-number=${pdf.itemNumber},
+                                                          data-salary-grade=${pdf.salaryGrade},
+                                                          data-lgu-province=${pdf.lguProvince},
+                                                          data-lgu-city=${pdf.lguCity},
+                                                          data-lgu-municipality=${pdf.lguMunicipality},
+                                                          data-lgu-class1=${pdf.lguClass1},
+                                                          data-lgu-class2=${pdf.lguClass2},
+                                                          data-lgu-class3=${pdf.lguClass3},
+                                                          data-lgu-class4=${pdf.lguClass4},
+                                                          data-lgu-class5=${pdf.lguClass5},
+                                                          data-lgu-class6=${pdf.lguClass6},
+                                                          data-lgu-class-special=${pdf.lguClassSpecial},
+                                                          data-department-agency=${pdf.departmentAgency},
+                                                          data-bureau-office=${pdf.bureauOffice},
+                                                          data-branch-division=${pdf.branchDivision},
+                                                          data-workstation=${pdf.workstation},
+                                                          data-present-appropriation-act=${pdf.presentAppropriationAct},
+                                                          data-previous-appropriation-act=${pdf.previousAppropriationAct},
+                                                          data-salary-authorized=${pdf.salaryAuthorized},
+                                                          data-other-compensation=${pdf.otherCompensation},
+                                                          data-immediate-supervisor-title=${pdf.immediateSupervisorTitle},
+                                                          data-next-higher-supervisor-title=${pdf.nextHigherSupervisorTitle},
+                                                          data-supervised-staff-position-title=${pdf.supervisedStaffPositionTitle},
+                                                          data-supervised-staff-item-number=${pdf.supervisedStaffItemNumber},
+                                                          data-equipment-used=${pdf.equipmentUsed},
+                                                          data-contact-internal-exec=${pdf.contactInternalExec},
+                                                          data-contact-internal-supervisor=${pdf.contactInternalSupervisor},
+                                                          data-contact-internal-non-supervisor=${pdf.contactInternalNonSupervisor},
+                                                          data-contact-internal-staff=${pdf.contactInternalStaff},
+                                                          data-contact-external-public=${pdf.contactExternalPublic},
+                                                          data-contact-external-agencies=${pdf.contactExternalAgencies},
+                                                          data-contact-external-others=${pdf.contactExternalOthers},
+                                                          data-contact-external-others-text=${pdf.contactExternalOthersText},
+                                                          data-work-condition-office=${pdf.workConditionOffice},
+                                                          data-work-condition-field=${pdf.workConditionField},
+                                                          data-work-condition-others=${pdf.workConditionOthers},
+                                                          data-work-condition-others-text=${pdf.workConditionOthersText},
+                                                          data-function-of-unit=${pdf.functionOfUnit},
+                                                          data-job-summary=${pdf.jobSummary},
+                                                          data-qs-education=${pdf.qsEducation},
+                                                          data-qs-experience=${pdf.qsExperience},
+                                                          data-qs-training=${pdf.qsTraining},
+                                                          data-qs-eligibility=${pdf.qsEligibility},
+                                                          data-core-competencies=${pdf.coreCompetencies},
+                                                          data-core-competency-level=${pdf.coreCompetencyLevel},
+                                                          data-leadership-competencies=${pdf.leadershipCompetencies},
+                                                          data-leadership-competency-level=${pdf.leadershipCompetencyLevel},
+                                                          data-duty-description=${pdf.dutyDescription},
+                                                          data-duty-percentage=${pdf.dutyPercentage},
+                                                          data-duty-competency-level=${pdf.dutyCompetencyLevel},
+                                                          data-employee-name=${pdf.employeeName},
+                                                          data-supervisor-name=${pdf.supervisorName}"
+												data-toggle="modal" data-target="#modal_position_desc_form">View Record</button>
+												<button type="button" class="btn btn-success viewReportBtn" th:data-form-id="${pdf.id}">View Report</button>
+											</td>
+
+										</tr>
+									</th:block>							
+								</tbody>
+							</table>
+						</div>
+						<!-- /basic datatable -->					
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+
+		function viewReport(id) {
+			if (id) {
+				window.open(contextRoot + '/viewPositionDescForm/' + id, '_blank');
+			}
+		}
+		
+		$(document).on("click", ".viewReportBtn", function() {
+				var id = $(this).data('form-id');
+				viewReport(id);
+		});
+
+		function filterEmployeeStatus() {
+				$('#employeeStatusSelect').val("");
+				var selectedType = $('input[name="employment_status"]:checked').val();
+				
+				$('#employeeStatusSelect option').each(function() {
+					var rowType = $(this).data('row-type');
+					
+					if (selectedType === rowType || selectedType === undefined) {
+						$(this).show();
+					} else {
+						$(this).hide();
+					}
+				});
+			}
+	
+		$(document).ready(function() {
+			
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#employeeReportsNav").addClass("nav-item-expanded nav-item-open");
+			$("#positionDescFormReportNav").addClass("active");
+			
+			let msgCode = /*[[${uxmessage == null ? '' : uxmessage.code} ]]*/'';
+			let msgDesc = /*[[${uxmessage == null ? '' : uxmessage.message}]]*/'';
+			
+			if(msgCode === 'ERROR'){
+				$('#modal_form_vertical').modal('show');
+				swal({
+					title: "Error!",
+					text: msgDesc,
+					icon: "error",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			}
+			
+			
+		});
+		
+		$('#table-list').DataTable({
+				"lengthMenu": [10, 25, 50],
+				"ordering": false,                
+		});
+		
+		$(document).on("click", ".showDetails", function() {
+	            var modal = $('#modal_position_desc_form');
+	            var button = $(this);
+
+	            // Clear previous data
+	            modal.find('form')[0].reset();
+	            modal.find('input[type="radio"]').prop('checked', false);
+
+	            // Set form values from data attributes
+	            modal.find('#id').val(button.data('form-id'));
+	            //modal.find('#positionTitle').val(button.data('position-title-id'));
+	            modal.find('#positionTitleSelect').val(button.data('position-title-id'));
+	            
+	            // Text and Textarea fields
+	            modal.find('input[name="itemNumber"]').val(button.data('item-number'));
+	            modal.find('input[name="salaryGrade"]').val(button.data('salary-grade'));
+	            modal.find('input[name="departmentAgency"]').val(button.data('department-agency'));
+	            modal.find('input[name="bureauOffice"]').val(button.data('bureau-office'));
+	            modal.find('input[name="branchDivision"]').val(button.data('branch-division'));
+	            modal.find('input[name="workstation"]').val(button.data('workstation'));
+	            modal.find('input[name="presentAppropriationAct"]').val(button.data('present-appropriation-act'));
+	            modal.find('input[name="previousAppropriationAct"]').val(button.data('previous-appropriation-act'));
+	            modal.find('input[name="salaryAuthorized"]').val(button.data('salary-authorized'));
+	            modal.find('input[name="otherCompensation"]').val(button.data('other-compensation'));
+	            modal.find('input[name="immediateSupervisorTitle"]').val(button.data('immediate-supervisor-title'));
+	            modal.find('input[name="nextHigherSupervisorTitle"]').val(button.data('next-higher-supervisor-title'));
+	            modal.find('textarea[name="supervisedStaffPositionTitle"]').val(button.data('supervised-staff-position-title'));
+	            modal.find('textarea[name="supervisedStaffItemNumber"]').val(button.data('supervised-staff-item-number'));
+	            modal.find('textarea[name="equipmentUsed"]').val(button.data('equipment-used'));
+	            modal.find('input[name="contactExternalOthersText"]').val(button.data('contact-external-others-text'));
+	            modal.find('input[name="workConditionOthersText"]').val(button.data('work-condition-others-text'));
+	            modal.find('textarea[name="functionOfUnit"]').val(button.data('function-of-unit'));
+	            modal.find('textarea[name="jobSummary"]').val(button.data('job-summary'));
+	            modal.find('input[name="qsEducation"]').val(button.data('qs-education'));
+	            modal.find('input[name="qsExperience"]').val(button.data('qs-experience'));
+	            modal.find('input[name="qsTraining"]').val(button.data('qs-training'));
+	            modal.find('input[name="qsEligibility"]').val(button.data('qs-eligibility'));
+	            modal.find('textarea[name="coreCompetencies"]').val(button.data('core-competencies'));
+	            modal.find('textarea[name="coreCompetencyLevel"]').val(button.data('core-competency-level'));
+	            modal.find('textarea[name="leadershipCompetencies"]').val(button.data('leadership-competencies'));
+	            modal.find('textarea[name="leadershipCompetencyLevel"]').val(button.data('leadership-competency-level'));
+	            modal.find('textarea[name="dutyDescription"]').val(button.data('duty-description'));
+	            modal.find('textarea[name="dutyPercentage"]').val(button.data('duty-percentage'));
+	            modal.find('textarea[name="dutyCompetencyLevel"]').val(button.data('duty-competency-level'));
+	            modal.find('input[name="employeeName"]').val(button.data('employee-name'));
+	            modal.find('input[name="supervisorName"]').val(button.data('supervisor-name'));
+
+	            // Boolean Checkboxes - CORRECTED
+	            modal.find('input[name="lguProvince"]').prop('checked', button.data('lgu-province') === true);
+	            modal.find('input[name="lguCity"]').prop('checked', button.data('lgu-city') === true);
+	            modal.find('input[name="lguMunicipality"]').prop('checked', button.data('lgu-municipality') === true);
+	            modal.find('input[name="lguClass1"]').prop('checked', button.data('lgu-class1') === true);
+	            modal.find('input[name="lguClass2"]').prop('checked', button.data('lgu-class2') === true);
+	            modal.find('input[name="lguClass3"]').prop('checked', button.data('lgu-class3') === true);
+	            modal.find('input[name="lguClass4"]').prop('checked', button.data('lgu-class4') === true);
+	            modal.find('input[name="lguClass5"]').prop('checked', button.data('lgu-class5') === true);
+	            modal.find('input[name="lguClass6"]').prop('checked', button.data('lgu-class6') === true);
+	            modal.find('input[name="lguClassSpecial"]').prop('checked', button.data('lgu-class-special') === true);
+
+	            // Radio Buttons
+	            var setRadio = function(fieldName, value) {
+	                if (value) {
+	                    modal.find('input[name="' + fieldName + '"][value="' + value + '"]').prop('checked', true);
+	                }
+	            };
+	            setRadio('contactInternalExec', button.data('contact-internal-exec'));
+	            setRadio('contactInternalSupervisor', button.data('contact-internal-supervisor'));
+	            setRadio('contactInternalNonSupervisor', button.data('contact-internal-non-supervisor'));
+	            setRadio('contactInternalStaff', button.data('contact-internal-staff'));
+	            setRadio('contactExternalPublic', button.data('contact-external-public'));
+	            setRadio('contactExternalAgencies', button.data('contact-external-agencies'));
+	            setRadio('contactExternalOthers', button.data('contact-external-others'));
+	            setRadio('workConditionOffice', button.data('work-condition-office'));
+	            setRadio('workConditionField', button.data('work-condition-field'));
+	            setRadio('workConditionOthers', button.data('work-condition-others'));
+	        });
+        
+	</script>
+</body>
+</html>

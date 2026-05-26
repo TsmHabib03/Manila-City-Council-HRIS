@@ -74,13 +74,15 @@ public class Employee extends Person  implements UserDetails {
     private String weight;
     private String religion;
     private String bloodType;
-    private String gsisBpNo;	
+    private String gsisBpNo;
     private String gsisPolicyNo;
     private String gsisIdNo;
     private String pagibigNo;
     private String philhealthNo;
     private String sssNo;
     private String tin;
+    private String umidNo;
+    private String philsysNo;
     private String citizenship;
     private String countryOfOrigin;
     private String birthPlace;
@@ -196,6 +198,8 @@ public class Employee extends Person  implements UserDetails {
         sb.append(", philhealthNo='").append(philhealthNo).append('\'');
         sb.append(", sssNo='").append(sssNo).append('\'');
         sb.append(", tin='").append(tin).append('\'');
+        sb.append(", umidNo='").append(umidNo).append('\'');
+        sb.append(", philsysNo='").append(philsysNo).append('\'');
         sb.append(", citizenship='").append(citizenship).append('\'');
         sb.append(", countryOfOrigin='").append(countryOfOrigin).append('\'');
         sb.append(", birthPlace='").append(birthPlace).append('\'');

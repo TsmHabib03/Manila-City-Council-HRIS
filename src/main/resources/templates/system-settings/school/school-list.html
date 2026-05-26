@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4><span class="font-weight-semibold">School List</span></h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>					
+				</div>
+			</div>
+			<!-- /page header -->
+			
+			
+			<!-- Vertical form modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">School Details</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+                        <!-- POST MAPPING CONTROLLER -->
+						<form th:action="@{/save-school}" method="post" class="form-horizontal" th:object="${school}">
+							<input type="hidden" th:field="*{id}" id="id"/>
+							<div class="modal-body">
+								<div class="form-group row">									
+									<label class="col-form-label col-sm-4">School Name</label>
+									<div class="col-sm-8">
+										<span class="validationError text-danger" th:if="${#fields.hasErrors('schoolName')}" th:errors="*{schoolName}"></span>
+										<input type="text" id="schoolName" th:field="*{schoolName}" placeholder="School Name" class="form-control">
+                                        
+									</div>
+								</div>			
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class=" btnClose btn btn-link" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Vertical form modal -->
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row">
+					<div class="col-xl-12">
+						<!-- Basic datatable -->
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">School List</h5>
+								<div class="header-elements">
+									<div class="list-icons">				                				
+				                		<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+				                	</div>
+			                	</div>
+							</div>
+		
+		
+							<table class="table table-basic table-hover" id="table-list">
+								<thead>
+									<tr>
+										<th>School Name</th>
+                                        <th>Status</th>					
+										<th class="text-center">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="school : ${listOfSchool}">
+										<tr>
+											<td id="schoolName" th:text="${school.getSchoolName()}"></td>
+
+                                            <td id="schoolStatus">
+												<form th:action="@{/update-school-status/{id}(id=${school.id})}" method="post">
+													<input type="hidden" name="_method" value="put" />
+													<a href="#" onclick="event.preventDefault(); this.closest('form').submit();" >
+														<span th:text="${school.isActive() ? 'Active' : 'Inactive'}" 
+														  th:class="${school.isActive() ? 'text-success' : 'text-danger'}"></span>
+													</a>
+												</form>
+											</td>																				
+											<td class="text-center" width="250px;">
+												<button id="editDegreeLevelButton" type="button" class="showDetails btn btn-primary"
+                                                 th:data-row-schoolName="${school.getSchoolName()}"	
+                                                 th:data-row-id="${school.getId()}"
+												data-toggle="modal" data-target="#modal_form_vertical"
+                                                >View Record</button>
+											</td>
+										</tr>
+									</th:block>							
+								</tbody>
+							</table>
+						</div>
+						<!-- /basic datatable -->					
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+	
+		$(document).ready(function() {
+			//$(".nav-link").removeClass("active");
+			//$("#academicHonorsNav").addClass("active");
+			
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#systemSettingsNav").addClass("nav-item-expanded nav-item-open");
+			$("#schoolNav").addClass("active");
+			
+			
+			let msgCode = /*[[${uxmessage == null ? '' : uxmessage.code} ]]*/'';
+			let msgDesc = /*[[${uxmessage == null ? '' : uxmessage.message}]]*/'';
+			
+			if(msgCode === 'ERROR'){
+				$('#modal_form_vertical').modal('show');
+				swal({
+					title: "Error!",
+					text: msgDesc,
+					icon: "error",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			}
+			
+			
+		});
+		
+		$('#table-list').DataTable({
+				"lengthMenu": [10, 25, 50],
+				"ordering": false,                
+		});
+		
+		$(document).on("click", ".showDetails", function() {
+            var id = $(this).attr('data-row-id');
+            var schoolName = $(this).attr('data-row-schoolName');
+            
+            $("#modal_form_vertical").find("#id").val(id);
+            $("#modal_form_vertical").find("#schoolName").val(schoolName);
+        });
+        $(document).on("click", ".close",".btnClose", function() {
+            var id = $(this).attr('data-row-id');
+            var schoolName = $(this).attr('data-row-schoolName');
+            
+            $("#modal_form_vertical").find("#id").val(id);
+            $("#modal_form_vertical").find("#schoolName").val(schoolName);
+        });
+        $(document).on("click", ".btnClose", function() {
+            var id = $(this).attr('data-row-id');
+            var schoolName = $(this).attr('data-row-schoolName');
+            
+            $("#modal_form_vertical").find("#id").val(id);
+            $("#modal_form_vertical").find("#schoolName").val(schoolName);
+        });
+	</script>
+</body>
+</html>

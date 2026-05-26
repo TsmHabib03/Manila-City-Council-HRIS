@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4><span class="font-weight-semibold">Clearance Approvers</span></h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>					
+				</div>
+			</div>
+			<!-- /page header -->
+			
+			
+			
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row">
+					<div class="col-xl-12">
+						<!-- Basic datatable -->
+						<div class="card p-3">
+							<div class="card-header header-elements-inline bg-primary">
+								<h6 class="card-title">Approvers List</h6>
+							</div>
+							<div class="card-body">
+											<form id="employeeForm" th:action="@{/saveClearanceApprovers}" method="post" th:object="${clearanceApprovers}">
+												<input type="hidden" th:field="*{id}" name="id" id="id">
+												<div class="modal-body">
+													
+													<div class="form-group">
+														<div class="row">
+															<div class="col-sm-4">
+																<label for="immediateSupervisor">Immediate Supervisor</label>
+																<input id="immediateSupervisor" name="immediateSupervisor" th:field="*{immediateSupervisor}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="headOfOffice">Head of Office</label>
+																<input id="headOfOffice" name="headOfOffice" th:field="*{headOfOffice}" type="text" class="form-control required-field-hrisp" >
+															</div>             
+											            </div>
+											            <hr>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="adminPersonA">Administrative Signatory A</label>
+																<input id="adminPersonA" name="adminPersonA" th:field="*{adminPersonA}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="adminPersonB">Administrative Signatory B</label>
+																<input id="adminPersonB" name="adminPersonB" th:field="*{adminPersonB}" type="text" class="form-control required-field-hrisp" >
+															</div>
+															<div class="col-sm-4">
+																<label for="adminPersonC">Administrative Signatory C</label>
+																<input id="adminPersonC" name="adminPersonC" th:field="*{adminPersonC}" type="text" class="form-control required-field-hrisp" >
+															</div>               
+											            </div>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="adminPositionA">Administrative Signatory A Position</label>
+																<input id="adminPositionA" name="adminPositionA" th:field="*{adminPositionA}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="adminPositionB">Administrative Signatory B Position</label>
+																<input id="adminPositionB" name="adminPositionB" th:field="*{adminPositionB}" type="text" class="form-control required-field-hrisp" >
+															</div>
+															<div class="col-sm-4">
+																<label for="adminPositionC">Administrative Signatory C Position</label>
+																<input id="adminPositionC" name="adminPositionC" th:field="*{adminPositionC}" type="text" class="form-control required-field-hrisp" >
+															</div>               
+											            </div>
+											            <hr>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="libraryPersonA">Library Signatory A</label>
+																<input id="libraryPersonA" name="libraryPersonA" th:field="*{libraryPersonA}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="libraryPersonB">Library Signatory B</label>
+																<input id="libraryPersonB" name="libraryPersonB" th:field="*{libraryPersonB}" type="text" class="form-control required-field-hrisp" >
+															</div>          
+											            </div>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="libraryPositionA">Library Signatory A Position</label>
+																<input id="libraryPositionA" name="libraryPositionA" th:field="*{libraryPositionA}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="libraryPositionB">Library Signatory B Position</label>
+																<input id="libraryPositionB" name="libraryPositionB" th:field="*{libraryPositionB}" type="text" class="form-control required-field-hrisp" >
+															</div>          
+											            </div>
+											            <hr>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="financePersonA">Finance Signatory A</label>
+																<input id="financePersonA" name="financePersonA" th:field="*{financePersonA}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="financePersonB">Finance Signatory B</label>
+																<input id="financePersonB" name="financePersonB" th:field="*{financePersonB}" type="text" class="form-control required-field-hrisp" >
+															</div>
+															<div class="col-sm-4">
+																<label for="financePersonC">Finance Signatory C</label>
+																<input id="financePersonC" name="financePersonC" th:field="*{financePersonC}" type="text" class="form-control required-field-hrisp" >
+															</div>               
+											            </div>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="financePositionA">Finance Signatory A Position</label>
+																<input id="financePositionA" name="financePositionA" th:field="*{financePositionA}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="financePositionB">Finance Signatory B Position</label>
+																<input id="financePositionB" name="financePositionB" th:field="*{financePositionB}" type="text" class="form-control required-field-hrisp" >
+															</div>
+															<div class="col-sm-4">
+																<label for="financePositionC">Finance Signatory C Position</label>
+																<input id="financePositionC" name="financePositionC" th:field="*{financePositionC}" type="text" class="form-control required-field-hrisp" >
+															</div>               
+											            </div>
+											            <hr>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="professionalPersonA">Professional Development Signatory</label>
+																<input id="professionalPersonA" name="professionalPersonA" th:field="*{professionalPersonA}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="section4Person">Section IV Signatory</label>
+																<input id="section4Person" name="section4Person" th:field="*{section4Person}" type="text" class="form-control required-field-hrisp" >
+															</div>           
+											            </div>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="professionalPositionA">Professional Development Signatory Position</label>
+																<input id="professionalPositionA" name="professionalPositionA" th:field="*{professionalPositionA}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="section4Position">Section IV Signatory Position</label>
+																<input id="section4Position" name="section4Position" th:field="*{section4Position}" type="text" class="form-control required-field-hrisp" >
+															</div>           
+											            </div>
+											            <hr>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="footerPerson1">Officer In Charge Signatory</label>
+																<input id="footerPerson1" name="footerPerson1" th:field="*{footerPerson1}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="footerPerson2">Department Head Signatory</label>
+																<input id="footerPerson2" name="footerPerson2" th:field="*{footerPerson2}" type="text" class="form-control required-field-hrisp" >
+															</div>           
+											            </div>
+											            <div class="row mt-3">
+															<div class="col-sm-4">
+																<label for="footerPosition1">Officer In Charge Signatory Position</label>
+																<input id="footerPosition1" name="footerPosition1" th:field="*{footerPosition1}" type="text" class="form-control required-field-hrisp" >
+															</div>   
+															<div class="col-sm-4">
+																<label for="footerPosition2">Department Head Signatory Position</label>
+																<input id="footerPosition2" name="footerPosition2" th:field="*{footerPosition2}" type="text" class="form-control required-field-hrisp" >
+															</div>           
+											            </div>
+													</div>
+													
+													<div class="modal-footer">
+														<button type="submit" class="btn bg-primary">Save Approvers</button>
+													</div>
+												</div>
+											</form>
+										</div>
+		
+							
+						</div>
+						<!-- /basic datatable -->					
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+
+			
+		$(document).ready(function() {
+			
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#systemSettingsNav").addClass("nav-item-expanded nav-item-open");
+			$("#clearanceApproversNav").addClass("active");			
+			
+			let msgCode = /*[[${msg == null ? '' : msg.code} ]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+			
+			if(msgCode === 'ERROR'){
+				$('#modal_form_vertical').modal('show');
+				swal({
+					title: "Error!",
+					text: msgDesc,
+					icon: "error",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			}
+			
+			
+		});
+		
+		$('#table-list').DataTable({
+				"lengthMenu": [10, 25, 50],
+				"ordering": false,                
+		});
+		
+		
+        
+	</script>
+</body>
+</html>

@@ -138,7 +138,7 @@
 													<div class="form-group">
 														<div class="row">
 															<div class="col-sm-4">
-																<label for="gender">Gender</label>
+																<label for="gender">Sex at Birth <small class="text-muted">(CS Form 2025 item 5)</small></label>
 																<select id="gender" name="gender" class="form-control required-field-hrisp" th:field="*{gender}">
 																	<option value="">SELECT VALUE</option>
 																	<option value="M">MALE</option>
@@ -477,6 +477,19 @@
 																<input type="text" class="form-control" name="gsisIdNo" id="gsisIdNo" th:field="*{gsisIdNo}" placeholder="GSIS ID No." />
 															</div>
 											           </div>
+													</div>
+													
+													<div class="form-group">
+														<div class="row">
+															<div class="col-sm-6">
+																<label for="umidNo">UMID ID No. <small class="text-muted">(CS Form 2025 item 10)</small></label>
+																<input type="text" class="form-control" name="umidNo" id="umidNo" th:field="*{umidNo}" placeholder="UMID ID No." />
+															</div>
+															<div class="col-sm-6">
+																<label for="philsysNo">PhilSys Number (PSN) <small class="text-muted">(CS Form 2025 item 13)</small></label>
+																<input type="text" class="form-control" name="philsysNo" id="philsysNo" th:field="*{philsysNo}" placeholder="PhilSys Number (PSN)" />
+															</div>
+														</div>
 													</div>
 													
 													<div class="form-group">

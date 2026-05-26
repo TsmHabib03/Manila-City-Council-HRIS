@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PDS 2025 - Page 3 (Voluntary Work, Learning & Development, Other Info 31-33)
+  STARTER TEMPLATE - refine in Jaspersoft Studio Community 6.20.x.
+-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="PDS2025_P3" pageWidth="612" pageHeight="792" columnWidth="612"
+              leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+
+	<parameter name="FormBg3" class="java.lang.String"/>
+
+	<!-- VI. VOLUNTARY WORK: 7 rows (item 29). Row 1 declared; add the rest in Studio. -->
+	<parameter name="VI.VW_Name_Address_Of_Org1" class="java.lang.String"/>
+	<parameter name="VI.VW_Inclusive_Dates_From1" class="java.lang.String"/>
+	<parameter name="VI.VW_Inclusive_Dates_To1" class="java.lang.String"/>
+	<parameter name="VI.VW_Number_Of_Hours1" class="java.lang.String"/>
+	<parameter name="VI.VW_Position_Nature_Of_Work1" class="java.lang.String"/>
+
+	<!-- VII. LEARNING AND DEVELOPMENT: 21 rows (item 30). Row 1 declared. -->
+	<parameter name="VII.LAD_Training_Programs1" class="java.lang.String"/>
+	<parameter name="VII.LAD_Inclusive_Dates_Of_Attendance_From1" class="java.lang.String"/>
+	<parameter name="VII.LAD_Inclusive_Dates_Of_Attendance_To1" class="java.lang.String"/>
+	<parameter name="VII.LAD_Number_Of_Hours1" class="java.lang.String"/>
+	<parameter name="VII.LAD_Type_Of_LD1" class="java.lang.String"/>
+	<parameter name="VII.Conducted_Sponsored_By1" class="java.lang.String"/>
+
+	<!-- VIII. OTHER INFORMATION items 31-33 -->
+	<parameter name="VIII.OI_Special_Skills_Hobbies1" class="java.lang.String"/>
+	<parameter name="VIII.OI_NonAcademic_Distinctions_Recognitions1" class="java.lang.String"/>
+	<parameter name="VIII.OI_Membership_In_Association1" class="java.lang.String"/>
+	<parameter name="VIII.OI_Signature" class="java.lang.String"/>
+	<parameter name="VIII.OI_Date" class="java.lang.String"/>
+
+	<background>
+		<band height="792" splitType="Stretch">
+			<image scaleImage="RetainShape">
+				<reportElement x="0" y="0" width="612" height="792"/>
+				<imageExpression><![CDATA[$P{FormBg3}]]></imageExpression>
+			</image>
+		</band>
+	</background>
+
+	<title><band height="0" splitType="Stretch"/></title>
+	<detail>
+		<band height="792" splitType="Stretch">
+			<!-- TODO: place text fields for items 29 (VW), 30 (L&D), 31-33 (Other Info). -->
+		</band>
+	</detail>
+</jasperReport>

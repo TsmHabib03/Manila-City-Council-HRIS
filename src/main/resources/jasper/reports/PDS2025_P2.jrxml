@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PDS 2025 - Page 2 (Civil Service Eligibility + Work Experience)
+  STARTER TEMPLATE - refine in Jaspersoft Studio Community 6.20.x.
+  Parameter names match ReportsController.populateMapReport2025_P2 output.
+  Date strings are pre-formatted dd/MM/yyyy by the controller.
+-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="PDS2025_P2" pageWidth="612" pageHeight="792" columnWidth="612"
+              leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+
+	<parameter name="FormBg2" class="java.lang.String"/>
+
+	<!-- IV. CIVIL SERVICE ELIGIBILITY: 7 rows (item 27) -->
+	<parameter name="IV.CSE_Career_Service_RA_1080_1" class="java.lang.String"/>
+	<parameter name="IV.CSE_Rating1" class="java.lang.String"/>
+	<parameter name="IV.CSE_Date_Of_Examination1" class="java.lang.String"/>
+	<parameter name="IV.CSE_Place_Of_Examination1" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Number_1" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Date_Of_Validity1" class="java.lang.String"/>
+	<parameter name="IV.CSE_Career_Service_RA_1080_2" class="java.lang.String"/>
+	<parameter name="IV.CSE_Rating2" class="java.lang.String"/>
+	<parameter name="IV.CSE_Date_Of_Examination2" class="java.lang.String"/>
+	<parameter name="IV.CSE_Place_Of_Examination2" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Number_2" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Date_Of_Validity2" class="java.lang.String"/>
+	<parameter name="IV.CSE_Career_Service_RA_1080_3" class="java.lang.String"/>
+	<parameter name="IV.CSE_Rating3" class="java.lang.String"/>
+	<parameter name="IV.CSE_Date_Of_Examination3" class="java.lang.String"/>
+	<parameter name="IV.CSE_Place_Of_Examination3" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Number_3" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Date_Of_Validity3" class="java.lang.String"/>
+	<parameter name="IV.CSE_Career_Service_RA_1080_4" class="java.lang.String"/>
+	<parameter name="IV.CSE_Rating4" class="java.lang.String"/>
+	<parameter name="IV.CSE_Date_Of_Examination4" class="java.lang.String"/>
+	<parameter name="IV.CSE_Place_Of_Examination4" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Number_4" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Date_Of_Validity4" class="java.lang.String"/>
+	<parameter name="IV.CSE_Career_Service_RA_1080_5" class="java.lang.String"/>
+	<parameter name="IV.CSE_Rating5" class="java.lang.String"/>
+	<parameter name="IV.CSE_Date_Of_Examination5" class="java.lang.String"/>
+	<parameter name="IV.CSE_Place_Of_Examination5" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Number_5" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Date_Of_Validity5" class="java.lang.String"/>
+	<parameter name="IV.CSE_Career_Service_RA_1080_6" class="java.lang.String"/>
+	<parameter name="IV.CSE_Rating6" class="java.lang.String"/>
+	<parameter name="IV.CSE_Date_Of_Examination6" class="java.lang.String"/>
+	<parameter name="IV.CSE_Place_Of_Examination6" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Number_6" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Date_Of_Validity6" class="java.lang.String"/>
+	<parameter name="IV.CSE_Career_Service_RA_1080_7" class="java.lang.String"/>
+	<parameter name="IV.CSE_Rating7" class="java.lang.String"/>
+	<parameter name="IV.CSE_Date_Of_Examination7" class="java.lang.String"/>
+	<parameter name="IV.CSE_Place_Of_Examination7" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Number_7" class="java.lang.String"/>
+	<parameter name="IV.CSE_License_Date_Of_Validity7" class="java.lang.String"/>
+
+	<!-- V. WORK EXPERIENCE: 28 rows (item 28) -->
+	<!-- Per-row parameters V.WE_*1..28 -->
+	<parameter name="V.WE_Inclusive_Dates_From1" class="java.lang.String"/>
+	<parameter name="V.WE_Inclusive_Dates_To1" class="java.lang.String"/>
+	<parameter name="V.WE_Position_Title1" class="java.lang.String"/>
+	<parameter name="V.WE_Department_Agency_Office_Company1" class="java.lang.String"/>
+	<parameter name="V.WE_Montly_Salary1" class="java.lang.String"/>
+	<parameter name="V.WE_Salary_Job_PayGrade1" class="java.lang.String"/>
+	<parameter name="V.WE_Status_Of_Appointment1" class="java.lang.String"/>
+	<parameter name="V.WE_Gov_Service1" class="java.lang.String"/>
+	<!--
+	  To keep this file tractable, only row-1 work-experience parameters are
+	  declared above. The controller still emits all 28 (V.WE_Inclusive_Dates_From1..28
+	  etc.) — but Jasper only requires <parameter> declarations for keys actually
+	  referenced by <textFieldExpression>s. Add row-N declarations here only as
+	  you place row-N text fields in Jaspersoft Studio.
+	-->
+	<parameter name="V.WE_SIGNATURE" class="java.lang.String"/>
+	<parameter name="V.WE_DATE" class="java.lang.String"/>
+
+	<background>
+		<band height="792" splitType="Stretch">
+			<image scaleImage="RetainShape">
+				<reportElement x="0" y="0" width="612" height="792"/>
+				<imageExpression><![CDATA[$P{FormBg2}]]></imageExpression>
+			</image>
+		</band>
+	</background>
+
+	<title><band height="0" splitType="Stretch"/></title>
+	<detail>
+		<band height="792" splitType="Stretch">
+			<!-- TODO: place text fields for items 27 (eligibility) and 28 (work experience). -->
+		</band>
+	</detail>
+</jasperReport>

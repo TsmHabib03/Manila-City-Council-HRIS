@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PDS 2025 - Page 4 (Items 34-40 yes/no questions, References, Photo, Government ID,
+                     Subscribed-and-Sworn block)
+  STARTER TEMPLATE - refine in Jaspersoft Studio Community 6.20.x.
+-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="PDS2025_P4" pageWidth="612" pageHeight="792" columnWidth="612"
+              leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+
+	<parameter name="FormBg4" class="java.lang.String"/>
+
+	<!-- 34A / 34B (consanguinity / affinity) -->
+	<parameter name="VIII.OI_34_A_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_34_A_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_34_B_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_34_B_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_34_If_Yes" class="java.lang.String"/>
+
+	<!-- 35A / 35B (administrative offense / criminal charge) -->
+	<parameter name="VIII.OI_35_A_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_35_A_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_35_A_If_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_35_B_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_35_B_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_35_Date_Filed" class="java.lang.String"/>
+	<parameter name="VIII.OI_35_Status_Of_Cases" class="java.lang.String"/>
+
+	<!-- 36 (convicted of crime) -->
+	<parameter name="VIII.OI_36_A_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_36_A_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_36_If_Yes" class="java.lang.String"/>
+
+	<!-- 37 (separated from service) -->
+	<parameter name="VIII.OI_37_A_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_37_A_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_37_A_If_Yes" class="java.lang.String"/>
+
+	<!-- 38A (election candidate) / 38B (resigned to campaign — questionSix) -->
+	<parameter name="VIII.OI_38_A_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_38_A_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_38_A_If_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_38_B_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_38_B_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_38_B_If_Yes" class="java.lang.String"/>
+
+	<!-- 39 (immigrant / permanent resident) -->
+	<parameter name="VIII.OI_39_A_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_39_A_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_39_A_If_Yes" class="java.lang.String"/>
+
+	<!-- 40 a/b/c — RA 8371 (IP), RA 7277 (PWD), RA 11861 (Solo Parent) -->
+	<parameter name="VIII.OI_40_A_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_40_A_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_40_A_If_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_40_B_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_40_B_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_40_B_If_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_40_C_Yes" class="java.lang.String"/>
+	<parameter name="VIII.OI_40_C_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_40_C_If_Yes" class="java.lang.String"/>
+
+	<!-- 41 References (3 rows in the 2025 form, but controller emits up to 7) -->
+	<parameter name="VIII.OI_41_References_Name1" class="java.lang.String"/>
+	<parameter name="VIII.OI_41_References_Address1" class="java.lang.String"/>
+	<parameter name="VIII.OI_41_References_Tel_No1" class="java.lang.String"/>
+	<parameter name="VIII.OI_41_References_Name2" class="java.lang.String"/>
+	<parameter name="VIII.OI_41_References_Address2" class="java.lang.String"/>
+	<parameter name="VIII.OI_41_References_Tel_No2" class="java.lang.String"/>
+	<parameter name="VIII.OI_41_References_Name3" class="java.lang.String"/>
+	<parameter name="VIII.OI_41_References_Address3" class="java.lang.String"/>
+	<parameter name="VIII.OI_41_References_Tel_No3" class="java.lang.String"/>
+
+	<!-- 42 Government Issued ID + Signature + Sworn block -->
+	<parameter name="VIII.OI_42_Gov_ID" class="java.lang.String"/>
+	<parameter name="VIII.OI_42_ID_License_Passport_No" class="java.lang.String"/>
+	<parameter name="VIII.OI_42_Date_Place_Of_Issurance" class="java.lang.String"/>
+	<parameter name="VIII.OI_42_Signature" class="java.lang.String"/>
+	<parameter name="VIII.OI_42_Date_Accomplished" class="java.lang.String"/>
+	<parameter name="VIII.OI_42_Thumbmark" class="java.lang.String"/>
+	<parameter name="Subscribed_Sworn" class="java.lang.String"/>
+	<parameter name="Person_Administering Oath" class="java.lang.String"/>
+
+	<background>
+		<band height="792" splitType="Stretch">
+			<image scaleImage="RetainShape">
+				<reportElement x="0" y="0" width="612" height="792"/>
+				<imageExpression><![CDATA[$P{FormBg4}]]></imageExpression>
+			</image>
+		</band>
+	</background>
+
+	<title><band height="0" splitType="Stretch"/></title>
+	<detail>
+		<band height="792" splitType="Stretch">
+			<!--
+			  TODO: place text fields for items 34-42. Items 34-40 use small
+			  yes/no boxes (small textField with " X" content); item 41 has
+			  3 reference rows; item 42 has the photo / ID / signature /
+			  date / thumbprint / sworn block.
+			-->
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4><span class="font-weight-semibold">Degree Courses List</span></h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>					
+				</div>
+			</div>
+			<!-- /page header -->
+			
+			
+			<!-- Vertical form modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Degree Courses Details</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+                        <!-- POST MAPPING CONTROLLER -->
+						<form th:action="@{/save-degree-courses}" method="post" class="form-horizontal" th:object="${degreeCourse}">
+							<input type="hidden" th:field="*{id}" id="id"/>
+
+							<div class="modal-body">
+								<div class="form-group row">									
+									<label class="col-form-label col-sm-4">Degree Course</label>
+									<div class="col-sm-8">
+										<span class="validationError text-danger" th:if="${#fields.hasErrors('degreeCourseName')}" th:errors="*{degreeCourseName}"></span>
+										<input type="text" id="degreeCourseName" th:field="*{degreeCourseName}" placeholder="ex. Bachelor of Science in Computer Science" class="form-control">
+									</div>
+								</div>
+                                <div class="form-group row">									
+									<label class="col-form-label col-sm-4">Abbreviation</label>
+									<div class="col-sm-8">
+										<span class="validationError text-danger" th:if="${#fields.hasErrors('abbreviation')}" th:errors="*{degreeCourses}"></span>
+										<input type="text" th:field="*{abbreviation}" placeholder="ex. BSCS" class="form-control">
+									</div>
+								</div>		
+                                <!--<div id="activeLawDegree" class="form-group row align-items-center justify-content-start ">
+                                    <label class="col-form-label col-sm-4" ></label>
+                                    <div class="col-sm-8 d-flex align-items-center ">
+                                        <input class="bg-primary" type="checkbox" value="" id="law-degree">&nbsp;
+                                        <label for="law-degree">is Law Degree</label>
+                                    </div>                      
+                                </div>		-->			
+								
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class=" btnClose btn btn-link" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Vertical form modal -->
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row">
+					<div class="col-xl-12">
+						<!-- Basic datatable -->
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">Degree Courses List</h5>
+								<div class="header-elements">
+									<div class="list-icons">				                				
+				                		<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+				                	</div>
+			                	</div>
+							</div>
+		
+		
+							<table class="table table-basic table-hover" id="table-list">
+								<thead>
+									<tr>
+										<th>Degree Course</th>
+                                        <th>Abbreviation</th>
+										<th class="text-center">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="degreeCourse : ${listOfDegreeCourses}">
+										<tr>
+											<td id="degreeCourse" th:text="${degreeCourse.getDegreeCourseName()}">Degree Course</td>
+                                            <td id="abbreviation" th:text="${degreeCourse.getAbbreviation()}">Abbreviation</td>											
+
+											<td class="text-center" width="250px;">
+												<button id="editDegreeLevelButton" type="button" class="showDetails btn btn-primary"
+                                                 th:data-row-degreeCourse="${degreeCourse.getDegreeCourseName()}"
+                                                 th:data-row-abbreviation="${degreeCourse.getAbbreviation()}"
+                                                 th:data-row-id="${degreeCourse.getId()}"
+												data-toggle="modal" data-target="#modal_form_vertical"
+                                                >View Record</button>
+											</td>
+										</tr>
+									</th:block>							
+								</tbody>
+							</table>
+						</div>
+						<!-- /basic datatable -->					
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+	
+		$(document).ready(function() {
+			//$(".nav-link").removeClass("active");
+			//$("#academicHonorsNav").addClass("active");
+			
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#systemSettingsNav").addClass("nav-item-expanded nav-item-open");
+			$("#degreeCoursesNav").addClass("active");
+			
+			
+			let msgCode = /*[[${uxmessage == null ? '' : uxmessage.code} ]]*/'';
+			let msgDesc = /*[[${uxmessage == null ? '' : uxmessage.message}]]*/'';
+			
+			console.log(msgCode+" "+msgDesc);
+			if(msgCode === 'ERROR'){
+				$('#modal_form_vertical').modal('show');
+				swal({
+					title: "Error!",
+					text: msgDesc,
+					icon: "error",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			}
+			
+			
+		});
+		
+		$('#table-list').DataTable({
+				"lengthMenu": [10, 25, 50],
+				"ordering": false,                
+		});
+		
+		$(document).on("click", ".showDetails", function() {
+            var id = $(this).attr('data-row-id');
+            var degreeCourseName = $(this).attr('data-row-degreeCourseName');
+            var abbreviation = $(this).attr('data-row-abbreviation');            
+            
+            $("#modal_form_vertical").find("#id").val(id);
+            $("#modal_form_vertical").find("#degreeCourseName").val(degreeCourseName);
+            $("#modal_form_vertical").find("#abbreviation").val(abbreviation);
+        });
+
+        
+	</script>
+</body>
+</html>

@@ -80,7 +80,7 @@ public class ClearanceController {
 	    	    
 		if (errors.hasErrors()) {
 			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			Long empId = (clearance.getEmployee() != null && clearance.getEmployee().getId() != null)
+			Long empId = (clearance.getEmployee() != null && clearance.getEmployee().getId() > 0)
 					? clearance.getEmployee().getId() : null;
 			model.addAttribute("clearanceList", empId != null ? clearanceRepository.findByEmployeeId(empId) : List.of());
 			return "employee/clearance/clearance-list";

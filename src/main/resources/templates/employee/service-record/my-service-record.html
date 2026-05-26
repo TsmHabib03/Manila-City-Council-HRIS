@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4><span class="font-weight-semibold">My Service Record List</span></h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>					
+				</div>
+			</div>
+			<!-- /page header -->
+			
+			
+			<!-- Vertical form modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Service Record Information</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form th:action="@{/addMyServiceRecord}" method="post" class="form-horizontal" th:object="${serviceRecord}">
+							<input type="hidden" th:field="*{id}" name="id" id="id">
+							<input type="hidden" th:field="*{employee.id}" name="employeeId" id="employeeId">
+							<input type="hidden" th:field="*{employee.empHashCode}" name="empHashCode" id="empHashCode">
+							<input type="hidden" th:field="*{showMode}" name="showMode" id="showMode" value="">
+							<div class="modal-body">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-4">
+												<label for="dateFrom">Date From</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('dateFrom')}" th:errors="*{dateFrom}"></span>
+												<input id="dateFrom" name="dateFrom" th:value="${dateFrom}" type="date" class="form-control required-field-hrisp">										
+											</div>												
+											<div class="col-sm-4">
+												<label for="dateTo">Date To</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('dateTo')}" th:errors="*{dateTo}"></span>
+												<input id="dateTo" name="dateTo" th:value="${dateTo}" type="date" class="form-control required-field-hrisp">										
+											</div>             
+											<div class="col-sm-4">
+												<label for="gender">Is Present</label>
+												<select id="isPresent" name="isPresent" class="form-control required-field-hrisp" th:field="*{isPresent}">
+													<option value="NO">NO</option>
+													<option value="YES">YES</option>
+												</select>
+											</div>
+										</div>
+									</div>
+													
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-6">
+												<label for="designation">Designation</label>
+												<input id="designation" name="designation" th:field="*{designation}" placeholder="Designation" type="text" class="form-control required-field-hrisp" >
+											</div>	
+											<div class="col-sm-3">
+												<label for="purpose">Employment Status</label>
+												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control required-field-hrisp">
+													<option selected value="">SELECT VALUE</option>
+													<option th:each="empStatus : ${employeeStatusList}" th:value="${empStatus.id}" th:text="${empStatus.employeeStatusName}">employeeStatusName</option>
+												</select>
+											</div>		
+											<div class="col-sm-3">
+												<label for="salary">Salary</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></span>
+												<input id="salary" name="salary" th:value="${salary}" type="number" step="0.01" class="form-control required-field-hrisp">										
+											</div>   																			
+										</div>
+									</div>		
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-6">
+												<label for="station">Station</label>
+												<input id="station" name="station" th:field="*{station}" placeholder="Station" type="text" class="form-control required-field-hrisp" >
+											</div>	
+											<div class="col-sm-6">
+												<label for="branch">Branch</label>
+												<input id="branch" name="branch" th:field="*{branch}" placeholder="Branch" type="text" class="form-control required-field-hrisp" >
+											</div>																				
+										</div>
+									</div>	
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-4">
+												<label for="lvAbs">L/V ABS W/O Pay</label>
+												<input id="lvAbs" name="lvAbs" th:field="*{lvAbs}" placeholder="L/V ABS W/O Pay" type="text" class="form-control required-field-hrisp" >
+											</div>	
+											<div class="col-sm-4">
+												<label for="separationCause">Separation Cause</label>
+												<input id="separationCause" name="separationCause" th:field="*{separationCause}" placeholder="Separation Cause" type="text" class="form-control required-field-hrisp" >
+											</div>	
+											<div class="col-sm-4">
+												<label for="separationDate">Separation Date</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('dateTo')}" th:errors="*{dateTo}"></span>
+												<input id="separationDate" name="separationDate" th:value="${separationDate}" type="date" class="form-control required-field-hrisp">										
+											</div> 																			
+										</div>
+									</div>			
+								
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
+								<!--
+								<button type="submit" class="btn bg-primary">Submit</button>
+								-->
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Vertical form modal -->
+			
+			
+			<!-- Modal for Report -->
+			<div id="modal_form_report" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Service Record Report Parameters</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						
+							<div class="modal-body">
+									<!--
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="signatory">Signatory</label>
+												<input id="signatory" name="signatory" placeholder="Signatory" type="text" class="form-control required-field-hrisp" >
+											</div>	
+											<div class="col-sm-6">
+												<label for="Position">Position</label>
+												<input id="position" name="position" placeholder="Position" type="text" class="form-control required-field-hrisp" >
+											</div>
+										</div>
+									</div>
+									-->
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="printDate">Print Date</label>
+												<input id="printDate" name="printDate" type="date" class="form-control" >
+											</div>												
+										</div>
+									</div>		
+									<div class="form-group">
+										<div class="row">       
+											<div class="col-sm-12">
+												<label for="notes" class="mb-1">Notes (You can change default notes below as needed.)</label>
+												<textarea id="notes" name="notes" class="form-control" rows="4">1. Did not incur any leave of absence without pay. &#10;2. This supersedes all previously submitted Service Records to GSIS.
+												</textarea>
+											</div>                    
+							            </div>
+									</div>					
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>								
+								<button type="button" class="btn bg-primary" onclick="displayServiceRecord();">Submit</button>								
+							</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- /Modal for Report -->
+			
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row">
+					<div class="col-xl-12">
+						<!-- Basic datatable -->
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">My Service Record List</h5>
+								<div class="header-elements">
+									<div class="list-icons">				                				
+				                		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_form_vertical" id="addButton">Add Record</button>
+				                		<button type="button" class="btn bg-violet" data-toggle="modal" data-target="#modal_form_report" id="rptButton">View Service Record Report</button>
+				                		<!--
+				                		<a th:href="@{'/viewServiceRecordReport/' + ${session.actorObj.id}}" class="btn bg-violet" target="_blank">View Service Record Report</a>
+				                		-->
+				                	</div>
+			                	</div>
+							</div>
+		
+		
+							<table class="table table-basic table-hover" id="table-list">
+								<thead>
+									<tr>
+										<th width="180px;">&nbsp;</th>
+										<th>Date From</th>
+										<th>Date To</th>
+										<th>Present</th>	
+										<th>Designation</th>		
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="serviceRecord : ${serviceRecordList}">
+										<tr>
+											<td class="text-center">
+												<button id="editDegreeLevelButton" type="button" class="showDetails btn btn-primary"
+			                                         th:data-row-dateFrom="${serviceRecord.dateFrom}"	
+			                                         th:data-row-dateTo="${serviceRecord.dateTo}"
+			                                         th:data-row-isPresent="${serviceRecord.isPresent}"
+			                                         th:data-row-designation="${serviceRecord.designation}"
+			                                         th:data-row-salary="${serviceRecord.salary}"
+			                                         th:data-row-station="${serviceRecord.station}"
+			                                         th:data-row-branch="${serviceRecord.branch}"
+			                                         th:data-row-lvAbs="${serviceRecord.lvAbs}"
+			                                         th:data-row-separationCause="${serviceRecord.separationCause}"
+			                                         th:data-row-separationDate="${serviceRecord.separationDate}"
+			                                         th:data-row-employeeStatus="${serviceRecord.employeeStatus?.id}"
+			                                         th:data-row-id="${serviceRecord.getId()}"												 
+													 data-toggle="modal" data-target="#modal_form_vertical">
+													 View Record
+												</button>
+											</td>		
+											<td th:text="${serviceRecord.dateFrom}">dateFrom</td>
+											<td th:text="${serviceRecord.dateTo}">dateTo</td>
+											<td th:text="${serviceRecord.isPresent}">isPresent</td>
+											<td th:text="${serviceRecord.designation}">designation</td>
+										</tr>
+									</th:block>							
+								</tbody>
+							</table>
+						</div>
+						<!-- /basic datatable -->					
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/'';
+		
+		function displayServiceRecord() {
+	        
+	        //var signatory = document.getElementById('signatory').value;
+	        //var position = document.getElementById('position').value;
+	        var employeeId = document.getElementById('employeeId').value;
+	        var notes = document.getElementById('notes').value;
+	        var printDate = document.getElementById('printDate').value;
+	        //var encodedNotes = encodeURIComponent(notes);
+	        
+	         var saveurl = contextRoot + "/saveServiceRecordRequest";
+	        
+	        
+	        if (employeeId && notes && printDate) {
+	            // Create the URL with the parameters
+	            
+	            var requestdata = {
+			        employeeId: employeeId,
+			        printDate: printDate,
+			        notes: notes
+			    };
+			
+			    // Make a POST request to save the data
+			    fetch(saveurl, {
+			        method: 'POST',
+			        headers: {
+			            'Content-Type': 'application/json'
+			        },
+			        body: JSON.stringify(requestdata)
+			    })
+			    .then(response => {
+			        if (response.ok) {
+			            return response.json(); // Parse the JSON response
+			        }
+			        throw new Error('Network response was not ok.');
+			    })
+			    .then(data => {
+			        // Get the record ID from the response
+			        var recordId = data.recordId;
+			        // Use the recordId as needed
+			        console.log("Record ID:", recordId);
+			        
+			        var url = contextRoot + "/viewServiceRecordReportNew/" + recordId;
+			
+			    	window.open(url, '_blank');
+			    })
+			    .catch(error => {
+			        console.error('There was a problem with the fetch operation:', error);
+			    });
+	            
+	            
+	        } else {
+	             swal({
+						title: "Error!",
+						text: "Print Date and Notes are mandatory.",
+						icon: "error",
+						buttons: false,
+			            timer: 2000,
+					});
+		            emptyFields[0].focus();
+	        }  
+	    }
+	
+		$(document).ready(function() {
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#myAccountNav").addClass("nav-item-expanded nav-item-open");
+			$("#myServiceRecordNav").addClass("active");		
+			
+			$('#addButton').hide();
+			$('#submitBtn').hide();
+			$('#updatePhotoBtn').hide();
+			$('#cameraArea').hide();
+				
+			//$('textarea').prop('readonly', true);
+			$('input').prop('readonly', true);
+			$('select').prop('disabled', true);
+			$('input, select').removeClass("required-field-hrisp");	
+						
+			//$('#signatory').prop('readonly', false);
+			//$('#position').prop('readonly', false);
+			
+			var today = new Date();
+			var formattedDate = today.toISOString().substr(0, 10);
+			document.getElementById("printDate").value = formattedDate;
+			$('#printDate').prop('readonly', false);
+			
+			
+			let msgCode = /*[[${msg == null ? '' : msg.code} ]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+			
+			if(msgCode === 'ERROR'){
+				$('#modal_form_vertical').modal('show');
+				swal({
+					title: "Error!",
+					text: msgDesc,
+					icon: "error",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			}
+			
+			
+		});
+		
+		$('#table-list').DataTable({
+				"lengthMenu": [10, 25, 50],
+				"ordering": false,                
+		});
+		
+		$(document).on("click", ".showDetails", function() {
+
+			var id = $(this).attr('data-row-id');
+			var dateFrom = $(this).attr('data-row-dateFrom');
+			var dateTo = $(this).attr('data-row-dateTo');
+			var isPresent = $(this).attr('data-row-isPresent');
+			var designation = $(this).attr('data-row-designation');
+			var salary = $(this).attr('data-row-salary');
+			var station = $(this).attr('data-row-station');
+			var branch = $(this).attr('data-row-branch');
+			var lvAbs = $(this).attr('data-row-lvAbs');
+			var separationCause = $(this).attr('data-row-separationCause');
+			var separationDate = $(this).attr('data-row-separationDate');
+			var employeeStatus = $(this).attr('data-row-employeeStatus');
+			
+			$("#modal_form_vertical").find("#id").val(id);
+			$("#modal_form_vertical").find("#dateFrom").val(dateFrom);
+			$("#modal_form_vertical").find("#dateTo").val(dateTo);
+			$("#modal_form_vertical").find("#isPresent").val(isPresent);
+			$("#modal_form_vertical").find("#designation").val(designation);
+			$("#modal_form_vertical").find("#salary").val(salary);
+			$("#modal_form_vertical").find("#station").val(station);
+			$("#modal_form_vertical").find("#branch").val(branch);
+			$("#modal_form_vertical").find("#lvAbs").val(lvAbs);
+			$("#modal_form_vertical").find("#separationCause").val(separationCause);
+			$("#modal_form_vertical").find("#separationDate").val(separationDate);
+			$("#modal_form_vertical").find("#employeeStatus").val(employeeStatus);
+			
+		});
+	</script>
+</body>
+</html>

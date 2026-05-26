@@ -1,0 +1,584 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Common Part of HTML</title>
+</head>
+<body>
+
+<th:block th:fragment="header-meta">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</th:block>
+
+<th:block th:fragment="header-import-css">
+    <!-- Global stylesheets -->
+    <link th:href="@{https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900}" rel="stylesheet" type="text/css">
+    <link th:href="@{/global_assets/css/icons/icomoon/styles.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/global_assets/css/icons/fontawesome/styles.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/assets/css/bootstrap_limitless.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/assets/css/layout.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/assets/css/components.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/assets/css/colors.min.css}" rel="stylesheet" type="text/css">
+    <link data-require="sweet-alert@*" data-semver="0.4.2" rel="stylesheet" th:href="@{/global_assets/css/sweetalert/sweetalert.min.css}" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.9/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+    <!-- /global stylesheets -->
+    
+    <!-- for hiding input type file -->
+    <style>
+		
+		
+		.required-field-hrisp {
+			border: 2px solid red;
+		}
+		
+		.tblphHeader {
+			background-color: #CACCCE; 
+			border: 1px solid black;
+		}
+		
+		.button-container {
+            position: fixed;
+            bottom: 55px;
+            right: 40px;
+            display: flex;
+            gap: 10px;
+            z-index: 9999; /* Make sure the buttons are on top */
+        }
+
+        .floating-button {
+            
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .floating-button:hover {
+            background-color: #0056b3;
+        }
+		
+        .inputfile {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
+        .whiteText {
+			color: #fff !important;
+		}
+		.navbar-collapse {
+			margin-left: -3rem !important;
+		}
+    </style>
+</th:block>
+
+<th:block th:fragment="header-import-js">
+	<!-- Sweet Alert files -->	
+  	<script th:src="@{/global_assets/js/sweetalert/sweetalert.min.js}"></script>
+
+    <!-- Core JS files -->
+    <script th:src="@{/global_assets/js/main/jquery.min.js}"></script>
+    <script th:src="@{/global_assets/js/main/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/loaders/blockui.min.js}"></script>
+    <!-- /core JS files -->
+
+    <!-- Theme JS files 1-->
+    <script th:src="@{/global_assets/js/plugins/visualization/d3/d3.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/visualization/d3/d3_tooltip.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/forms/styling/switchery.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/ui/moment/moment.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/pickers/daterangepicker.js}"></script>	
+    <script th:src="@{/global_assets/js/demo_pages/dashboard.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/streamgraph.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/sparklines.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/lines.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/areas.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/donuts.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/bars.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/progress.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/heatmaps.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/pies.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/bullets.js}"></script>
+    <!-- /theme JS files 1-->
+
+    <!-- Theme JS files 2-->
+    <script th:src="@{/global_assets/js/plugins/tables/datatables/datatables.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/forms/selects/select2.min.js}"></script>
+    
+    <!-- Upload JS Files -->
+    <script th:src="@{/global_assets/js/plugins/uploaders/fileinput/plugins/purify.min.js}"></script>
+	<script th:src="@{/global_assets/js/plugins/uploaders/fileinput/plugins/sortable.min.js}"></script>
+	<script th:src="@{/global_assets/js/plugins/uploaders/fileinput/fileinput.min.js}"></script>	
+	<script th:src="@{/global_assets/js/demo_pages/uploader_bootstrap.js}"></script>
+
+    <script th:src="@{/assets/js/app.js}"></script>
+    
+    <script th:src="@{/global_assets/js/demo_pages/datatables_advanced.js}"></script>
+    <!-- /theme JS files 2-->
+    
+    <!-- Graph JS files -->
+	<script th:src="@{/global_assets/js/plugins/visualization/echarts/echarts.min.js}"></script>
+    
+    <script th:src="@{/js/philippines.js}"></script>
+    
+    
+    
+    
+    
+</th:block>
+
+
+
+<th:block th:fragment="main-navbar">
+	
+	<!-- Main navbar -->
+	<div class="navbar navbar-expand-md navbar-light">
+
+		<!-- Header with logos -->
+		<div class="navbar-header navbar-dark d-none d-md-flex align-items-md-center">
+			
+			<div class="navbar-brand navbar-brand-md">
+				<a th:href="@{/dashboard}" class="d-inline-block">
+					&nbsp;
+				</a>
+			</div>
+			<!--
+			<div class="navbar-brand navbar-brand-xs">
+				<a href="index.html" class="d-inline-block">
+					<img th:src="@{/global_assets/images/logo_icon_light.png}" alt="">
+				</a>
+			</div>
+			-->
+		</div>
+		<!-- /header with logos -->
+	
+
+		<!-- Mobile controls -->
+		<div class="d-flex flex-1 d-md-none">
+			<!--
+			<div class="navbar-brand mr-auto">
+				<a href="index.html" class="d-inline-block">
+					<img th:src="@{/global_assets/images/logo_dark.png}" alt="">
+				</a>
+			</div>	
+			-->
+
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-mobile">
+				<i class="icon-tree5"></i>
+			</button>
+
+			<button class="navbar-toggler sidebar-mobile-main-toggle" type="button">
+				<i class="icon-paragraph-justify3"></i>
+			</button>
+		</div>
+		<!-- /mobile controls -->
+
+
+		<!-- Navbar content -->
+		<div class="collapse navbar-collapse" id="navbar-mobile">
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a href="#" class="navbar-nav-link sidebar-control sidebar-main-toggle d-none d-md-block">
+						<i class="icon-paragraph-justify3"></i>
+					</a>
+				</li>				
+			</ul>
+
+			
+			<span class="ml-md-3 mr-md-auto">&nbsp;</span>			 
+			
+		</div>
+		<!-- /navbar content -->
+		
+	</div>
+	<!-- /main navbar -->
+					
+
+</th:block>
+
+<th:block th:fragment="right-profile-content">
+	
+	<!-- right content -->
+	<div class="sidebar-content" th:object="${employee}">
+							
+		<!-- User card -->
+		<div class="card">
+			<div class="card-body text-center">
+				<div class="card-img-actions d-inline-block mb-3 ">										
+								
+						<img id="photoPreview" class="img-fluid rounded-circle card-img-top" th:src="|@{*{profilePhoto == null || profilePhoto == '' ? '/images/avatar.png' : profilePhoto}}|" width="150" height="150" alt="">
+										
+						<div class="card-img-actions-overlay card-img rounded-circle" id="cameraArea">
+							<button id="fileSelect" class="btn btn-outline bg-white text-white border-white border-2 btn-icon rounded-round">
+								<i class="icon-camera"></i>
+							</button>											
+						</div>
+										
+				</div>
+				<form id="fileUploadForm" method="post" enctype="multipart/form-data">
+					    <input type="file" name="profilePhoto" id="profilePhoto" accept="image/*" class="inputfile" />
+					    <input type="hidden" name="employeeId" th:value="${employee.id}">
+					    <div style="text-align: center;" th:if="${false}">
+						    <button id="updatePhotoBtn" type="submit" class="btn btn-primary" style="padding: 10px 40px;">Update Photo</button>
+					    </div>
+				</form>
+				
+				<h6 class="font-weight-semibold mt-0 mb-0 text-uppercase mt-2" th:text="${employee.displayName}">Hanna Dorman</h6>
+				<div class="text-left mt-1">
+					<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">POSITION: </span><span th:text="${employee.positionTitle?.positionTitleName}">HR ADMIN</span></span>
+					<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">DIVISION: </span><span th:text="${employee.division?.divisionName}">HR ADMIN</span></span>
+					<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">ASSUMPTION DATE: </span><span th:text="${employee.assumptiondate}">HR ADMIN</span></span>
+					<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">BIRTHDAY: </span><span th:text="${employee.birthdate}">HR ADMIN</span> <span class="text-muted text-uppercase ml-1"><span class="font-weight-semibold">AGE: </span><span th:text="${employee.age}">HR ADMIN</span></span></span>
+									
+					<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">MOBILE: </span><span th:text="${employee.mobileNo1}">HR ADMIN</span></span>
+											
+				</div>
+									
+										    		
+			</div>
+			
+		</div>
+		<!-- /user card -->
+					    	
+		<!-- Navigation Card -->			    	
+		<div class="card">
+			<div class="card-header bg-transparent header-elements-inline">
+				<span class="card-title font-weight-semibold">Personal Data Sheet</span>
+				<div class="header-elements">
+					<div class="list-icons">
+			       		<a class="list-icons-item" data-action="collapse"></a>
+			   		</div>
+				</div>
+			</div>
+
+			<div class="card-body p-0">
+				<ul class="nav nav-sidebar my-2">
+					<li class="nav-item">
+						<a th:href="@{'/employee/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i class="icon-checkmark3 text-success"></i>
+							 Personal Information
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/familybg/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getFamilyBgCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 Family Background
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/educationalbg/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getEducationalBgCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 Educational Background
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/civil-eligibility/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getEligibilityCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 Eligibility
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/work-experience/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getWorkExperienceCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 Work Experience
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/voluntary-work/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getVoluntaryWorkCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 Voluntary Work
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/learning-development/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getLearningDevCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							Learning &amp; Development
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/other-info/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getOtherInfoCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 Other Info
+						</a>
+					</li>										
+					<li class="nav-item">
+						<a th:href="@{'/employee/other-info-question/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getOtherInfoQuestionsCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 Other Information Questions
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/references/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getReferencesCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 References
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/employee/government-id/' + ${employee.id} + '/' + ${employee.showMode} + '/' + ${employee.getEmpHashCode()}}" class="nav-link">
+							<i th:class="${employee.getPdsCountDto().getGovIdCount() > 0 ? 'icon-checkmark3 text-success-400' : 'icon-cross2 text-danger-400'}"></i>
+							 Government Issued Id
+						</a>
+					</li>
+					<li class="nav-item">
+						<a th:href="@{'/viewPds/' + ${employee.id}}" class="nav-link" target="_blank">
+							<i class="icon-printer mr-2"></i>
+							 View Personal Data Sheet
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<!--/ Navigation Card -->
+		
+	</div>
+	<!-- /right content -->
+
+</th:block>
+
+
+
+
+<th:block th:fragment="footer">
+	<div class="navbar navbar-expand-lg navbar-light">
+		<div class="text-center d-lg-none w-100">
+			<button type="button" class="navbar-toggler dropdown-toggle" data-toggle="collapse" data-target="#navbar-footer">
+			<i class="icon-unfold mr-2"></i>
+				Footer
+			</button>
+		</div>
+
+		<div class="navbar-collapse collapse" id="navbar-footer">
+			<span class="navbar-text" style="margin-left: 30px;">
+				&copy; 2024 <a href="#">Human Resource Information System</a> by <a href="#">City Council of Manila</a>
+			</span>
+
+			<ul class="navbar-nav ml-lg-auto">
+				<li class="nav-item"><a href="#" class="navbar-nav-link" target="_blank"><i class="icon-lifebuoy mr-2"></i> Support</a></li>
+				<li class="nav-item"><a href="#" class="navbar-nav-link" target="_blank"><i class="icon-file-text2 mr-2"></i> Docs</a></li>
+			</ul>
+		</div>
+	</div>
+</th:block>
+
+<th:block th:fragment="main-sidebarnav">
+	
+	<!-- Main sidebar -->
+		<div class="sidebar sidebar-dark sidebar-main sidebar-expand-md" style="height: 100%vh;">
+
+			<!-- Sidebar mobile toggler -->
+			<div class="sidebar-mobile-toggler text-center">
+				<a href="#" class="sidebar-mobile-main-toggle">
+					<i class="icon-arrow-left8"></i>
+				</a>
+				Navigation
+				<a href="#" class="sidebar-mobile-expand">
+					<i class="icon-screen-full"></i>
+					<i class="icon-screen-normal"></i>
+				</a>
+			</div>
+			<!-- /sidebar mobile toggler -->
+
+
+			<!-- Sidebar content -->
+			<div class="sidebar-content">
+				
+				<!-- User menu -->
+				<div class="sidebar-user">
+					<div class="card-body">
+						<div class="media">
+							<div class="mr-3">
+								<a><img th:src="|@{*{#authentication.principal.profilePhoto == null ? '/images/avatar.png' : #authentication.principal.profilePhoto}}|" width="38" height="38" class="rounded-circle" alt=""></a>
+							</div>
+
+							<div class="media-body">
+								<div class="media-title font-weight-semibold" sec:authentication="principal.fullName">Lucas Peralta</div>
+								<div class="font-size-xs opacity-50" th:text="${#authentication.principal.getUserTypeDisplay()}">
+									HR ADMIN
+								</div>
+								<!--
+								<div class="font-size-xs opacity-50" sec:authentication="principal.specialization">
+									
+								</div>
+								-->
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /user menu -->
+
+				
+				<!-- Main navigation -->
+				<div class="card card-sidebar-mobile">
+					<ul class="nav nav-sidebar" data-nav-type="accordion">
+
+						<!-- Main -->						
+						<li class="nav-item">							
+							<a th:href="@{/dashboard}" class="nav-link" id="emrDashboardNav" data-submenu-title="Dashboard">
+								<i class="icon-home4"></i>
+								<span>
+									Dashboard									
+								</span>
+							</a>
+						</li>
+						
+						<li class="nav-item nav-item-submenu" id="myAccountNav">
+							<a href="#" class="nav-link"><i class="icon-vcard"></i> <span>My Account</span></a>
+							<ul class="nav nav-group-sub" data-submenu-title="My Account">
+								<li class="nav-item"><a 									
+									th:href="@{'/employee/' + ${session.actorObj.id} + '/PROFILE/' + ${session.actorObj.getEmpHashCode()}}"
+									class="nav-link" id="myPersonalInfoNav"><i class="icon-user-tie"></i> My Personal Data Sheet</a>
+								</li>
+								<li class="nav-item"><a 									
+									th:href="@{'/myclearance/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
+									class="nav-link" id="myClearanceNav"><i class="icon-user-tie"></i> My Clearance</a>
+								</li>		
+								<li class="nav-item"><a 									
+									th:href="@{'/my-service-record/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
+									class="nav-link" id="myServiceRecordNav"><i class="icon-user-tie"></i> My Service Record</a>
+								</li>
+								<li class="nav-item"><a 									
+									th:href="@{'/my-appointments/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
+									class="nav-link" id="myAppointmentsNav"><i class="icon-user-tie"></i> My Appointments</a>
+								</li>
+								<li class="nav-item"><a 									
+									th:href="@{'/my201files/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
+									class="nav-link" id="my201FileNav"><i class="icon-user-tie"></i> My 201 Files</a>
+								</li>
+							</ul>
+						</li>
+						
+						<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_ADMIN'}">
+						<li class="nav-item nav-item-submenu" id="employeeManagementNav">
+							<a href="#" class="nav-link"><i class="icon-vcard"></i> <span>Employee Management</span></a>
+							<ul class="nav nav-group-sub" data-submenu-title="Employee Management">
+								<li class="nav-item"><a th:href="@{/employee-list}" class="nav-link" id="employeeListNav"><i class="icon-user-tie"></i> Employee List</a></li>
+								<li class="nav-item"><a th:href="@{/clearance-list}" class="nav-link" id="clearanceListNav"><i class="icon-paste2"></i> Clearance List</a></li>
+								<!--
+								<li class="nav-item"><a th:href="@{/employee-reports}" class="nav-link" id="clearanceListNav"><i class="icon-paste2"></i> Reports</a></li>
+								-->
+								<li class="nav-item"><a th:href="@{/appointments}" class="nav-link" id="appointmentsListNav"><i class="icon-user-tie"></i> Appointments</a></li>
+								<li class="nav-item nav-item-submenu" id="employeeReportsNav" style="display:none">
+									<a href="#" class="nav-link"><i class="icon-vcard"></i> Reports</a>
+									<ul class="nav nav-group-sub">
+										<li class="nav-item">
+											<a th:href="@{/employee-reports}" class="nav-link" id="employeeReportListNav"><i class="icon-paste2"></i>Individual Employee Reports</a>
+										</li>
+										<li class="nav-item">
+											<a th:href="@{/separation-report}" class="nav-link" id="separationReportNav"><i class="icon-magazine"></i>Report on Separation</a>
+										</li>
+										<li class="nav-item">
+											<a th:href="@{/accession-report}" class="nav-link" id="accessionReportNav"><i class="icon-magazine"></i>Report on Accession</a>
+										</li>
+										
+										<li class="nav-item">
+											<a th:href="@{/position-desc-form-report}" class="nav-link" id="positionDescFormReportNav"><i class="icon-magazine"></i>Position Description Form Report</a>
+										</li>
+																			
+										<li class="nav-item">
+											<a th:href="@{/rai-report}" class="nav-link" id="raiReportNav"><i class="icon-magazine"></i>Report on Appointments (RAI)</a>
+										</li>
+										
+										
+										
+									</ul>
+								</li>            
+								                                  														
+							</ul>
+						</li>
+						<!--<li class="nav-item nav-item-submenu" id="employeeManagementNav">
+							<a href="#" class="nav-link"><i class="icon-vcard"></i> <span>Report Management</span></a>
+							<ul class="nav nav-group-sub" data-submenu-title="Report Management">
+								<li class="nav-item"><a th:href="@{/viewCsNo4/1}" class="nav-link" id="employeeListNav"><i class="icon-user-tie"></i> CS Form No. 4</a></li>
+								<li class="nav-item"><a th:href="@{/viewCsNo33/1}" class="nav-link" id="clearanceListNav"><i class="icon-paste2"></i> CS Form No. 33-B</a></li>
+								<li class="nav-item"><a th:href="@{/viewEmploymentCertificate/1}" class="nav-link" id="employeeListNav"><i class="icon-user-tie"></i> Employment Certificate</a></li>
+								                                      														
+							</ul>
+						</li>-->
+						
+						<li class="nav-item nav-item-submenu" id="systemSettingsNav">
+							<a href="#" class="nav-link"><i class="icon-gear"></i> <span>System Settings</span></a>
+							<ul class="nav nav-group-sub" data-submenu-title="System Settings">
+								<li class="nav-item">
+									<a th:href="@{/academic-honors}" class="nav-link" id="academicHonorsNav">
+										<i class="icon-graduation2"></i> 
+										Academic Honors
+									</a>
+								</li>
+								<li class="nav-item">
+									<a th:href="@{/degree-levels}" class="nav-link" id="degreeLevelNav">
+										<i class="icon-graduation2"></i> 
+										Degree Levels
+									</a>
+								</li>
+								<li class="nav-item"><a th:href="@{/degree-courses}" class="nav-link" id="degreeCoursesNav"><i class="icon-graduation2"></i> Degree Courses</a></li>
+								<li class="nav-item"><a th:href="@{/schools}" class="nav-link" id="schoolNav"><i class="icon-graduation2"></i>School</a></li>
+								<li class="nav-item"><a th:href="@{/scholarships}" class="nav-link" id="scholarshipNav"><i class="icon-graduation2"></i>Scholarship</a></li>
+								<li class="nav-item"><a th:href="@{/divisions}" class="nav-link" id="divisionNav"><i class="icon-wall"></i> Divisions</a></li>
+								<li class="nav-item"><a th:href="@{/districts}" class="nav-link" id="districtNav"><i class="icon-wall"></i> Districts</a></li>
+								<li class="nav-item"><a th:href="@{/document-types}" class="nav-link" id="documentTypeNav"><i class="icon-images2"></i> Document Type</a></li>
+								<li class="nav-item"><a th:href="@{/professions}" class="nav-link" id="professionNav"><i class="icon-brain"></i>Profession</a></li>
+								<li class="nav-item"><a th:href="@{/employee-status}" class="nav-link" id="employeeStatusNav"><i class="icon-office"></i>Employee Status</a></li>
+								<li class="nav-item"><a th:href="@{/eligibility}" class="nav-link" id="eligibilityNav"><i class="icon-wall"></i> Eligibility</a></li>
+								<li class="nav-item"><a th:href="@{/learning-type}" class="nav-link" id="learningDevelopmentNav"><i class="icon-wall"></i>Learning Type</a></li>
+								<!-- <li class="nav-item"><a th:href="@{/levels}" class="nav-link" id="levelNav"><i class="icon-office"></i>Level</a></li>
+								<li class="nav-item"><a th:href="@{/salary-grades}" class="nav-link" id="salaryGradeNav"><i class="icon-office"></i>Salary Grade</a></li> -->
+								<li class="nav-item"><a th:href="@{/position-titles}" class="nav-link" id="positionTitleNav"><i class="icon-office"></i>Position Title</a></li>
+								<li class="nav-item"><a th:href="@{/service-record-signatory}" class="nav-link" id="srSignatoryNav"><i class="icon-stamp"></i>Service Record Signatory</a></li>	
+								<li class="nav-item"><a th:href="@{/clearance-approver-settings}" class="nav-link" id="clearanceApproversNav"><i class="icon-stamp"></i>Clearance Approvers</a></li>
+								
+							</ul>
+						</li>							
+						</th:block>
+						<li class="nav-item">
+							<a th:href="@{'/change-password/' + ${#authentication.principal.id}}" class="nav-link" id="emrChangePasswordNav">
+								<i class="icon-user-lock"></i>
+								<span>
+									Change Password									
+								</span>
+							</a>
+						</li>
+						
+						<li class="nav-item">
+							<a href="javascript:logoutForm.submit();" class="nav-link">
+								<i class="icon-exit"></i>
+								<span>
+									Logout									
+								</span>
+							</a>
+							<form name="logoutForm" th:hidden="true" method="post"
+                                th:action="@{/logout}">
+                                <input type="submit" value="Logout" />
+                            </form>
+						</li>			
+						<!-- /layout -->
+							
+					</ul>
+				</div>
+				<!-- /main navigation -->
+
+			</div>
+			<!-- /sidebar content -->
+			
+		</div>
+		<!-- /main sidebar -->
+	
+
+</th:block>
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+		
+			<!-- Modal for REPORT ON SEPATION -->
+			<div id="modal_report_position-desc" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">REPORT ON SEPATION</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						
+							<div class="modal-body">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="signatoryNameSeparation">Signatory Name</label>
+												<input id="signatoryNameSeparation" name="signatoryNameSeparation" type="text" placeholder="Signatory Name" class="form-control" >
+											</div>
+											<div class="col-sm-6">
+												<label for="signatoryPositionSeparation">Signatory Position</label>
+												<input id="signatoryPositionSeparation" name="signatoryPositionSeparation" type="text" placeholder="Signatory Position" class="form-control" >
+											</div>												
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="attestedBy">Select Month Separation</label>
+												<select name="monthSeparation" id="monthSeparation" class="form-control">
+												  <option value="JANUARY">JANUARY</option>
+												  <option value="FEBRUARY">FEBRUARY</option>
+												  <option value="MARCH">MARCH</option>
+												  <option value="APRIL">APRIL</option>
+												  <option value="MAY">MAY</option>
+												  <option value="JUNE">JUNE</option>
+												  <option value="JULY">JULY</option>
+												  <option value="AUGUST">AUGUST</option>
+												  <option value="SEPTEMBER">SEPTEMBER</option>
+												  <option value="OCTOBER">OCTOBER</option>
+												  <option value="NOVEMBER">NOVEMBER</option>
+												  <option value="DECEMBER">DECEMBER</option>
+												</select>
+											</div>
+											<div class="col-sm-6">
+												<label for="yearSeparation">Year of Separation</label>
+												<input id="yearSeparation" name="yearSeparation" type="text" placeholder="Year" class="form-control" >
+											</div>												
+										</div>
+									</div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>								
+								<button type="button" class="btn bg-primary" onclick="openReportSeparation();">Submit</button>								
+							</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- /Modal for REPORT ON SEPATION -->
+		
+			<!-- Modal for Report -->
+			<div id="modal_form_report" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Service Record Report Parameters</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						
+							<div class="modal-body">
+									<!--
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="signatory">Signatory</label>
+												<input id="signatory" name="signatory" placeholder="Signatory" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-6">
+												<label for="Position">Position</label>
+												<input id="position" name="position" placeholder="Position" type="text" class="form-control" >
+											</div>
+										</div>
+									</div>
+									-->		
+									<input type="hidden" th:field="*{employee.id}" name="employeeId" id="employeeId">	
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="printDate">Print Date</label>
+												<input id="printDate" name="printDate" type="date" class="form-control" >
+											</div>												
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">       
+											<div class="col-sm-12">
+												<label for="notes" class="mb-1">Notes (You can change default notes below as needed.)</label>
+												<textarea id="notes" name="notes" class="form-control" rows="4">1. Did not incur any leave of absence without pay. &#10;2. This supersedes all previously submitted Service Records to GSIS.
+												</textarea>
+											</div>                    
+							            </div>
+									</div>					
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>								
+								<button type="button" class="btn bg-primary" onclick="openReport();">Submit</button>								
+							</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- /Modal for Report -->
+			
+			<!-- Modal for Report -->
+			<div id="modal_report_cs4" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Certificate of Assumption to Duty</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						
+							<div class="modal-body">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="signatoryName">Signatory Name</label>
+												<input id="signatoryName" name="signatoryName" type="text" placeholder="Signatory Name" class="form-control" >
+											</div>
+											<div class="col-sm-6">
+												<label for="signatoryPosition">Signatory Position</label>
+												<input id="signatoryPosition" name="signatoryPosition" type="text" placeholder="Signatory Position" class="form-control" >
+											</div>												
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="attestedBy">Attested By</label>
+												<input id="attestedBy" name="attestedBy" type="text" placeholder="Attested By" class="form-control" >
+											</div>
+											<div class="col-sm-6">
+												<label for="attestedByPosition">Attested By Position</label>
+												<input id="attestedByPosition" name="attestedByPosition" type="text" placeholder="Attested By Position" class="form-control" >
+											</div>												
+										</div>
+									</div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>								
+								<button type="button" class="btn bg-primary" onclick="openCs4Report();">Submit</button>								
+							</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- /Modal for Report -->
+			
+			<!-- Modal for Report -->
+			<div id="modal_report_cer_emp" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Certificate of Employement Parameters</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						
+							<div class="modal-body">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="signatoryNameCerEmp">Signatory Name</label>
+												<input id="signatoryNameCerEmp" name="signatoryNameCerEmp" type="text" placeholder="Signatory Name" class="form-control" >
+											</div>
+											<div class="col-sm-6">
+												<label for="signatoryPositionCerEmp">Signatory Position</label>
+												<input id="signatoryPositionCerEmp" name="signatoryPositionCerEmp" type="text" placeholder="Signatory Position" class="form-control" >
+											</div>												
+										</div>
+									</div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>								
+								<button type="button" class="btn bg-primary" onclick="openCerEmpReport();">Submit</button>								
+							</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- /Modal for Report -->
+			
+			<!-- Modal for Report -->
+			<div id="modal_report_cs33" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Assumption CS-33B Parameters</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						
+							<div class="modal-body">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="signatoryNameCs33">Signatory Name</label>
+												<input id="signatoryNameCs33" name="signatoryNameCs33" type="text" placeholder="Signatory Name" class="form-control" >
+											</div>
+											<div class="col-sm-6">
+												<label for="signatoryPositionCs33">Signatory Position</label>
+												<input id="signatoryPositionCs33" name="signatoryPositionCs33" type="text" placeholder="Signatory Position" class="form-control" >
+											</div>												
+										</div>
+									</div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>								
+								<button type="button" class="btn bg-primary" onclick="openCs33Report();">Submit</button>								
+							</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- /Modal for Report -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+			
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row mt-3">
+					<div class="col-xl-12">
+						
+						
+						<div class="card">
+					<div class="card-header header-elements-inline">
+						<h5 class="card-title">Employee Report List</h5>
+					</div>
+
+					<div class="card-body">
+						List of All Employee's <code>Active</code> and <code>In-Active</code>. Type to search desired employee.
+					</div>
+
+					<table class="table table-bordered table-hover datatable-highlight">
+						<thead>
+							<tr>
+								<th width="5px;">&nbsp;</th>
+								<th>Employee Name</th>
+								<th>Employee No.</th>
+								<th>Plantilla No.</th>		
+								<th>Position</th>
+								<th>Status</th>
+								
+							</tr>
+						</thead>
+						<tbody>
+							<th:block th:each="employee : ${employeeList}">
+								<tr>
+									<!--<td title="View Record">
+										<a th:href="@{'/appointments/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}" class="list-icons-item"><i class="icon-search4"></i></a>
+									</td>		-->		
+									
+									<td class="text-center">
+										<div class="list-icons">
+											<div class="dropdown">
+												<a href="#" class="list-icons-item" data-toggle="dropdown">
+													<i class="icon-menu9"></i>
+												</a>
+
+												<div class="dropdown-menu dropdown-menu-right">
+													<a class="dropdown-item" data-toggle="modal" data-target="#modal_form_report" id="rptButton" th:onclick="'setEmpId(' + ${employee.id} + ')'"><i class="icon-file-pdf"></i> View Service Record Report</a>
+													<a th:href="@{'/viewPds/' + ${employee.id}}" class="dropdown-item" target="_blank"><i class="icon-file-pdf"></i> View PDS Report</a>
+													<a class="dropdown-item" data-toggle="modal" data-target="#modal_report_cs4" id="rptButton" th:onclick="'setEmpId(' + ${employee.id} + ')'"><i class="icon-file-pdf"></i> Certification of Assumption to Duty</a>
+													<a class="dropdown-item" data-toggle="modal" data-target="#modal_report_cer_emp" id="rptButton" th:onclick="'setEmpId(' + ${employee.id} + ')'"><i class="icon-file-pdf"></i> Certificate of Employment</a>
+													<a class="dropdown-item" data-toggle="modal" data-target="#modal_report_cs33" id="rptButton" th:onclick="'setEmpId(' + ${employee.id} + ')'"><i class="icon-file-pdf"></i> Assumption Report CS-33</a>
+													<a class="dropdown-item" id="rptButton"><i class="icon-file-pdf"></i> Position Description Form Report</a>
+												</div>
+											</div>
+										</div>
+									</td>					
+									<td th:text="${employee.getDisplayName()}">Full Name</td>
+									<td th:text="${employee.getEmpNo()}">Status</td>
+									<td th:text="${employee.getPlantillaNo()}">Status</td>
+									<td th:text="${employee.getPositionTitle().getPositionTitleName()}">Status</td>
+									<td><span class="badge badge-success" th:text="${employee.getStatus()}">Active</span></td>
+									
+								</tr>
+							</th:block>		
+							
+							
+						</tbody>
+					</table>
+				</div>
+						
+						
+								
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+		
+		
+		
+		function displayServiceRecord() {
+	        
+	        //var signatory = document.getElementById('signatory').value;
+	        //var position = document.getElementById('position').value;
+	        var employeeId = document.getElementById('employeeId').value;
+	        var notes = document.getElementById('notes').value;
+	        var printDate = document.getElementById('printDate').value;
+	        //var encodedNotes = encodeURIComponent(notes);
+	        
+	         var saveurl = contextRoot + "/saveServiceRecordRequest";
+	        
+	        
+	        if (employeeId && notes && printDate) {
+	            // Create the URL with the parameters
+	            
+	            var requestdata = {
+			        employeeId: employeeId,
+			        printDate: printDate,
+			        notes: notes
+			    };
+			
+			    // Make a POST request to save the data
+			    fetch(saveurl, {
+			        method: 'POST',
+			        headers: {
+			            'Content-Type': 'application/json'
+			        },
+			        body: JSON.stringify(requestdata)
+			    })
+			    .then(response => {
+			        if (response.ok) {
+			            return response.json(); // Parse the JSON response
+			        }
+			        throw new Error('Network response was not ok.');
+			    })
+			    .then(data => {
+			        // Get the record ID from the response
+			        var recordId = data.recordId;
+			        // Use the recordId as needed
+			        console.log("Record ID:", recordId);
+			        
+			        var url = contextRoot + "/viewServiceRecordReportNew/" + recordId;
+			
+			    	window.open(url, '_blank');
+			    })
+			    .catch(error => {
+			        console.error('There was a problem with the fetch operation:', error);
+			    });
+	            
+	            
+	        } else {
+	             swal({
+						title: "Error!",
+						text: "Print Date and Notes are mandatory.",
+						icon: "error",
+						buttons: false,
+			            timer: 2000,
+					});
+		            emptyFields[0].focus();
+	        }  
+	    }
+	    
+	    function setEmpId(empId) {
+	        // Set the empId value in the hidden input field
+	        document.getElementById('employeeId').value = empId;
+	        //alert(empId);
+	        // Display the empId in the modal
+	        //document.getElementById('modalEmpId').innerText = empId;
+	    }
+	    
+	    function openReport() {
+			    var employeeId = document.getElementById('employeeId').value;
+	        	var notes = document.getElementById('notes').value;
+	        	var printDate = document.getElementById('printDate').value;
+			
+			    var jsonData = {
+			        id: employeeId,
+			        notes: notes,
+			        printDate: printDate
+			    };
+			
+			    var urlParams = new URLSearchParams();
+			    urlParams.append('id', jsonData.id);
+			    urlParams.append('notes', jsonData.notes);
+			    urlParams.append('printDate', jsonData.printDate);
+			
+			    var url = contextRoot + "/viewServiceRecordRpt?" + urlParams.toString();
+			    window.open(url, '_blank');
+		}
+		
+		function openCs4Report() {
+			    var employeeId = document.getElementById('employeeId').value;
+	        	var signatoryName = document.getElementById('signatoryName').value;
+	        	var signatoryPosition = document.getElementById('signatoryPosition').value;
+	        	var attestedBy = document.getElementById('attestedBy').value;
+	        	var attestedByPosition = document.getElementById('attestedByPosition').value;
+			
+			    var jsonData = {
+			        id: employeeId,
+			        signatoryName: signatoryName,
+			        signatoryPosition: signatoryPosition,
+			        attestedBy: attestedBy,
+			        attestedByPosition: attestedByPosition
+			    };
+			
+			    var urlParams = new URLSearchParams();
+			    urlParams.append('id', jsonData.id);
+			    urlParams.append('signatoryName', jsonData.signatoryName);
+			    urlParams.append('signatoryPosition', jsonData.signatoryPosition);
+			    urlParams.append('attestedBy', jsonData.attestedBy);
+			    urlParams.append('attestedByPosition', jsonData.attestedByPosition);
+			
+			    var url = contextRoot + "/viewCs4Rpt?" + urlParams.toString();
+			    window.open(url, '_blank');
+		}
+		
+		function openCs33Report() {
+			    var employeeId = document.getElementById('employeeId').value;
+	        	var signatoryName = document.getElementById('signatoryNameCs33').value;
+	        	var signatoryPosition = document.getElementById('signatoryPositionCs33').value;
+			
+			    var jsonData = {
+			        id: employeeId,
+			        signatoryName: signatoryName,
+			        signatoryPosition: signatoryPosition
+			    };
+			
+			    var urlParams = new URLSearchParams();
+			    urlParams.append('id', jsonData.id);
+			    urlParams.append('signatoryName', jsonData.signatoryName);
+			    urlParams.append('signatoryPosition', jsonData.signatoryPosition);
+			
+			    var url = contextRoot + "/viewCsNo33?" + urlParams.toString();
+			    window.open(url, '_blank');
+		}
+		
+		function openCerEmpReport() {
+			    var employeeId = document.getElementById('employeeId').value;
+	        	var signatoryName = document.getElementById('signatoryNameCerEmp').value;
+	        	var signatoryPosition = document.getElementById('signatoryPositionCerEmp').value;
+			
+			    var jsonData = {
+			        id: employeeId,
+			        signatoryName: signatoryName,
+			        signatoryPosition: signatoryPosition
+			    };
+			
+			    var urlParams = new URLSearchParams();
+			    urlParams.append('id', jsonData.id);
+			    urlParams.append('signatoryName', jsonData.signatoryName);
+			    urlParams.append('signatoryPosition', jsonData.signatoryPosition);
+			
+			    var url = contextRoot + "/viewEmploymentCertificate?" + urlParams.toString();
+			    window.open(url, '_blank');
+		}
+		
+	
+		$(document).ready(function() {
+			
+			var today = new Date();
+
+			// Get year, month, and day components
+			var year = today.getFullYear();
+			var month = today.getMonth() + 1; // Months are zero-based, so we add 1
+			var day = today.getDate();
+			
+			// Format month and day with leading zeros if needed
+			month = (month < 10) ? '0' + month : month;
+			day = (day < 10) ? '0' + day : day;
+			
+			// Construct the date string in yyyy-MM-dd format
+			var dateString = year + '-' + month + '-' + day;
+			
+			// Set the value of the date field
+			document.getElementById('printDate').value = dateString;
+
+			
+			
+			//$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			//$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			//$("#appointmentsListNav").addClass("active");
+			
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#employeeReportsNav").addClass("nav-item-expanded nav-item-open");
+			$("#employeeReportListNav").addClass("active");
+			
+			
+						
+		});
+		
+		$('#table-list').DataTable({});
+		
+		
+	</script>
+</body>
+</html>

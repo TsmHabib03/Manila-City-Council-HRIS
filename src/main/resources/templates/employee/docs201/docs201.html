@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+	<title>Dashboard</title>
+</head>
+<body>
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+	<!-- Page content -->
+	<div class="page-content">
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+			<!-- Vertical form modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">201 File Information</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+
+						<form id="uploadDocsForm" th:action="@{/add201Files}" method="post" enctype="multipart/form-data" th:object="${docs201}">
+						    <input type="hidden" name="id" id="id" th:value="${id}" />
+						    <input type="hidden" name="employee.id" th:value="${employee.id}" />
+							<div class="modal-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-6">
+											<docel for="transDate">Date</docel>
+											<input id="transDate" name="transDate" placeholder="Date" type="date" class="form-control required-field-hrisp" >
+										</div>
+										<div class="col-sm-6">
+											<docel for="document_type_id">Type</docel>
+											<select id="document_type_id" name="documentType.id" class="form-control required-field-hrisp">
+						                        <option value="0">- Select Document Type -</option>
+						                        <option th:each="documentType : ${documentTypeList}" th:value="${documentType.id}" th:text="${documentType.documentName}">
+						                    </select>
+										</div>							
+						            </div>
+								</div>				
+								<div class="form-group">
+									<div class="row">       
+										<div class="col-sm-12">
+											<docel for="remarks">Notes</docel>
+											<textarea id="remarks" name="remarks" class="form-control instructions" rows="4"></textarea>
+										</div>                    
+						            </div>
+								</div>		
+								<div class="form-group">
+									<div class="row">       
+										<div class="col-sm-12">
+												<div class="form-group row">												
+													<div class="col-lg-12">
+														<input type="file" class="file-input-preview-manila" id="docFiles" name="docFiles" multiple="multiple" accept="image/*">
+														<span class="form-text text-muted">Upload Reminders: All Newly Uploaded Files will override the previous files uploaded.</span>
+													</div>
+												</div>											
+											
+										</div>                    
+						            </div>
+								</div>					
+		
+								
+							</div>
+		
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
+								<button id="submitBtn" type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		    <!-- /Vertical form modal -->
+
+			<div class="content">
+
+				<!-- Inner container -->
+				<div class="d-flex align-items-start flex-column flex-md-row">
+
+					<!-- Left content -->
+					<div class="tab-content w-100 order-2 order-md-1">
+						<div class="tab-pane fade active show" id="activity">
+							
+							
+							
+							<!-- Dashboard content -->
+							<div class="row mt-3">
+								<div class="col-xl-12">
+									
+									
+									<div class="card">
+										<div class="card-header header-elements-inline">
+											<h5 class="card-title">201 File Information</h5>
+											<div class="header-elements">
+												<div class="list-icons">				                				
+									           		<button id="addButton" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+									           	</div>
+											</div>
+										</div>
+					
+										<div class="card-body">
+											List of All Other Information. Type to search desired other information.
+										</div>
+					
+										<!--
+										<table class="table table-bordered table-hover datatable-highlight">
+											-->
+										<table class="table table-bordered table-hover" id="table-list">
+											<thead>
+												<tr>
+													<th><i class="icon-search4"></i></th>
+													<th><i class="fas fa-paperclip"></i></th>
+													<th>Document Type</th>
+													<th>Remarks</th>
+												</tr>
+											</thead>
+											<tbody>
+												<th:block th:each="docs: ${docsList}">
+													<tr>														
+														<td  width="5px;" title="View Record">
+															<a class="list-icons-item" th:id="|editRecordButton${docs.id}|"
+														    data-toggle="modal" data-target="#modal_form_vertical"
+														    th:onclick="|editRecordMethod('${docs.id}')|"><i class="icon-search4"></i></a>
+														</td>								
+														<td width="5px;">																			
+															<span th:if="!${#lists.isEmpty(docs.docFileUrls)}"><i class="fas fa-paperclip"></i></span>
+															<span th:unless="${docs.docFileUrls != ''}">&nbsp;</span>
+														</td>
+														<td th:text="${docs.documentType.documentName}">documentName</td>
+														<td th:text="${docs.remarks}">Remarks</td>	
+													</tr>
+												</th:block>		
+
+											</tbody>
+										</table>
+									</div>
+									
+									
+											
+								</div>
+							</div>
+							<!-- /dashboard content -->
+							
+														
+					    </div>			    
+					</div>
+					<!-- /left content -->
+
+
+					
+
+				</div>
+				<!-- /inner container -->
+
+			</div>
+			<!-- /content area -->
+		</div>
+		<!-- /main content -->
+	</div>
+	<!-- /page content -->
+	
+	<!-- Main sidebar -->
+	<div th:replace="fragments/common::footer"></div>
+	<!-- /Main sidebar -->
+	
+	<script th:inline="javascript">		
+		
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/'';
+	    let uploadDocsForm = document.getElementById('uploadDocsForm');
+	    let msgCode = /*[[${uxmessage == null ? '' : uxmessage.code} ]]*/'';
+		let msgDesc = /*[[${uxmessage == null ? '' : uxmessage.message}]]*/'';
+	
+	    $(document).ready(function() {
+	    	
+	    	$('#table-list1').DataTable({
+				"lengthMenu": [10, 25, 50],
+				"ordering": false, 
+				
+			});
+	    		    				
+			let showMode = /*[[${showMode == null ? '' : showMode} ]]*/'';
+			
+			if(showMode === 'PROFILE'){
+				$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+				$("#myAccountNav").addClass("nav-item-expanded nav-item-open");
+				$("#my201FileNav").addClass("active");
+				
+				$('#addButton').hide();
+				$('#submitBtn').hide();
+				$('#updatePhotoBtn').hide();
+				$('#cameraArea').hide();
+				
+				$('textarea').prop('readonly', true);
+				$('input').prop('readonly', true);
+				$('select').prop('disabled', true);
+				$('input, select').removeClass("required-field-hrisp");
+								
+				$("#showMode").val("PROFILE");
+			} else {
+				$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+				$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+				$("#employeeListNav").addClass("active");
+				
+				$("#showMode").val("HRADMIN");
+			}
+
+	    	let msgCode = /*[[${msg == null ? '' : msg.code} ]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+
+	    	if(msgCode === 'ERROR'){
+				swal({
+					title: "Error!",
+					text: msgDesc,
+					icon: "error",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'EDIT-SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			}
+			
+			FileUpload.init();
+
+	    });
+
+		
+		function editRecordMethod(id) {
+	        let editRecordButton = document.getElementById('editRecordButton'+id);
+	    	let doc = fetch(contextRoot + '/api/doc201/'+id)
+	    	    .then(res => res.json())
+	    	    .then(data => {
+	    	    	console.log(data);
+	    	    	document.getElementById('id').value = data.id;
+	    	    	document.getElementById('transDate').value = data.transDate;
+	    	    	document.getElementById('remarks').value = data.remarks;	    	    
+	    	    	document.getElementById('document_type_id').value = data.documentType.id;
+
+	    	    	let fiOpts = $('#docFiles').data('fileinput');
+	    	    	$('#docFiles').fileinput('destroy').fileinput({
+	    	    		showUpload: false,
+	                    showRemove: false,
+	                    showBrowse: false,
+	                    showCaption: false,
+	                    browseOnZoneClick: true,
+	                    allowedFileExtensions: ['jpg', 'png', 'pdf'],
+	                    initialPreview: data.docFileUrls.map(u => contextRoot+u),
+	                    initialPreviewConfig: [],
+	                    initialPreviewAsData: true,
+	                    deleteUrl: '',
+	                    overwriteInitial: false,
+	                    maxFileSize: 1024 * 10,
+	                    previewZoomButtonClasses: fiOpts.previewZoomButtonClasses,
+	                    previewZoomButtonIcons: fiOpts.previewZoomButtonIcons,
+	                    fileActionSettings: fiOpts.fileActionSettings,
+	                    initialPreviewShowDelete: false
+	    	    	});
+	    	    })
+	    	    .catch(err => console.log(err));
+	    }
+
+
+		
+
+	</script>
+	
+	<script th:inline="javascript">
+   		var FileUpload = function() {
+
+            // Bootstrap file upload
+		    var _componentFileUpload = function() {
+               if (!$().fileinput) {
+                   console.warn('Warning - fileinput.min.js is not loaded.');
+                   return;
+               }               
+            
+               // Buttons inside zoom modal
+               var previewZoomButtonClasses = {
+                   toggleheader: 'btn btn-light btn-icon btn-header-toggle btn-sm',
+                   fullscreen: 'btn btn-light btn-icon btn-sm',
+                   borderless: 'btn btn-light btn-icon btn-sm',
+                   close: 'btn btn-light btn-icon btn-sm'
+               };
+            
+               // Icons inside zoom modal classes
+               var previewZoomButtonIcons = {
+                   prev: '<i class="icon-arrow-left32"></i>',
+                   next: '<i class="icon-arrow-right32"></i>',
+                   toggleheader: '<i class="icon-menu-open"></i>',
+                   fullscreen: '<i class="icon-screen-full"></i>',
+                   borderless: '<i class="icon-alignment-unalign"></i>',
+                   close: '<i class="icon-cross2 font-size-base"></i>'
+               };
+            
+               // File actions
+               var fileActionSettings = {
+                   zoomClass: '',
+                   zoomIcon: '<i class="icon-zoomin3"></i>',
+                   dragClass: 'p-2',
+                   dragIcon: '<i class="icon-three-bars"></i>',
+                   removeClass: '',
+                   removeErrorClass: 'text-danger',
+                   removeIcon: '<i class="icon-bin"></i>',
+                   downloadIcon: '<i class="icon-folder-download3"></i>',
+                   indicatorNew: '<i class="icon-file-plus text-success"></i>',
+                   indicatorSuccess: '<i class="icon-checkmark3 file-icon-large text-success"></i>',
+                   indicatorError: '<i class="icon-cross2 text-danger"></i>',
+                   indicatorLoading: '<i class="icon-spinner2 spinner text-muted"></i>'
+               };
+               
+               $('#docFiles').fileinput({
+            	   showUpload: false,
+                   showRemove: false,
+                   showBrowse: false,
+                   showCaption: false,
+                   browseOnZoneClick: true,
+                   allowedFileExtensions: ['jpg', 'png', 'pdf'],
+                   initialPreview: [],
+                   initialPreviewConfig: [],
+                   initialPreviewAsData: true,
+                   deleteUrl: '',
+                   overwriteInitial: false,
+                   maxFileSize: 1024 * 10,
+                   previewZoomButtonClasses: previewZoomButtonClasses,
+                   previewZoomButtonIcons: previewZoomButtonIcons,
+                   fileActionSettings: fileActionSettings,
+                   //initialCaption: "Please select files to upload."
+               });
+               
+               
+            };
+            
+            
+            //
+            // Return objects assigned to module
+            //
+            
+            return {
+            	
+                init: function() {
+                   _componentFileUpload();
+                }
+            }
+   	    }();
+
+
+
+        $('#addButton').click((e) => {
+        	//clear values in form
+        	$('#id').val(0);
+        	console.log("ID Value: " + $('#id').val());
+        	$('#transDate').val(moment(new Date()).format('YYYY-MM-DD'));
+        	$('#document_type_id').val(0);
+        	$('#remarks').val('');
+        	$('#docFiles').fileinput('refresh');
+        });
+    </script>
+
+</body>
+</html>

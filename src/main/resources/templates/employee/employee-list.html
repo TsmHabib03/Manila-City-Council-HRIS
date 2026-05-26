@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			
+			<!-- modal form credentials -->
+		    <div id="modal_form_change_credential" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Employee Credential Information</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>						
+						    <input type="hidden" id="empId" name="empId" value="0">
+							<div class="modal-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-8">								    
+						                    <label for="fullName">Employee Name</label>
+						                    <input id="empFullName" name="empFullName" placeholder="Employee Name" type="text" class="form-control" readonly >
+						                </div>
+						                <div class="col-sm-4">
+						                    <label for="empUserType">User Type</label>
+						                    <select id="empUserType" name="empUserType" class="form-control">
+												<option value="ROLE_EMPLOYEE">ROLE EMPLOYEE</option>
+						                        <option value="ROLE_ADMIN">ROLE ADMIN</option>						                        
+						                    </select>
+						                </div> 		                
+						            </div>
+								</div>
+								
+								<code>Do not change username and password if you dont want to change the old values. Please update USERNAME PASSWORD if needed.</code>
+								<hr>
+								<div class="form-group">
+									<div class="row">       
+						                <div class="col-sm-4">				                    
+						                    <label for="empUsername">Username</label>
+						                    <input id="empUsername" name="empUsername" placeholder="Username" type="text" class="form-control" >
+						                </div>			                
+						                <div class="col-sm-4">				                    
+						                    <label for="newPassword">New Password</label>
+						                    <input id="newPassword" name="newPassword" placeholder="Enter password" type="password" class="form-control">
+						                </div>
+						                
+						                <div class="col-sm-4">				                    
+						                    <label for="confirmPassword">Confirm Password</label>
+						                    <input id="confirmPassword" name="confirmPassword" placeholder="Confirm password" type="password" class="form-control">
+						                </div>
+						            </div>
+								</div>
+								
+							</div>
+		
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button type="button" class="btn bg-primary" onclick="submitChangeCredentials()">Save Record</button>
+							</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- modal form credentials -->
+			
+			<!-- Vertical form modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header bg-primary">
+								<h5 class="modal-title">Employee Information</h5>
+								<button type="button" class="close" data-dismiss="modal">&times;</button>
+							</div>
+
+							<form id="employeeForm" th:action="@{/addEmployee}" method="post" th:object="${employee}" enctype="multipart/form-data">
+								<input type="hidden" th:field="*{id}" name="id" id="id">
+								<input type="hidden" name="userType" id="userType" value="ROLE_EMPLOYEE">
+								<div class="modal-body">
+									
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-4">
+												<label for="empNo">Employee No.</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('empNo')}" th:errors="*{empNo}"></span>
+												<input id="empNo" name="empNo" th:field="*{empNo}" placeholder="Employee No." type="text" class="form-control required-field-hrisp" >
+											</div>
+											<div class="col-sm-4">
+												<label for="assumptiondate">Date Assumed</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('assumptiondate')}" th:errors="*{assumptiondate}"></span>
+												<input type="date" class="form-control required-field-hrisp" id="assumptiondate" name="assumptiondate" th:field="*{assumptiondate}" />
+											</div>											
+											<div class="col-sm-4">
+												<label for="plantillaNo">Plantilla No.</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('plantillaNo')}" th:errors="*{plantillaNo}"></span>
+												<input id="plantillaNo" name="plantillaNo" th:field="*{plantillaNo}" placeholder="Plantilla No." type="text" class="form-control" >
+											</div>				                    
+							            </div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-4">
+												<label for="firstName">First Name</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
+												<input id="firstName" name="firstName" th:field="*{firstName}" placeholder="First Name" type="text" class="form-control required-field-hrisp" >
+											</div>							                
+							                
+											<div class="col-sm-4">
+												<label for="lastName">Last Name</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+												<input id="lastName" name="lastName" th:field="*{lastName}" placeholder="Last Name" type="text" class="form-control required-field-hrisp" >
+											</div>
+											
+											<div class="col-sm-4">
+												<label for="middleName">Middle Name</label>
+												<input id="middleName" name="middleName" th:field="*{middleName}" placeholder="Middle Name" type="text" class="form-control required-field-hrisp" >
+											</div>
+							            </div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-4">
+												<label for="suffix">Suffix</label>
+												<input type="text" class="form-control" id="suffix" name="suffix" th:field="*{suffix}" placeholder="Sample Jr. Sr."/>
+											</div>
+											
+											<div class="col-sm-4">
+												<label for="birthdate">Birthdate</label>
+												<input type="date" class="form-control required-field-hrisp" id="birthdate" name="birthdate" th:field="*{birthdate}" />
+											</div>
+											
+											<div class="col-sm-4">
+												<label for="birthPlace">Birth Place</label>
+												<input type="text" class="form-control required-field-hrisp" id="birthPlace" name="birthPlace" th:field="*{birthPlace}" placeholder="Birth Place"/>
+											</div>											 
+											
+							           </div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+																						
+											<div class="col-sm-4">
+												<label for="telNo">Tel No.</label>
+												<input type="text" class="form-control" id="telNo" name="telNo" th:field="*{telNo}" placeholder="Tel No."/>
+											</div>
+											 
+											<div class="col-sm-4">
+												<label for="mobileNo1">Mobile</label>
+												<input id="mobileNo1" name="mobileno1" title="enter your mobile number" th:field="*{mobileNo1}" placeholder="enter mobile number" type="text" class="form-control">
+											</div>
+							                    
+											<div class="col-sm-4">
+												<label for="email1">Email</label>
+												<input id="email1" name="email1" title="enter your email." th:field="*{email1}" placeholder="Email Address" type="email" class="form-control" >
+											</div>
+							           </div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-4">
+												<label for="gender">Gender</label>
+												<select id="gender" name="gender" class="form-control required-field-hrisp" th:field="*{gender}">
+													<option value="">SELECT VALUE</option>
+													<option value="M">MALE</option>
+													<option value="F">FEMALE</option>
+													<option value="L">LGBTQ</option>
+												</select>
+											</div>							                
+							                
+											<div class="col-sm-4">
+												<label for="civilStatus">Civil Status</label>
+												<select class="form-control required-field-hrisp" name="civilStatus" id="civilStatus" th:field="*{civilStatus}">
+													<option value="">SELECT VALUE</option>
+													<option value="SINGLE">SINGLE</option>
+													<option value="MARRIED">MARRIED</option>
+													<option value="WIDOWED">WIDOWED</option>
+													<option value="SEPARATED">SEPARATED</option>
+													<option value="OTHERS">OTHERS</option>
+												</select>
+											</div>
+							                    
+											<div class="col-sm-4">
+												<label for="citizenship">Citizenship</label>
+												<select class="form-control required-field-hrisp" name="citizenship" id="citizenship" th:field="*{citizenship}">
+													<option value="">SELECT VALUE</option>
+													<option value="FILIPINO BY BIRTH">FILIPINO BY BIRTH</option>
+													<option value="FILIPINO BY NATURALIZATION">FILIPINO BY NATURALIZATION</option>
+													<option value="DUAL CITIZENSHIP BY BIRTH">DUAL CITIZENSHIP BY BIRTH</option>
+													<option value="DUAL CITIZENSHIP BY NATURALIZATION">DUAL CITIZENSHIP BY NATURALIZATION</option>
+												</select>
+											</div>
+							            </div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">    
+											<div class="col-sm-4">
+												<label for="positionTitle">Position Title</label>
+												<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control required-field-hrisp">
+									               	<option selected value="">SELECT VALUE</option>
+									               	<option th:each="positionTitle : ${positionTitleList}" th:value="${positionTitle.id}" th:text="${positionTitle.positionTitleName}">positionTitleName</option>
+									            </select>
+											</div>	
+											
+											<div class="col-sm-4">
+												<label for="employeeStatus">Employment Status</label>										                        
+												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control required-field-hrisp">
+													<option selected value="">SELECT VALUE</option>
+													<option th:each="empStatus : ${employeeStatusList}" th:value="${empStatus.id}" th:text="${empStatus.employeeStatusName}">employeeStatusName</option>
+												</select>
+											</div>														
+															
+											<div class="col-sm-4">
+												<label for="department">Department</label>										                        
+												<select th:field="*{division.id}" id="division" class="form-control required-field-hrisp">
+													<option selected value="">SELECT VALUE</option>
+													<option th:each="division : ${divisionList}" th:value="${division.id}" th:text="${division.divisionName}">division</option>
+												</select>
+											</div>											
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-12">
+												<label for="birthdate">Please indicate Country</label>
+												<select name="countryOfOrigin" id="countryOfOrigin" th:field="*{countryOfOrigin}" class="form-control" placeholder="Citizenship Country Code" >
+													<option value="">(Choose Country)</option>
+													<option value="AFG">Afghanistan</option>
+													<option value="ALA">Aland Islands</option>
+													<option value="ALB">Albania</option>
+													<option value="DZA">Algeria</option>
+													<option value="ASM">American Samoa</option>
+													<option value="AND">Andorra</option>
+													<option value="AGO">Angola</option>
+													<option value="AIA">Anguilla</option>
+													<option value="ATA">Antarctica</option>
+													<option value="ATG">Antigua and Barbuda</option>
+													<option value="ARG">Argentina</option>
+													<option value="ARM">Armenia</option>
+													<option value="ABW">Aruba</option>
+													<option value="AUS">Australia</option>
+													<option value="AUT">Austria</option>
+													<option value="AZE">Azerbaijan</option>
+													<option value="BHS">Bahamas</option>
+													<option value="BHR">Bahrain</option>
+													<option value="BGD">Bangladesh</option>
+													<option value="BRB">Barbados</option>
+													<option value="BLR">Belarus</option>
+													<option value="BEL">Belgium</option>
+													<option value="BLZ">Belize</option>
+													<option value="BEN">Benin</option>
+													<option value="BMU">Bermuda</option>
+													<option value="BTN">Bhutan</option>
+													<option value="BES">Bonaire - Sint Eustatius and Saba</option>
+													<option value="BIH">Bosnia and Herzegovina</option>
+													<option value="BWA">Botswana</option>
+													<option value="BVT">Bouvet Island</option>
+													<option value="BRA">Brazil</option>
+													<option value="IOT">British Indian Ocean Territory</option>
+													<option value="BRN">Brunei Darussalam</option>
+													<option value="BGR">Bulgaria</option>
+													<option value="BFA">Burkina Faso</option>
+													<option value="BDI">Burundi</option>
+													<option value="CPV">Cabo Verde</option>
+													<option value="KHM">Cambodia</option>
+													<option value="CMR">Cameroon</option>
+													<option value="CAN">Canada</option>
+													<option value="CYM">Cayman Islands</option>
+													<option value="CAF">Central African Republic</option>
+													<option value="TCD">Chad</option>
+													<option value="CHL">Chile</option>
+													<option value="CHN">China</option>
+													<option value="CXR">Christmas Island</option>
+													<option value="CCK">Cocos Keeling Islands</option>
+													<option value="COL">Colombia</option>
+													<option value="COM">Comoros</option>
+													<option value="COG">Congo</option>
+													<option value="COK">Cook Islands</option>
+													<option value="CRI">Costa Rica</option>
+													<option value="CIV">Cote dIvoire</option>
+													<option value="HRV">Croatia</option>
+													<option value="CUB">Cuba</option>
+													<option value="CYP">Cyprus</option>
+													<option value="CZE">Czech Republic</option>
+													<option value="PRK">Democratic Peoples Republic of Korea</option>
+													<option value="COD">Democratic Republic of Congo</option>
+													<option value="DNK">Denmark</option>
+													<option value="DJI">Djibouti</option>
+													<option value="DMA">Dominica</option>
+													<option value="DOM">Dominican Republic</option>
+													<option value="ECU">Ecuador</option>
+													<option value="EGY">Egypt</option>
+													<option value="SLV">El Salvador</option>
+													<option value="GNQ">Equatorial Guinea</option>
+													<option value="ERI">Eritrea</option>
+													<option value="EST">Estonia</option>
+													<option value="ETH">Ethiopia</option>
+													<option value="FLK">Falkland Islands Malvinas)</option>
+													<option value="FRO">Faroe Islands</option>
+													<option value="FJI">Fiji</option>
+													<option value="FIN">Finland</option>
+													<option value="FRA">France</option>
+													<option value="GUF">French Guiana</option>
+													<option value="PYF">French Polynesia</option>
+													<option value="ATF">French Southern Territories</option>
+													<option value="GAB">Gabon</option>
+													<option value="GMB">Gambia</option>
+													<option value="GEO">Georgia</option>
+													<option value="DEU">Germany</option>
+													<option value="GHA">Ghana</option>
+													<option value="GIB">Gibraltar</option>
+													<option value="GRC">Greece</option>
+													<option value="GRL">Greenland</option>
+													<option value="GRD">Grenada</option>
+													<option value="GLP">Guadeloupe</option>
+													<option value="GUM">Guam</option>
+													<option value="GTM">Guatemala</option>
+													<option value="GGY">Guernsey</option>
+													<option value="GIN">Guinea</option>
+													<option value="GNB">Guinea-Bissau</option>
+													<option value="GUY">Guyana</option>
+													<option value="HTI">Haiti</option>
+													<option value="HMD">Heard Island and McDonald Islands</option>
+													<option value="VAT">Holy See Vatican City State</option>
+													<option value="HND">Honduras</option>
+													<option value="HKG">Hong Kong</option>
+													<option value="HUN">Hungary</option>
+													<option value="ISL">Iceland</option>
+													<option value="IND">India</option>
+													<option value="IDN">Indonesia</option>
+													<option value="IRQ">Iraq</option>
+													<option value="IRL">Ireland</option>
+													<option value="IRN">Islamic Republic of Iran</option>
+													<option value="IMN">Isle of Man</option>
+													<option value="ISR">Israel</option>
+													<option value="ITA">Italy</option>
+													<option value="JAM">Jamaica</option>
+													<option value="JPN">Japan</option>
+													<option value="JEY">Jersey</option>
+													<option value="JOR">Jordan</option>
+													<option value="KAZ">Kazakhstan</option>
+													<option value="KEN">Kenya</option>
+													<option value="KIR">Kiribati</option>
+													<option value="KWT">Kuwait</option>
+													<option value="KGZ">Kyrgyzstan</option>
+													<option value="LAO">Lao Peoples Democratic Republic</option>
+													<option value="LVA">Latvia</option>
+													<option value="LBN">Lebanon</option>
+													<option value="LSO">Lesotho</option>
+													<option value="LBR">Liberia</option>
+													<option value="LBY">Libya</option>
+													<option value="LIE">Liechtenstein</option>
+													<option value="LTU">Lithuania</option>
+													<option value="LUX">Luxembourg</option>
+													<option value="MAC">Macao</option>
+													<option value="MKD">Macedonia</option>
+													<option value="MDG">Madagascar</option>
+													<option value="MWI">Malawi</option>
+													<option value="MYS">Malaysia</option>
+													<option value="MDV">Maldives</option>
+													<option value="MLI">Mali</option>
+													<option value="MLT">Malta</option>
+													<option value="MHL">Marshall Islands</option>
+													<option value="MTQ">Martinique</option>
+													<option value="MRT">Mauritania</option>
+													<option value="MUS">Mauritius</option>
+													<option value="MYT">Mayotte</option>
+													<option value="MEX">Mexico</option>
+													<option value="SM">Micronesia</option>
+													<option value="MDA">Moldova</option>
+													<option value="MCO">Monaco</option>
+													<option value="MNG">Mongolia</option>
+													<option value="MNE">Montenegro</option>
+													<option value="MSR">Montserrat</option>
+													<option value="MAR">Morocco</option>
+													<option value="MOZ">Mozambique</option>
+													<option value="MMR">Myanmar</option>
+													<option value="NAM">Namibia</option>
+													<option value="NRU">Nauru</option>
+													<option value="NPL">Nepal</option>
+													<option value="NLD">Netherlands</option>
+													<option value="NCL">New Caledonia</option>
+													<option value="NZL">New Zealand</option>
+													<option value="NIC">Nicaragua</option>
+													<option value="NER">Niger</option>
+													<option value="NGA">Nigeria</option>
+													<option value="NIU">Niue</option>
+													<option value="NFK">Norfolk Island</option>
+													<option value="MNP">Northern Mariana Islands</option>
+													<option value="NOR">Norway</option>
+													<option value="OMN">Oman</option>
+													<option value="PAK">Pakistan</option>
+													<option value="PLW">Palau</option>
+													<option value="PSE">Palestine, State of</option>
+													<option value="PAN">Panama</option>
+													<option value="PNG">Papua New Guinea</option>
+													<option value="PRY">Paraguay</option>
+													<option value="PER">Peru</option>
+													<option value="PHL">Philippines</option>
+													<option value="PCN">Pitcairn</option>
+													<option value="BOL">Plurinational State of Bolivia</option>
+													<option value="POL">Poland</option>
+													<option value="PRT">Portugal</option>
+													<option value="PRI">Puerto Rico</option>
+													<option value="QAT">Qatar</option>
+													<option value="KOR">Republic of Korea</option>
+													<option value="REU"></option>
+													<option value="ROU">Romania</option>
+													<option value="RUS">Russian Federation</option>
+													<option value="RWA">Rwanda</option>
+													<option value="BLM">Saint Barthelemy</option>
+													<option value="SHN">Saint Helena Ascension and Tristan da Cunha</option>
+													<option value="KNA">Saint Kitts and Nevis</option>
+													<option value="LCA">Saint Lucia</option>
+													<option value="MAF">Saint Martin French part</option>
+													<option value="SPM">Saint Pierre and Miquelon</option>
+													<option value="VCT">Saint Vincent and the Grenadines</option>
+													<option value="WSM">Samoa</option>
+													<option value="SMR">San Marino</option>
+													<option value="STP">Sao Tome and Principe</option>
+													<option value="SAU">Saudi Arabia</option>
+													<option value="SEN">Senegal</option>
+													<option value="SRB">Serbia</option>
+													<option value="SYC">Seychelles</option>
+													<option value="SLE">Sierra Leone</option>
+													<option value="SGP">Singapore</option>
+													<option value="SXM">Sint Maarten Dutch part</option>
+													<option value="SVK">Slovakia</option>
+													<option value="SVN">Slovenia</option>
+													<option value="SLB">Solomon Islands</option>
+													<option value="SOM">Somalia</option>
+													<option value="ZAF">South Africa</option>
+													<option value="SGS">South Georgia and the South Sandwich Islands</option>
+													<option value="SSD">South Sudan</option>
+													<option value="ESP">Spain</option>
+													<option value="LKA">Sri Lanka</option>
+													<option value="SDN">Sudan</option>
+													<option value="SUR">Suriname</option>
+													<option value="SJM">Svalbard and Jan Mayen</option>
+													<option value="SWZ">Swaziland</option>
+													<option value="SWE">Sweden</option>
+													<option value="CHE">Switzerland</option>
+													<option value="SYR">Syrian Arab Republic</option>
+													<option value="TWN">Taiwan - Province of China</option>
+													<option value="TJK">Tajikistan</option>
+													<option value="TZA">Tanzania</option>
+													<option value="THA">Thailand</option>
+													<option value="TLS">Timor-Leste</option>
+													<option value="TGO">Togo</option>
+													<option value="TKL">Tokelau</option>
+													<option value="TON">Tonga</option>
+													<option value="TTO">Trinidad and Tobago</option>
+													<option value="TUN">Tunisia</option>
+													<option value="TUR">Turkey</option>
+													<option value="TKM">Turkmenistan</option>
+													<option value="TCA">Turks and Caicos Islands</option>
+													<option value="TUV">Tuvalu</option>
+													<option value="UGA">Uganda</option>
+													<option value="UKR">Ukraine</option>
+													<option value="ARE">United Arab Emirates</option>
+													<option value="GBR">United Kingdom</option>
+													<option value="USA">United States</option>
+													<option value="UMI">United States Minor Outlying Islands</option>
+													<option value="URY">Uruguay</option>
+													<option value="UZB">Uzbekistan</option>
+													<option value="VUT">Vanuatu</option>
+													<option value="VEN">Venezuela Bolivarian Republic of</option>
+													<option value="VNM">Viet Nam</option>
+													<option value="VGB">Virgin Islands - British</option>
+													<option value="VIR">Virgin Islands - U.S.</option>
+													<option value="WLF">Wallis and Futuna</option>
+													<option value="ESH">Western Sahara</option>
+													<option value="ZMB">Zambia</option>
+													<option value="ZWE">Zimbabwe</option>
+												</select>
+											</div>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<div class="row">   
+																						
+											<div class="col-sm-4">
+												<label for="height">Height</label>
+												<input type="text" class="form-control" id="height" name="height" th:field="*{telNo}" placeholder="Height in m"/>
+											</div>
+											 
+											<div class="col-sm-4">
+												<label for="weight">Weight</label>
+												<input id="weight" name="weight" th:field="*{weight}" placeholder="Weight in Kg" type="text" class="form-control">
+											</div>
+							                    
+											<div class="col-sm-4">
+												<label for="bloodType">Blood Type</label>
+												<select id="bloodType" name="bloodType" class="form-control" th:field="*{bloodType}">
+													<option value="">SELECT VALUE</option>
+													<option value="O1">O+</option>
+													<option value="O2">O-</option>
+													<option value="A1">A+</option>
+													<option value="A2">A-</option>
+													<option value="B1">B+</option>
+													<option value="B2">B-</option>
+													<option value="AB1">AB+</option>
+													<option value="AB2">AB-</option>
+												</select>
+											</div>
+							           </div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">    
+											<div class="col-sm-4">
+												<label for="pagibigNo">Pagibig No.</label>
+												<input type="text" class="form-control" name="pagibigNo" th:field="*{pagibigNo}" id="pagibigNo" placeholder="Pagibig No." />
+											</div>
+							                    
+											<div class="col-sm-4">
+												<label for="philhealthNo">Philhealth No.</label>
+												<input type="text" class="form-control" name="philhealthNo" id="philhealthNo" th:field="*{philhealthNo}" placeholder="Philhealth No." />
+											</div>
+											
+											<div class="col-sm-4">
+												<label for="gsisIdNo">GSIS ID No.</label>
+												<input type="text" class="form-control" name="gsisIdNo" id="gsisIdNo" th:field="*{gsisIdNo}" placeholder="GSIS ID No." />
+											</div>
+							           </div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">    
+											<div class="col-sm-4">
+												<label for="sssNo">SSS ID No.</label>
+												<input type="text" class="form-control" name="sssNo" id="sssNo" th:field="*{sssNo}" placeholder="SSS ID No." />
+											</div>
+							                    
+											<div class="col-sm-4">
+												<label for="tin">TIN</label>
+												<input type="text" class="form-control" name="tin" id="tin" th:field="*{tin}" placeholder="TIN" />
+											</div>											
+							           </div>
+									</div>
+									
+									
+									
+									
+								</div>
+
+								<div class="modal-footer">
+									<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+									<button type="submit" class="btn bg-primary">Save Info</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			<!-- /Vertical form modal -->
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row mt-3">
+					<div class="col-xl-12">
+						
+						
+						<div class="card">
+					<div class="card-header header-elements-inline">
+						<h5 class="card-title">Employee List</h5>
+						<div class="header-elements">
+							<div class="list-icons">				                				
+				           		<button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+				           	</div>
+						</div>
+					</div>
+
+					<div class="card-body">
+						List of All Employee's <code>Active</code> and <code>In-Active</code>. Type to search desired employee.
+					</div>
+
+					<table id="table-list" class="table table-bordered table-hover datatable-highlight">
+						<thead>
+							<tr>
+								<th width="5px;">&nbsp;</th>
+								<th>Employee Name</th>
+								<th>Employee No.</th>
+								<th>Plantilla No.</th>		
+								<th>Position</th>
+								<th>Division</th>
+								<th>Role</th>
+								<th>Status</th>
+								
+							</tr>
+						</thead>
+						<tbody>
+							<th:block th:each="employee : ${employeeList}">
+								<tr>
+									
+									
+									<td class="text-center">
+										<div class="list-icons">
+											<div class="dropdown">
+												<a href="#" class="list-icons-item" data-toggle="dropdown">
+													<i class="icon-menu9"></i>
+												</a>
+
+												<div class="dropdown-menu dropdown-menu-right">
+													<a th:href="@{'/employee/' + ${employee.getId()} + '/HRADMIN/' + ${employee.getEmpHashCode()}}" class="dropdown-item"><i class="icon-search4"></i> View Record</a>
+													<a th:href="@{'/viewPds/' + ${employee.id}}" class="dropdown-item" target="_blank"><i class="icon-file-pdf"></i> View PDS Report</a>
+													<a th:href="@{'/201files/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}" class="dropdown-item" target="_blank"><i class="icon-magazine"></i> 201 Documents</a>
+													<a th:href="@{'/employee-service-record/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}" class="dropdown-item"><i class="icon-search4"></i> View Service Record</a>
+													<!--
+													<a th:href="@{'/viewServiceRecordReport/' + ${employee.id}}" class="dropdown-item" target="_blank"><i class="icon-file-pdf"></i> View Service Record Report</a>
+													-->
+													<span class="dropdown-item" th:attr="onclick='showCredentialsModal(\'' + ${employee.id} +  '\', \'' + ${employee.empHashCode} + '\');'" ><i class="icon-user-lock"></i> Update Employee Credentials</span>																											
+												</div>
+											</div>
+										</div>
+									</td>
+									
+									<td th:text="${employee.getDisplayName()}">Full Name</td>
+									<td th:text="${employee.getEmpNo()}">Status</td>
+									<td th:text="${employee.getPlantillaNo()}">Status</td>
+									<td th:text="${employee.positionTitle != null ? employee.positionTitle.positionTitleName : ''}">Status</td>
+									<td th:text="${employee.division != null ? employee.division.divisionName : ''}">Status</td>
+									<td th:text="${employee.userType == 'ROLE_EMPLOYEE' ? 'EMPLOYEE' : 'ADMIN'}">Status</td>
+									<td><span class="badge badge-success" th:text="${employee.getStatus()}">Active</span></td>
+									
+								</tr>
+							</th:block>		
+							
+							
+						</tbody>
+					</table>
+				</div>
+						
+						
+								
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+		
+		function showCredentialsModal(employeeId, employeeHashCode){
+			console.log("Employee ID:", employeeId);
+            console.log("Employee HashCode:", employeeHashCode);
+            
+            let url = contextRoot + '/api/' + employeeId + '/' + employeeHashCode;
+				
+			$.ajax({
+				url: url,
+				type: 'GET',
+				dataType: 'json',
+				success: function(response) {
+					console.log(response.username);
+					
+					$("#empId").val(response.id);
+					$("#empFullName").val(response.fullName);
+					$("#empUserType").val(response.userType);
+					$("#empUsername").val(response.username);
+					$("#newPassword").val("");
+				},
+				error: function(xhr, status, error) {
+					console.error('Error fetching employe info:', error);
+				}
+	        });
+			
+			$('#modal_form_change_credential').modal('show');
+		}
+			
+		function submitChangeCredentials() {
+			var empId = $("#empId").val();
+			var empUserType = $("#empUserType").val();
+			var username = $("#empUsername").val();
+			var newPassword = $("#newPassword").val();
+			var confirmPassword = $("#confirmPassword").val();
+			var isErrorExist = false;
+			
+			if(newPassword.length > 0 || confirmPassword.length > 0){
+				if(newPassword != confirmPassword){
+					alert('Password does not match...');
+					isErrorExist = true;
+				}
+			}
+			
+			if(newPassword.length == 0) {
+				newPassword = "isHklfn35Rgnd456556rfgngdfg12";
+			}
+			
+			if(!isErrorExist){
+				let url = contextRoot + '/api/change-credentials/' + empId + '/' + empUserType;
+
+				$.ajax({
+					url: url,
+					type: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify({ username: username, password: newPassword }),
+					success: function(response) {
+						//console.log(response);
+						
+						swal({
+							title: "Success!",
+							text: "Employee credentials successfully updated.",
+							icon: "success",
+							buttons: false,
+				            timer: 2000,
+						})
+						.then((value) => {										
+							window.location.href = contextRoot + '/employee-list';
+						});
+						
+						
+					},
+					error: function(xhr, status, error) {
+						console.error('Error fetching employe info:', error);
+					}
+		        });
+			}
+			
+		}
+		
+	
+		$(document).ready(function() {
+			
+			
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#employeeListNav").addClass("active");
+			
+			
+			let msgCode = /*[[${msg == null ? '' : msg.code} ]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+			
+			if(msgCode === 'ERROR'){
+				$('#modal_form_vertical').modal('show');
+				swal({
+					title: "Error!",
+					text: msgDesc,
+					icon: "error",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'ADD-SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			}
+			
+			$('#employeeForm').submit(function(event) {
+		        var emptyFields = [];
+		        $('.required-field-hrisp').each(function() {
+		            if ($(this).val().trim() === '') {
+		                emptyFields.push($(this));
+		            }
+		        });
+		
+		        if (emptyFields.length > 0) {
+		            event.preventDefault();
+		            //var alertMessage = "Please fill out the following fields:\n";
+		            //$.each(emptyFields, function(index, field) {
+		            //    alertMessage += "- " + field.attr('name') + "\n";
+		            //});
+		            //alert(alertMessage);
+		            // Focus on the first empty field
+		            
+		            swal({
+						title: "Error!",
+						text: "Mandatory fields marked in RED are mandatory.",
+						icon: "error",
+						buttons: false,
+			            timer: 2000,
+					});
+		            emptyFields[0].focus();
+		        }
+		    });
+			
+			
+		});
+		
+		$('#table-list').DataTable({});
+		
+		$(document).on("click", ".showDetails", function() {
+            var id = $(this).attr('data-row-id');
+            var firstName = $(this).attr('data-row-firstName');
+			//var isActive = $(this).attr('data-row-isActive');
+            
+            // Check if id is not null or empty
+            if (id && id.trim() !== "") {
+                $("#activeField").removeClass("d-none");
+            }
+            
+            $("#modal_form_vertical").find("#id").val(id);
+			//$("#modal_form_vertical").find("#isActive").val(isActive);
+            $("#modal_form_vertical").find("#firstName").val(firstName);
+        });
+        $(document).on("click", ".close",".btnClose", function() {
+            var id = $(this).attr('data-row-id');
+            var degreeName = $(this).attr('data-row-degreeName');
+			
+
+            $("#activeField").addClass("d-none");
+            $("#modal_form_vertical").find("#id").val("");
+            $("#modal_form_vertical").find("#firstName").val("");
+        });
+        $(document).on("click", ".btnClose", function() {
+            var id = $(this).attr('data-row-id');
+            var firstName = $(this).attr('data-row-firstName');
+
+            $("#activeField").addClass("d-none");
+            $("#modal_form_vertical").find("#id").val("");
+            $("#modal_form_vertical").find("#firstName").val("");
+        });
+	</script>
+</body>
+</html>

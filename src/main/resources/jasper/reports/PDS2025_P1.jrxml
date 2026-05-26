@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PDS 2025 - Page 1 (Personal Information, Family Background, Educational Background)
+  Source form: ANNEX H-1 - CS Form No. 212 Revised 2025 - Personal Data Sheet.xlsx
+
+  STARTER TEMPLATE - open in Jaspersoft Studio Community 6.20.x to:
+   1. Set the page background image element to point to $P{FormBg} (PDS2025_P1.png).
+   2. Place a <textField> over each form cell at the right pixel coordinates.
+   3. Compile to PDS2025_P1.jasper (Studio does this automatically on save, or run
+      "mvn jasperreports:compile-reports" once the jasperreports-maven-plugin is wired up).
+
+  All parameters consumed by this report are declared below — names match the
+  Map<String,Object> keys emitted by ReportsController.populateMapReport2025_P1().
+  Date fields are pre-formatted dd/MM/yyyy strings by the controller.
+-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="PDS2025_P1" pageWidth="612" pageHeight="792" columnWidth="612"
+              leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+
+	<parameter name="FormBg" class="java.lang.String"/>
+
+	<!-- I. PERSONAL INFORMATION -->
+	<parameter name="CS_ID_no." class="java.lang.String"/>
+	<parameter name="I.PI_Surname" class="java.lang.String"/>
+	<parameter name="I.PI_Firstname" class="java.lang.String"/>
+	<parameter name="I.PI_NameExtension" class="java.lang.String"/>
+	<parameter name="I.PI_Middlename" class="java.lang.String"/>
+	<parameter name="I.PI_Date_Of_Birth" class="java.lang.String"/>
+	<parameter name="I.PI_Place_Of_Birth" class="java.lang.String"/>
+	<!-- Sex at Birth (2025 wording) -->
+	<parameter name="I.PI_Sex_At_Birth_M" class="java.lang.String"/>
+	<parameter name="I.PI_Sex_At_Birth_F" class="java.lang.String"/>
+	<!-- Item 6 (Civil Status): Single / Married / Widowed / Separated / Other/s — no Solo Parent box per 2025 PDF -->
+	<parameter name="I.PI_Civil_Status_Single" class="java.lang.String"/>
+	<parameter name="I.PI_Civil_Status_Married" class="java.lang.String"/>
+	<parameter name="I.PI_Civil_Status_Widowed" class="java.lang.String"/>
+	<parameter name="I.PI_Civil_Status_Separated" class="java.lang.String"/>
+	<parameter name="I.PI_Civil_Status_Others" class="java.lang.String"/>
+	<parameter name="I.PI_Civil_Status_Others_Text" class="java.lang.String"/>
+	<parameter name="I.PI_Height" class="java.lang.String"/>
+	<parameter name="I.PI_Weight" class="java.lang.String"/>
+	<parameter name="I.PI_Bloodtype" class="java.lang.String"/>
+	<!-- 2025 identifiers: UMID + PhilSys (replace GSIS+SSS on page 1) -->
+	<parameter name="I.PI_UMID_ID_NO" class="java.lang.String"/>
+	<parameter name="I.PI_Pagibig_ID_NO." class="java.lang.String"/>
+	<parameter name="I.PI_PhilHealth_NO." class="java.lang.String"/>
+	<parameter name="I.PI_PhilSys_PSN" class="java.lang.String"/>
+	<parameter name="I.PI_TIN_NO." class="java.lang.String"/>
+	<parameter name="I.PI_Agency_Employee_NO." class="java.lang.String"/>
+
+	<!-- Residential / Permanent address -->
+	<parameter name="PI_Residential_House_No" class="java.lang.String"/>
+	<parameter name="PI_Residential_Street" class="java.lang.String"/>
+	<parameter name="PI_Residential_Subdivision" class="java.lang.String"/>
+	<parameter name="PI_Residential_Barangay" class="java.lang.String"/>
+	<parameter name="PI_Residential_City" class="java.lang.String"/>
+	<parameter name="PI_Residential_Province" class="java.lang.String"/>
+	<parameter name="PI_Residential_Zipcode" class="java.lang.String"/>
+	<parameter name="PI_Permanent_House_No" class="java.lang.String"/>
+	<parameter name="PI_Permanent_Street" class="java.lang.String"/>
+	<parameter name="PI_Permanent_Subdivision" class="java.lang.String"/>
+	<parameter name="PI_Permanent_Barangay" class="java.lang.String"/>
+	<parameter name="PI_Permanent_City" class="java.lang.String"/>
+	<parameter name="PI_Permanent_Province" class="java.lang.String"/>
+	<parameter name="PI_Permanent_Zipcode" class="java.lang.String"/>
+
+	<!-- Citizenship -->
+	<parameter name="I.PI_Citizenship_Filipino" class="java.lang.String"/>
+	<parameter name="I.PI_Citizenship_Dual" class="java.lang.String"/>
+	<parameter name="I.PI_Citizenship_By_birth" class="java.lang.String"/>
+	<parameter name="I.PI_Citizenship_By_naturalization" class="java.lang.String"/>
+	<parameter name="I.PI_Citizenship_Indicate_Country" class="java.lang.String"/>
+
+	<!-- Contact -->
+	<parameter name="I.PI_Telephone_NO" class="java.lang.String"/>
+	<parameter name="I.PI_Mobile_NO" class="java.lang.String"/>
+	<parameter name="I.PI_EmailAdd" class="java.lang.String"/>
+
+	<!-- II. FAMILY BACKGROUND -->
+	<parameter name="II.FBG_Spouse_Surname" class="java.lang.String"/>
+	<parameter name="II.FBG_Spouse_Firstname" class="java.lang.String"/>
+	<parameter name="II.FBG_Spouse_Name_Extension" class="java.lang.String"/>
+	<parameter name="II.FBG_Spouse_Middlename" class="java.lang.String"/>
+	<parameter name="II.FBG_Spouse_Occupation" class="java.lang.String"/>
+	<parameter name="II.FBG_Spouse_Employer" class="java.lang.String"/>
+	<parameter name="II.FBG_Spouse_Business_Address" class="java.lang.String"/>
+	<parameter name="II.FBG_Spouse_TelephoneNO" class="java.lang.String"/>
+	<parameter name="II.FBG_Father_Surname" class="java.lang.String"/>
+	<parameter name="II.FBG_Father_Firstname" class="java.lang.String"/>
+	<parameter name="II.FBG_Father_Name_Extension" class="java.lang.String"/>
+	<parameter name="II.FBG_Father_Middlename" class="java.lang.String"/>
+	<parameter name="II.FBG_Mother_Maidenname" class="java.lang.String"/>
+	<parameter name="II.FBG_Mother_Surname" class="java.lang.String"/>
+	<parameter name="II.FBG_Mother_Firstname" class="java.lang.String"/>
+	<parameter name="II.FBG_Mother_Middlename" class="java.lang.String"/>
+	<!-- Up to 12 children: II.FBG_Child_name1..12 + II.FBG_Child_Birthday1..12 -->
+	<parameter name="II.FBG_Child_name1" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday1" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name2" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday2" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name3" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday3" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name4" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday4" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name5" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday5" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name6" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday6" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name7" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday7" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name8" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday8" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name9" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday9" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name10" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday10" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name11" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday11" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_name12" class="java.lang.String"/>
+	<parameter name="II.FBG_Child_Birthday12" class="java.lang.String"/>
+
+	<!-- III. EDUCATIONAL BACKGROUND -->
+	<parameter name="III.EB_Elementary_School" class="java.lang.String"/>
+	<parameter name="III.EB_Elementary_BasicEducation_Degree_Course" class="java.lang.String"/>
+	<parameter name="III.EB_Elementary_Period_Of_Attendance_From" class="java.lang.String"/>
+	<parameter name="III.EB_Elementary_Period_Of_Attendance_To" class="java.lang.String"/>
+	<parameter name="III.EB_Elementary_HighestLvl_UnitsEarned" class="java.lang.String"/>
+	<parameter name="III.EB_Elementary_Year_Graduated" class="java.lang.String"/>
+	<parameter name="III.EB_Elementary_Scholarship_Acad_Honors_Recieved" class="java.lang.String"/>
+	<parameter name="III.EB_Secondary_School" class="java.lang.String"/>
+	<parameter name="III.EB_Secondary_Period_Of_Attendance_From" class="java.lang.String"/>
+	<parameter name="III.EB_Secondary_Period_Of_Attendance_To" class="java.lang.String"/>
+	<parameter name="III.EB_Secondary_HighestLvl_UnitsEarned" class="java.lang.String"/>
+	<parameter name="III.EB_Secondary_Year_Graduated" class="java.lang.String"/>
+	<parameter name="III.EB_Vocational_TradeCourse_School" class="java.lang.String"/>
+	<parameter name="III.EB_Vocational_TradeCourse_Period_Of_Attendance_From" class="java.lang.String"/>
+	<parameter name="III.EB_Vocational_TradeCourse_Period_Of_Attendance_To" class="java.lang.String"/>
+	<parameter name="III.EB_Vocational_TradeCourse_HighestLvl_UnitsEarned" class="java.lang.String"/>
+	<parameter name="III.EB_Vocational_TradeCourse_Year_Graduated" class="java.lang.String"/>
+	<parameter name="III.EB_College_School" class="java.lang.String"/>
+	<parameter name="III.EB_College_Period_Of_Attendance_From" class="java.lang.String"/>
+	<parameter name="III.EB_College_Period_Of_Attendance_To" class="java.lang.String"/>
+	<parameter name="III.EB_College_HighestLvl_UnitsEarned" class="java.lang.String"/>
+	<parameter name="III.EB_College_Year_Graduated" class="java.lang.String"/>
+	<parameter name="III.EB_GraduateStudies_School" class="java.lang.String"/>
+	<parameter name="III.EB_GraduateStudies_Period_Of_Attendance_From" class="java.lang.String"/>
+	<parameter name="III.EB_GraduateStudies_Period_Of_Attendance_To " class="java.lang.String"/>
+	<parameter name="III.EB_GraduateStudies_HighestLvl_UnitsEarned" class="java.lang.String"/>
+	<parameter name="III.EB_GraduateStudies_Year_Graduated" class="java.lang.String"/>
+
+	<background>
+		<band height="792" splitType="Stretch">
+			<image scaleImage="RetainShape">
+				<reportElement x="0" y="0" width="612" height="792"/>
+				<imageExpression><![CDATA[$P{FormBg}]]></imageExpression>
+			</image>
+		</band>
+	</background>
+
+	<title>
+		<band height="0" splitType="Stretch"/>
+	</title>
+	<detail>
+		<band height="792" splitType="Stretch">
+			<!--
+			  TODO: place <textField> elements over each form cell here in Jaspersoft Studio.
+			  Example for the Surname field:
+
+			  <textField>
+			      <reportElement x="100" y="120" width="170" height="14"/>
+			      <textElement><font fontName="Arial" size="10"/></textElement>
+			      <textFieldExpression><![CDATA[$P{I.PI_Surname}]]></textFieldExpression>
+			  </textField>
+			-->
+		</band>
+	</detail>
+</jasperReport>

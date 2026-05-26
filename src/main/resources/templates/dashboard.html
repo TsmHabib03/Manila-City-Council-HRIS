@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Dashboard</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">
+	
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			  
+
+			<div class="content">
+
+				<!-- Inner container -->
+				<div class="d-flex align-items-start flex-column flex-md-row">
+
+					<!-- Left content -->
+					<div class="tab-content w-100 order-2 order-md-1">
+						<div class="tab-pane fade active show" id="activity">							
+							<th:block th:if="${session.actorObj != null and (session.actorObj.userType == 'ROLE_ADMIN' or session.actorObj.userType == 'ROLE_HR')}">
+							
+							<div class="row">			
+								<div class="col-lg-12 offset-lg-0">									
+									<div class="card">
+										<div class="card-header header-elements-inline">
+											<h5 class="card-title">Number of Actual Employees</h5>
+											<div class="header-elements">
+												<div class="list-icons">
+							                		<a class="list-icons-item" data-action="collapse"></a>
+							                		<a class="list-icons-item" data-action="reload"></a>
+							                		<a class="list-icons-item" data-action="remove"></a>
+							                	</div>
+						                	</div>
+										</div>
+			
+										<div class="card-body">
+											<div class="chart-container">
+												<div class="chart has-fixed-height" id="pie_donut_by_status"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--
+							<div class="row">			
+								<div class="col-lg-12 offset-lg-0">									
+									
+									<div class="card">
+										<div class="card-header header-elements-inline">
+											<h5 class="card-title">Number of Actual Employees</h5>
+											<div class="header-elements">
+												<div class="list-icons">
+							                		<a class="list-icons-item" data-action="collapse"></a>
+							                		<a class="list-icons-item" data-action="reload"></a>
+							                		<a class="list-icons-item" data-action="remove"></a>
+							                	</div>
+						                	</div>
+										</div>
+			
+										<div class="card-body">
+											<div class="chart-container">
+												<div class="chart has-fixed-height" id="pie_basic_by_division"></div>
+											</div>
+										</div>
+									</div>
+									 
+								</div>
+								
+								
+							</div>
+							-->
+							
+							<div class="row">			
+								<div class="col-lg-12 offset-lg-0">									
+									<div class="card">
+										<div class="card-header header-elements-inline">
+											<h5 class="card-title">Number of Actual Employees</h5>
+											<div class="header-elements">
+												<div class="list-icons">
+							                		<a class="list-icons-item" data-action="collapse"></a>
+							                		<a class="list-icons-item" data-action="reload"></a>
+							                		<a class="list-icons-item" data-action="remove"></a>
+							                	</div>
+						                	</div>
+										</div>
+			
+										<div class="card-body">
+											<div class="chart-container">
+												<div class="chart has-fixed-height" id="pie_donut_by_gender"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--
+							<div class="row">			
+								<div class="col-lg-12 offset-lg-0">
+									
+									<div class="card">
+										<div class="card-header header-elements-inline">
+											<h5 class="card-title">Number of Actual Employees</h5>
+											<div class="header-elements">
+												<div class="list-icons">
+							                		<a class="list-icons-item" data-action="collapse"></a>
+							                		<a class="list-icons-item" data-action="reload"></a>
+							                		<a class="list-icons-item" data-action="remove"></a>
+							                	</div>
+						                	</div>
+										</div>
+					
+										<div class="card-body">
+											<p class="mb-3">List of all employee type and their total count.</p>
+					
+											<div class="card card-table table-responsive shadow-0 mb-0">
+												<table class="table" id="statusTable">
+													<thead>
+														<tr>
+															<th>EMPLOYMENT STATUS</th>
+															<th>Total Employee's</th>
+														</tr>
+													</thead>
+													<tbody>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>	
+								</div>		
+							</div>
+							-->
+							
+							</th:block>
+							<!-- /row -->
+							<div class="row">			
+								<div class="col-lg-12 offset-lg-0">
+			
+										<div class="card">
+											<div class="card-header header-elements-inline">
+												<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_ADMIN'}">
+													<h5 class="card-title">New Clearance Application List</h5>
+												</th:block>
+												<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_EMPLOYEE'}">
+													<h5 class="card-title">My Clearance Application List</h5>
+												</th:block>
+												
+												<div class="header-elements">
+													<div class="list-icons">
+								                		<a class="list-icons-item" data-action="collapse"></a>
+								                		<a class="list-icons-item" data-action="reload"></a>
+								                		<a class="list-icons-item" data-action="remove"></a>
+								                	</div>
+							                	</div>
+											</div>
+											
+											<div class="card-body">
+												<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_ADMIN'}">
+													List of all new clearance applications.
+												</th:block>
+												<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_EMPLOYEE'}">
+													My clearance applications.
+												</th:block>
+											</div>
+
+					<div id="DataTables_Table_2_wrapper" class="dataTables_wrapper no-footer">
+						
+						
+											
+									<div class="datatable-scroll">
+										
+										<table class="table table-bordered table-hover datatable-highlight dataTable no-footer" id="clearancesTable" role="grid" aria-describedby="DataTables_Table_2_info">
+											<thead>
+												<tr role="row">
+													<th th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_ADMIN'}" class="sorting_asc" tabindex="0" aria-controls="DataTables_Table_2" rowspan="1" colspan="1">Employee Name</th>
+													<th class="sorting" tabindex="0" aria-controls="DataTables_Table_2" rowspan="1" colspan="1">Filing Date</th>
+													<th class="sorting" tabindex="0" aria-controls="DataTables_Table_2" rowspan="1" colspan="1">Purpose</th>
+													<th class="sorting" tabindex="0" aria-controls="DataTables_Table_2" rowspan="1" colspan="1">Effectivity Date</th>
+													<th class="sorting" tabindex="0" aria-controls="DataTables_Table_2" rowspan="1" colspan="1">Status</th>
+													<th th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_ADMIN'}" class="text-center sorting_disabled" rowspan="1" colspan="1" style="width: 100px;">Actions</th>
+												</tr>
+											</thead>
+											<tbody>							
+												
+											</tbody>
+										</table>
+										
+									</div>
+									</div>
+				</div>
+			
+								</div>		
+							</div>
+							
+					    </div>			    
+					</div>
+					<!-- /left content -->
+
+
+					<!-- Right component Profile Pic -->
+					<div class="sidebar sidebar-light bg-transparent sidebar-component sidebar-component-right wmin-100 border-0 shadow-0 order-1 order-md-2 sidebar-expand-md">
+
+						<!-- Sidebar content -->
+						<div class="sidebar-content">
+							<input type="file" name="profilePhoto" id="profilePhoto" accept="image/*" class="inputfile" />
+							<!-- User card -->
+							<div class="card">
+								<div class="card-body text-center">
+									<div class="card-img-actions d-inline-block mb-3 ">
+										
+										<img th:src="|@{*{#authentication.principal.profilePhoto == null ? '/images/avatar.png' : #authentication.principal.profilePhoto}}|" width="170" height="170" class="rounded-circle" alt="">
+										
+										
+									</div>
+									<h6 class="font-weight-semibold mt-0 mb-0 text-uppercase" sec:authentication="principal.fullName">Hanna Dorman</h6>
+										<div class="text-left mt-1">
+											<!--
+											
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">POSITION: </span>HR ADMIN</span>
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">DIVISION: </span>PERSONNEL</span>
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">ASSUMPTION DATE: </span>OCT 16, 2005</span>
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">BIRTHDAY: </span>JAN 27, 1982 <span class="text-muted text-uppercase ml-1"><span class="font-weight-semibold">AGE: </span>42</span></span>
+											
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">MOBILE: </span>09062794574</span>
+											-->
+											
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">POSITION: </span><span th:text="${session.actorObj.positionTitle?.positionTitleName}">HR ADMIN</span></span>
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">DIVISION: </span><span th:text="${session.actorObj.division?.divisionName}">HR ADMIN</span></span>
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">ASSUMPTION DATE: </span><span th:text="${session.actorObj.assumptiondate}">HR ADMIN</span></span>
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">BIRTHDAY: </span><span th:text="${session.actorObj.birthdate}">HR ADMIN</span> <span class="text-muted text-uppercase ml-1"><span class="font-weight-semibold">AGE: </span><span th:text="${session.actorObj.age}">HR ADMIN</span></span></span>
+															
+											<span class="d-block text-muted text-uppercase"><span class="font-weight-semibold">MOBILE: </span><span th:text="${session.actorObj.mobileNo1}">HR ADMIN</span></span>
+											
+										</div>
+									
+										    		
+						    	</div>
+					    	</div>
+					    	<!-- /user card -->
+					    	
+					    	<div class="card">
+								<div class="card-header bg-transparent header-elements-inline">
+									<span class="card-title font-weight-semibold">Navigation</span>
+									<div class="header-elements">
+										<div class="list-icons">
+					                		<a class="list-icons-item" data-action="collapse"></a>
+				                		</div>
+			                		</div>
+								</div>
+
+								<div class="card-body p-0" style="">
+									<ul class="nav nav-sidebar my-2">
+										<li class="nav-item">
+											<a th:href="@{'/employee/' + ${session.actorObj.id} + '/PROFILE/' + ${session.actorObj.getEmpHashCode()}}" class="nav-link">
+												<i class="icon-user"></i>
+												 My Personal Information
+											</a>
+										</li>
+										<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_EMPLOYEE'}">
+										<li class="nav-item">
+											<a th:href="@{'/my-appointments/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}" class="nav-link">
+												<i class="icon-user-tie"></i>
+												 My Appointments
+											</a>
+										</li>
+										</th:block>
+										<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_ADMIN'}">
+										<li class="nav-item">
+											<a th:href="@{/clearance-list}" class="nav-link">
+												<i class="icon-pencil7"></i>
+												Clearance Application
+												<span class="badge bg-blue badge-pill ml-auto">New <span id="clearanceCount">0</span></span>
+											</a>
+										</li>
+										</th:block>
+									</ul>
+								</div>
+							</div>
+							
+							
+							<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_ADMIN'}">
+							<!-- Birthday -->
+							<div class="card">
+								<div class="card-header header-elements-inline">
+									<h6 class="card-title">Birthday Celebrants</h6>
+								</div>
+	
+								<div class="card-body">	
+									<ul class="media-list">
+										<li class="media">
+											<div class="mr-3">
+												<a href="#" class="btn bg-transparent border-danger text-danger rounded-round border-2 btn-icon"><i class="fas fa-birthday-cake"></i></a>
+											</div>
+											
+											<div class="media-body">
+												Ian Alfred Orozco <br><span class="font-weight-semibold text-danger">Jan 27, 1982</span>
+											</div>	
+										</li>										
+									</ul>
+								</div>
+							</div>							
+							<!-- /Birthday -->
+							</th:block>
+						</div>
+						<!-- /sidebar content -->
+					</div>
+					<!-- /right sidebar component -->
+
+				</div>
+				<!-- /inner container -->
+
+			</div>
+			<!-- /content area -->
+						
+			
+
+		</div>
+		<!-- /main content -->
+		
+		
+
+	</div>
+	<!-- /page content -->
+	
+	<!-- Main sidebar -->
+	<div th:replace="fragments/common::footer"></div>
+	<!-- /Main sidebar -->
+	
+	<script th:inline="javascript">		
+		
+		let contextRoot = /*[[@{/}]]*/ '';
+		if (contextRoot.endsWith('/')) {
+			contextRoot = contextRoot.slice(0, -1);
+		}
+		/*<![CDATA[*/
+	    var userType = /*[[${session.actorObj.userType}]]*/ null;
+	    /*]]>*/
+	    
+	    /*<![CDATA[*/
+	    var loggedInId = /*[[${session.actorObj.id}]]*/ null;
+	    /*]]>*/
+	    
+	    
+	
+	    $(document).ready(function() {			
+			
+			getEmployeeCountByStatus();
+			getEmployeeCountByDivision();
+			getEmployeeCountByGender();
+			getNewClerances();	
+			getBirthdayListEmployees();	
+			
+			
+			function getBirthdayListEmployees(){
+				let url = contextRoot + '/employee-bdaylist';
+				
+				$.ajax({
+	                url: url,
+	                type: 'GET',
+	                dataType: 'json',
+	                success: function(response) {
+	                    // Render statusCounts into table
+	                    //renderTable(response);
+	                    renderEmployeeBirthdayList(response);
+	                },
+	                error: function(xhr, status, error) {
+	                    console.error('Error fetching statusCounts:', error);
+	                }
+	            });
+            
+				
+			}
+			
+			function renderEmployeeBirthdayList(data) {
+			    const mediaList = document.querySelector('.media-list');
+			    mediaList.innerHTML = ''; // Clear existing list items
+			    
+			    if (data.length === 0) {
+			        const li = document.createElement('li');
+			        li.textContent = 'No Celebrants for this month';
+			        mediaList.appendChild(li);
+			    } else {
+			    
+				    data.forEach(item => {
+				        const li = document.createElement('li');
+				        li.classList.add('media');
+				        
+				        li.innerHTML =
+                            '<div class="mr-3">' +
+                            '<a href="#" class="btn bg-transparent border-danger text-danger rounded-round border-2 btn-icon"><i class="fas fa-birthday-cake"></i></a>' +
+                            '</div>' +
+                            '<div class="media-body">' + item + '</div>';
+				        
+				        mediaList.appendChild(li);
+				    });
+				}
+			}	
+			
+			function getEmployeeCountByStatus(){
+				let url = contextRoot + '/employee-status/count';
+				
+				$.ajax({
+	                url: url,
+	                type: 'GET',
+	                dataType: 'json',
+	                success: function(response) {
+	                    // Render statusCounts into table
+	                    //renderTable(response);
+	                    showEmployeeCountByStatus(response);
+	                },
+	                error: function(xhr, status, error) {
+	                    console.error('Error fetching statusCounts:', error);
+	                }
+	            });
+            
+				
+			}
+			
+			function getEmployeeCountByDivision(){
+				let url = contextRoot + '/employee-division/count';
+				
+				$.ajax({
+	                url: url,
+	                type: 'GET',
+	                dataType: 'json',
+	                success: function(response) {
+	                    // Render statusCounts into table
+	                    //renderTable(response);
+	                    showEmployeeCountByDivision(response);
+	                },
+	                error: function(xhr, status, error) {
+	                    console.error('Error fetching statusCounts:', error);
+	                }
+	            });
+            
+				
+			}
+			
+			function getEmployeeCountByGender(){
+				let url = contextRoot + '/employee-gender/count';
+				
+				$.ajax({
+	                url: url,
+	                type: 'GET',
+	                dataType: 'json',
+	                success: function(response) {
+	                    // Render statusCounts into table
+	                    //renderTable(response);
+	                    showEmployeeCountByGender(response);
+	                },
+	                error: function(xhr, status, error) {
+	                    console.error('Error fetching statusCounts:', error);
+	                }
+	            });
+            
+				
+			}
+			
+			function getNewClerances(){
+				
+				let clearanceUrl = contextRoot + '/clearance-list/SUBMITTED';
+				
+				if(userType === 'ROLE_ADMIN'){
+					
+				} else {
+					clearanceUrl = contextRoot + '/clearance-list-employee/' + loggedInId;
+				}
+				
+				
+				
+				$.ajax({
+					type: "GET",
+					url: clearanceUrl,
+					dataType: "json",
+					success: function(clearances) {
+						//console.log("Clearances by status:", clearances);
+						var count = clearances.length;
+	                	//console.log("Number of clearances: " + count);
+	                	$("#clearanceCount").html(count)
+						renderClearanceTable(clearances);
+					},
+					error: function(xhr, status, error) {
+						console.error("Error fetching clearances:", error);
+					}
+				});
+			}
+			
+			function renderClearanceTable(clearances) {
+                var tableBody = $("#clearancesTable tbody");
+                tableBody.empty();
+
+                if (clearances.length === 0) {
+                    var cols = (userType === 'ROLE_ADMIN') ? 6 : 4;
+                    tableBody.append('<tr><td colspan="' + cols + '" class="text-center text-muted">No clearance applications found.</td></tr>');
+                    return;
+                }
+
+                if (userType === 'ROLE_ADMIN') {
+                    $.each(clearances, function(index, clearance) {
+                        var empName = clearance.employee ? clearance.employee.displayName : '';
+                        var row = "<tr>" +
+                            "<td>" + empName + "</td>" +
+                            "<td>" + (clearance.transDate || '') + "</td>" +
+                            "<td>" + (clearance.effectiveDate || '') + "</td>" +
+                            "<td>" + (clearance.purpose || '') + "</td>" +
+                            "<td>" + (clearance.status || '') + "</td>" +
+                            '<td class="text-center">' +
+                            '<div class="list-icons"><div class="dropdown">' +
+                            '<a href="#" class="list-icons-item" data-toggle="dropdown"><i class="icon-menu9"></i></a>' +
+                            '<div class="dropdown-menu dropdown-menu-right">' +
+                            '<a href="#" class="dropdown-item" onclick="approvedClearance(' + clearance.id + ')"><i class="icon-checkmark-circle2"></i> Approve Clearance</a>' +
+                            '<a href="#" class="dropdown-item" onclick="disApprovedClearance()"><i class="icon-close2"></i> DisApprove Clearance</a>' +
+                            '</div></div></div></td>' +
+                            "</tr>";
+                        tableBody.append(row);
+                    });
+                } else {
+                    $.each(clearances, function(index, clearance) {
+                        var row = "<tr>" +
+                            "<td>" + (clearance.transDate || '') + "</td>" +
+                            "<td>" + (clearance.purpose || '') + "</td>" +
+                            "<td>" + (clearance.effectiveDate || '') + "</td>" +
+                            "<td>" + (clearance.status || '') + "</td>" +
+                            "</tr>";
+                        tableBody.append(row);
+                    });
+                }
+            }
+			
+			
+
+            // Function to render statusCounts into table
+            function renderTable(statusCounts) {
+                var tbodyContent = '';
+                var total = 0;
+                // Iterate over statusCounts and construct tbody content
+                $.each(statusCounts, function(status, count) {
+                    tbodyContent += '<tr><td>' + status + '</td><td>' + count + '</td></tr>';
+                    total += count;
+                });
+                // Append tbody content to table
+                $('#statusTable tbody').append(tbodyContent);
+                // Add total row at the end
+                $('#statusTable tbody').append('<tr style="background-color: aliceblue;"><td>TOTAL</td><td>' + total + '</td></tr>');
+            }
+	    	
+	    	
+	    		    				
+			$(".nav-link").removeClass("active");	    	  	
+			$("#emrDashboardNav").addClass("active");
+
+	    	
+	    	
+
+	    });
+	    
+	    
+
+		function approvedClearance(id) {
+			swal({
+			  title: "Confirmation?",
+			  text: "Are you sure you want to approve this clearance application?",
+			  icon: "info",
+			  buttons: ["Yes", "No"],
+			  dangerMode: false,
+			})
+			.then((selectNo) => {
+			  if (selectNo) {
+				  //No Response
+				  console.log("selected no");
+
+			  } else {
+			  	 console.log("selected yes");
+			  	 let url = contextRoot + '/process-clearance/' + id + '/APPROVED';
+			
+				$.ajax({
+		            type: "POST",
+		            url: url,
+		            //dataType: "json",
+		            success: function(response) {
+						console.log(response);
+						
+		                swal({
+							title: "Success!",
+							text: "Clearance successfully approved.",
+							icon: "success",
+							buttons: false,
+				            timer: 2000,
+						})
+						.then((value) => {										
+							window.location.href = contextRoot + '/dashboard';
+						});
+						
+						
+		            },
+		            error: function(xhr, status, error) {
+		                // Handle error response
+		                console.error("Error approving clearance:", error);
+		            }
+		        });
+			  }
+			  
+			});
+			
+			
+		}
+			
+		function disApprovedClearance(id) {
+			swal({
+			  title: "Confirmation?",
+			  text: "Are you sure you want to disapprove this clearance application?",
+			  icon: "info",
+			  buttons: ["Yes", "No"],
+			  dangerMode: false,
+			})
+			.then((selectNo) => {
+			  if (selectNo) {
+				  //No Response
+				  console.log("selected no");
+
+			  } else {
+			  	 console.log("selected yes");
+			  	 let url = contextRoot + '/process-clearance/' + id + '/DISAPPROVED';
+			
+				$.ajax({
+		            type: "POST",
+		            url: url,
+		            //dataType: "json",
+		            success: function(response) {
+						console.log(response);
+						
+		                swal({
+							title: "Success!",
+							text: "Clearance successfully disapproved.",
+							icon: "success",
+							buttons: false,
+				            timer: 2000,
+						})
+						.then((value) => {										
+							window.location.href = contextRoot + '/dashboard';
+						});
+						
+						
+		            },
+		            error: function(xhr, status, error) {
+		                // Handle error response
+		                console.error("Error approving clearance:", error);
+		            }
+		        });
+			  }
+			  
+			});
+		}
+			
+		function viewRecord() {
+				alert(3);
+		}
+
+	</script>
+	
+	<script th:inline="javascript">	
+		
+		
+		function showEmployeeCountByStatus(data) {
+			
+			var pie_donut_element = document.getElementById('pie_donut_by_status');
+			var legendData = extractLegendLabels(data); //Object.keys(data);
+			var seriesData = formatChartData(data);
+
+	        //
+	        // Charts configuration
+	        //
+	
+	        if (pie_donut_element) {
+	
+	            // Initialize chart
+	            var pie_donut = echarts.init(pie_donut_element);
+	
+	
+	            //
+	            // Chart config
+	            //
+	
+	            // Options
+	            pie_donut.setOption({
+	
+	                // Colors
+	                color: [
+	                    '#2ec7c9','#b6a2de','#5ab1ef','#ffb980','#d87a80',
+	                    '#8d98b3','#e5cf0d','#97b552','#95706d','#dc69aa',
+	                    '#07a2a4','#9a7fd1','#588dd5','#f5994e','#c05050',
+	                    '#59678c','#c9ab00','#7eb00a','#6f5553','#c14089'
+	                ],
+	
+	                // Global text styles
+	                textStyle: {
+	                    fontFamily: 'Roboto, Arial, Verdana, sans-serif',
+	                    fontSize: 13
+	                },
+	
+	                // Add title
+	                title: {
+	                    text: 'By Employee Status',
+	                    subtext: 'No. of employees per employment status.',
+	                    left: 'center',
+	                    textStyle: {
+	                        fontSize: 17,
+	                        fontWeight: 500
+	                    },
+	                    subtextStyle: {
+	                        fontSize: 12
+	                    }
+	                },
+	
+	                // Add tooltip
+	                tooltip: {
+	                    trigger: 'item',
+	                    backgroundColor: 'rgba(0,0,0,0.75)',
+	                    padding: [10, 15],
+	                    textStyle: {
+	                        fontSize: 13,
+	                        fontFamily: 'Roboto, sans-serif'
+	                    },
+	                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+	                },
+	
+	                // Add legend
+	                legend: {
+	                    orient: 'vertical',
+	                    top: 'center',
+	                    left: 0,
+	                    data: legendData,
+	                    itemHeight: 8,
+	                    itemWidth: 8
+	                },
+	
+	                // Add series
+	                series: [{
+	                    name: 'Status',
+	                    type: 'pie',
+	                    radius: ['50%', '70%'],
+	                    center: ['60%', '57.5%'],
+	                    itemStyle: {
+	                        normal: {
+	                            borderWidth: 1,
+	                            borderColor: '#fff'
+	                        }
+	                    },
+	                    data: seriesData,
+	                }]
+	            });
+	        }
+			
+		}
+		
+		
+		function formatChartData(data) {
+		    return Object.keys(data).map(key => {
+		        return { value: data[key], name: key + ' (' + data[key] + ')' }; // Adjust the name format as needed
+		    });
+		}
+		
+		function extractLegendLabels(data) {
+		    return Object.keys(data).map(key => key + ' (' + data[key] + ')');
+		}
+		
+		function showEmployeeCountByDivision(data) {
+			// Define element
+	        var pie_basic_element = document.getElementById('pie_basic_by_division');
+			//var legendData = Object.keys(data).map(label => label + ' (' + data[label] + ')');
+			var legendData = extractLegendLabels(data); //Object.keys(data);
+			var seriesData = formatChartData(data);
+	
+	        //
+	        // Charts configuration
+	        //
+	
+	        if (pie_basic_element) {
+	
+	            // Initialize chart
+	            var pie_basic = echarts.init(pie_basic_element);
+	
+	
+	            //
+	            // Chart config
+	            //
+	
+	            // Options
+	            pie_basic.setOption({
+	
+	                // Colors
+	                color: [
+	                    '#2ec7c9','#b6a2de','#5ab1ef','#ffb980','#d87a80',
+	                    '#8d98b3','#e5cf0d','#97b552','#95706d','#dc69aa',
+	                    '#07a2a4','#9a7fd1','#588dd5','#f5994e','#c05050',
+	                    '#59678c','#c9ab00','#7eb00a','#6f5553','#c14089'
+	                ],
+	
+	                // Global text styles
+	                textStyle: {
+	                    fontFamily: 'Roboto, Arial, Verdana, sans-serif',
+	                    fontSize: 13
+	                },
+	
+	                // Add title
+	                title: {
+	                    text: 'By Division',
+	                    subtext: 'No. of employees per division',
+	                    left: 'center',
+	                    textStyle: {
+	                        fontSize: 17,
+	                        fontWeight: 500
+	                    },
+	                    subtextStyle: {
+	                        fontSize: 12
+	                    }
+	                },
+	
+	                // Add tooltip
+	                tooltip: {
+	                    trigger: 'item',
+	                    backgroundColor: 'rgba(0,0,0,0.75)',
+	                    padding: [10, 15],
+	                    textStyle: {
+	                        fontSize: 13,
+	                        fontFamily: 'Roboto, sans-serif'
+	                    },
+	                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+	                },
+	
+	                // Add legend
+	                legend: {
+	                    orient: 'vertical',
+	                    top: 'center',
+	                    left: 0,
+	                    //data: ['IE', 'Opera', 'Safari', 'Firefox', 'Chrome'],
+	                    data: legendData,
+	                    itemHeight: 8,
+	                    itemWidth: 8
+	                },
+	
+	                // Add series
+	                series: [{
+	                    name: 'Division',
+	                    type: 'pie',
+	                    radius: '70%',
+	                    center: ['60%', '57.5%'],
+	                    itemStyle: {
+	                        normal: {
+	                            borderWidth: 1,
+	                            borderColor: '#fff'
+	                        }
+	                    },
+	                    data : seriesData
+	                    //data: [
+	                    //    {value: 335, name: 'IExxx'},
+	                    //    {value: 310, name: 'Operaxxx'},
+	                    //    {value: 234, name: 'Safari'},
+	                    //    {value: 135, name: 'Firefox'},
+	                    //    {value: 1548, name: 'Chrome'}
+	                    //]
+	                }]
+	            });
+	        }
+		}
+		
+		
+		function showEmployeeCountByGender(data) {
+			
+			var pie_donut_element = document.getElementById('pie_donut_by_gender');
+			var legendData = extractLegendLabels(data); //Object.keys(data);
+			var seriesData = formatChartData(data);
+
+	        //
+	        // Charts configuration
+	        //
+	
+	        if (pie_donut_element) {
+	
+	            // Initialize chart
+	            var pie_donut = echarts.init(pie_donut_element);
+	
+	
+	            //
+	            // Chart config
+	            //
+	
+	            // Options
+	            pie_donut.setOption({
+	
+	                // Colors
+	                color: [
+	                    '#2ec7c9','#b6a2de','#5ab1ef','#ffb980','#d87a80',
+	                    '#8d98b3','#e5cf0d','#97b552','#95706d','#dc69aa',
+	                    '#07a2a4','#9a7fd1','#588dd5','#f5994e','#c05050',
+	                    '#59678c','#c9ab00','#7eb00a','#6f5553','#c14089'
+	                ],
+	
+	                // Global text styles
+	                textStyle: {
+	                    fontFamily: 'Roboto, Arial, Verdana, sans-serif',
+	                    fontSize: 13
+	                },
+	
+	                // Add title
+	                title: {
+	                    text: 'By Employee Gender',
+	                    subtext: 'No. of employees per gender.',
+	                    left: 'center',
+	                    textStyle: {
+	                        fontSize: 17,
+	                        fontWeight: 500
+	                    },
+	                    subtextStyle: {
+	                        fontSize: 12
+	                    }
+	                },
+	
+	                // Add tooltip
+	                tooltip: {
+	                    trigger: 'item',
+	                    backgroundColor: 'rgba(0,0,0,0.75)',
+	                    padding: [10, 15],
+	                    textStyle: {
+	                        fontSize: 13,
+	                        fontFamily: 'Roboto, sans-serif'
+	                    },
+	                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+	                },
+	
+	                // Add legend
+	                legend: {
+	                    orient: 'vertical',
+	                    top: 'center',
+	                    left: 0,
+	                    data: legendData,
+	                    itemHeight: 8,
+	                    itemWidth: 8
+	                },
+	
+	                // Add series
+	                series: [{
+	                    name: 'Status',
+	                    type: 'pie',
+	                    radius: ['50%', '70%'],
+	                    center: ['60%', '57.5%'],
+	                    itemStyle: {
+	                        normal: {
+	                            borderWidth: 1,
+	                            borderColor: '#fff'
+	                        }
+	                    },
+	                    data: seriesData,
+	                }]
+	            });
+	        }
+			
+		}
+		
+		
+		
+	</script>
+
+</body>
+</html>

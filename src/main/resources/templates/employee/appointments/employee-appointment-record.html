@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+	<title>Human Resource Information System</title>
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4>
+							<span class="font-weight-semibold" th:text="${showMode == 'EMPLOYEE' ? 'My Appointment History' : 'Appointment Record List'}">Appointment Record List</span>
+						</h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>
+				</div>
+			</div>
+			<!-- /page header -->
+
+			<!-- Add/Edit Modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Appointment Record Information</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form id="appointmentForm" th:action="@{/addAppointment}" method="post" class="form-horizontal" th:object="${appointment}">
+							<input type="hidden" th:field="*{id}" id="id">
+							<input type="hidden" th:field="*{employee.id}" id="employeeId">
+							<input type="hidden" th:field="*{employee.empHashCode}" id="empHashCode">
+							<div class="modal-body">
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-3">
+											<label for="plantillaNo">Plantilla No <span class="text-danger">*</span></label>
+											<input id="plantillaNo" name="plantillaNo" th:field="*{plantillaNo}" placeholder="Plantilla No" type="text" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="pageNo">Page No</label>
+											<input id="pageNo" name="pageNo" th:field="*{pageNo}" placeholder="Page No" type="number" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="signingDate">Signing Date <span class="text-danger">*</span></label>
+											<input id="signingDate" name="signingDate" type="date" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="entranceDate">Entrance Date <span class="text-danger">*</span></label>
+											<input id="entranceDate" name="entranceDate" type="date" class="form-control required-field-hrisp">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-6">
+											<label for="positionTitle">Position Title <span class="text-danger">*</span></label>
+											<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control required-field-hrisp">
+												<option selected value="">SELECT VALUE</option>
+												<option th:each="pt : ${positionTitleList}" th:value="${pt.id}" th:text="${pt.positionTitleName}">positionTitleName</option>
+											</select>
+										</div>
+										<div class="col-sm-3">
+											<label for="salaryGrade">Salary Grade <span class="text-danger">*</span></label>
+											<input id="salaryGrade" name="salaryGrade" th:field="*{salaryGrade}" placeholder="Salary Grade" type="number" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="stepInc">Step Increment <span class="text-danger">*</span></label>
+											<input id="stepInc" name="stepInc" th:field="*{stepInc}" placeholder="Step" type="number" class="form-control required-field-hrisp">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-6">
+											<label for="statusOfAppointment">Status of Appointment <span class="text-danger">*</span></label>
+											<input id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" placeholder="Status of Appointment" type="text" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="statusOfSepeparation">Status of Separation</label>
+											<input id="statusOfSepeparation" name="statusOfSepeparation" th:field="*{statusOfSepeparation}" placeholder="Status of Separation" type="text" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="salary">Salary <span class="text-danger">*</span></label>
+											<input id="salary" name="salary" th:field="*{salary}" placeholder="Salary" type="number" step="0.01" class="form-control required-field-hrisp">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="eligibility">Eligibility</label>
+											<input id="eligibility" name="eligibility" th:field="*{eligibility}" placeholder="Eligibility" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="highestEducAttainment">Highest Educational Attainment</label>
+											<input id="highestEducAttainment" name="highestEducAttainment" th:field="*{highestEducAttainment}" placeholder="Highest Educ Attainment" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="officeAssignment">Office Assignment</label>
+											<input id="officeAssignment" name="officeAssignment" th:field="*{officeAssignment}" placeholder="Office Assignment" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="vice">Vice</label>
+											<input id="vice" name="vice" th:field="*{vice}" placeholder="Vice" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="district">District</label>
+											<input id="district" name="district" th:field="*{district}" placeholder="District" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="experience">Experience</label>
+											<input id="experience" name="experience" th:field="*{experience}" placeholder="Experience" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-6">
+											<label for="training">Training</label>
+											<input id="training" name="training" th:field="*{training}" placeholder="Training" type="text" class="form-control">
+										</div>
+										<div class="col-sm-6">
+											<label for="remarks">Remarks</label>
+											<textarea id="remarks" name="remarks" rows="3" placeholder="Remarks" class="form-control"></textarea>
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button th:if="${showMode != 'EMPLOYEE'}" type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Add/Edit Modal -->
+
+			<!-- Content area -->
+			<div class="content pt-0">
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title" th:text="${showMode == 'EMPLOYEE' ? 'My Appointments' : 'Appointment Records'}">Appointment Records</h5>
+								<div class="header-elements">
+									<div class="list-icons">
+										<th:block th:if="${showMode != 'EMPLOYEE'}">
+											<button id="addNewBtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+											<a th:href="@{/appointments}" class="btn bg-green">Back to Employee List</a>
+										</th:block>
+									</div>
+								</div>
+							</div>
+
+							<table class="table table-basic table-hover" id="table-list">
+								<thead>
+									<tr>
+										<th width="220px;">&nbsp;</th>
+										<th>Plantilla No</th>
+										<th>Position Title</th>
+										<th>Status of Appointment</th>
+										<th>Salary</th>
+										<th>Salary Grade</th>
+										<th>Signing Date</th>
+										<th>Entrance Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="appt : ${appointmentRecordList}">
+										<tr>
+											<td class="text-center">
+												<button type="button" class="showDetails btn btn-primary btn-sm"
+													th:data-row-id="${appt.getId()}"
+													th:data-row-plantillaNo="${appt.plantillaNo}"
+													th:data-row-pageNo="${appt.pageNo}"
+													th:data-row-signingDate="${appt.signingDate}"
+													th:data-row-entranceDate="${appt.entranceDate}"
+													th:data-row-positionTitle="${appt.positionTitle != null ? appt.positionTitle.id : ''}"
+													th:data-row-salaryGrade="${appt.salaryGrade}"
+													th:data-row-stepInc="${appt.stepInc}"
+													th:data-row-statusOfAppointment="${appt.statusOfAppointment}"
+													th:data-row-statusOfSepeparation="${appt.statusOfSepeparation}"
+													th:data-row-salary="${appt.salary}"
+													th:data-row-eligibility="${appt.eligibility}"
+													th:data-row-highestEducAttainment="${appt.highestEducAttainment}"
+													th:data-row-officeAssignment="${appt.officeAssignment}"
+													th:data-row-vice="${appt.vice}"
+													th:data-row-district="${appt.district}"
+													th:data-row-experience="${appt.experience}"
+													th:data-row-training="${appt.training}"
+													th:data-row-remarks="${appt.remarks}"
+													data-toggle="modal" data-target="#modal_form_vertical">
+													<span th:text="${showMode == 'EMPLOYEE' ? 'View Record' : 'View / Edit'}">View / Edit</span>
+												</button>
+												<th:block th:if="${showMode != 'EMPLOYEE'}">
+													<a th:href="@{'/deleteAppointment/' + ${appt.getId()}}"
+														class="btn btn-danger btn-sm"
+														onclick="return confirm('Delete this appointment record?')">Delete</a>
+												</th:block>
+											</td>
+											<td th:text="${appt.plantillaNo}">plantillaNo</td>
+											<td th:text="${appt.positionTitle != null ? appt.positionTitle.positionTitleName : ''}">positionTitle</td>
+											<td th:text="${appt.statusOfAppointment}">statusOfAppointment</td>
+											<td th:text="${appt.salary}">salary</td>
+											<td th:text="${appt.salaryGrade}">salaryGrade</td>
+											<td th:text="${appt.signingDate}">signingDate</td>
+											<td th:text="${appt.entranceDate}">entranceDate</td>
+										</tr>
+									</th:block>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/'';
+		let appointmentDataTable = null;
+
+		$(document).ready(function() {
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			let showMode = /*[[${showMode == null ? '' : showMode}]]*/'';
+			if (showMode === 'EMPLOYEE') {
+				$("#myAccountNav").addClass("nav-item-expanded nav-item-open");
+				$("#myAppointmentsNav").addClass("active");
+			} else {
+				$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+				$("#appointmentsListNav").addClass("active");
+			}
+
+			let msgCode = /*[[${msg == null ? '' : msg.code}]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+
+			if (msgCode === 'ERROR') {
+				$('#modal_form_vertical').modal('show');
+				swal({ title: "Error!", text: msgDesc, icon: "error", buttons: false, timer: 2000 });
+			} else if (msgCode === 'EDIT-SUCCESS' || msgCode === 'SUCCESS') {
+				swal({ title: "Success!", text: msgDesc, icon: "success", buttons: false, timer: 2000 });
+			}
+
+			// Initialize DataTable only once
+			if (!appointmentDataTable) {
+				appointmentDataTable = $('#table-list').DataTable({
+					"lengthMenu": [10, 25, 50],
+					"ordering": false,
+					"retrieve": true
+				});
+			}
+
+			$('#addNewBtn').on('click', function() {
+				$('#appointmentForm')[0].reset();
+				$('#id').val('0');
+				$('#signingDate').val('');
+				$('#entranceDate').val('');
+				$('#appointmentForm').attr('action', contextRoot + '/addAppointment');
+			});
+
+			$('#appointmentForm').submit(function(event) {
+				if (showMode === 'EMPLOYEE') {
+					event.preventDefault();
+					$('#modal_form_vertical').modal('hide');
+					return;
+				}
+
+				var emptyFields = [];
+				$('.required-field-hrisp').each(function() {
+					if ($(this).val().trim() === '') {
+						emptyFields.push($(this));
+					}
+				});
+				if (emptyFields.length > 0) {
+					event.preventDefault();
+					swal({ title: "Error!", text: "Mandatory fields marked in RED are mandatory.", icon: "error", buttons: false, timer: 2000 });
+				}
+			});
+		});
+
+		$(document).on("click", ".showDetails", function() {
+			var id                    = $(this).attr('data-row-id');
+			var plantillaNo           = $(this).attr('data-row-plantillaNo');
+			var pageNo                = $(this).attr('data-row-pageNo');
+			var signingDate           = $(this).attr('data-row-signingDate');
+			var entranceDate          = $(this).attr('data-row-entranceDate');
+			var positionTitle         = $(this).attr('data-row-positionTitle');
+			var salaryGrade           = $(this).attr('data-row-salaryGrade');
+			var stepInc               = $(this).attr('data-row-stepInc');
+			var statusOfAppointment   = $(this).attr('data-row-statusOfAppointment');
+			var statusOfSepeparation  = $(this).attr('data-row-statusOfSepeparation');
+			var salary                = $(this).attr('data-row-salary');
+			var eligibility           = $(this).attr('data-row-eligibility');
+			var highestEducAttainment = $(this).attr('data-row-highestEducAttainment');
+			var officeAssignment      = $(this).attr('data-row-officeAssignment');
+			var vice                  = $(this).attr('data-row-vice');
+			var district              = $(this).attr('data-row-district');
+			var experience            = $(this).attr('data-row-experience');
+			var training              = $(this).attr('data-row-training');
+			var remarks               = $(this).attr('data-row-remarks');
+
+			$("#modal_form_vertical").find("#id").val(id);
+			$("#modal_form_vertical").find("#plantillaNo").val(plantillaNo);
+			$("#modal_form_vertical").find("#pageNo").val(pageNo);
+			$("#modal_form_vertical").find("#signingDate").val(signingDate);
+			$("#modal_form_vertical").find("#entranceDate").val(entranceDate);
+			$("#modal_form_vertical").find("#positionTitle").val(positionTitle);
+			$("#modal_form_vertical").find("#salaryGrade").val(salaryGrade);
+			$("#modal_form_vertical").find("#stepInc").val(stepInc);
+			$("#modal_form_vertical").find("#statusOfAppointment").val(statusOfAppointment);
+			$("#modal_form_vertical").find("#statusOfSepeparation").val(statusOfSepeparation);
+			$("#modal_form_vertical").find("#salary").val(salary);
+			$("#modal_form_vertical").find("#eligibility").val(eligibility);
+			$("#modal_form_vertical").find("#highestEducAttainment").val(highestEducAttainment);
+			$("#modal_form_vertical").find("#officeAssignment").val(officeAssignment);
+			$("#modal_form_vertical").find("#vice").val(vice);
+			$("#modal_form_vertical").find("#district").val(district);
+			$("#modal_form_vertical").find("#experience").val(experience);
+			$("#modal_form_vertical").find("#training").val(training);
+			$("#modal_form_vertical").find("#remarks").val(remarks);
+
+			$('#appointmentForm').attr('action', contextRoot + '/updateAppointment');
+			if (/*[[${showMode == 'EMPLOYEE'}]]*/false) {
+				$('#appointmentForm').find('input, select, textarea').not('#employeeId, #empHashCode, #id').prop('disabled', true);
+			}
+		});
+
+	</script>
+</body>
+</html>

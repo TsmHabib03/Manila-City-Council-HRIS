@@ -136,17 +136,17 @@ public class ReportsController {
 		
 		response.setContentType("application/pdf");
 
-		InputStream reportStream = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS1.jasper");
-		Map<String, Object> map = populateMapReport1(employee, fbList, eduList);
+		InputStream reportStream = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P1.jasper");
+		Map<String, Object> map = populateMapReport2025_P1(employee, fbList, eduList);
 		
-		InputStream reportStream2 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2.jasper");
-		Map<String, Object> map2 = populateMapReport2(csList, workExList);
+		InputStream reportStream2 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P2.jasper");
+		Map<String, Object> map2 = populateMapReport2025_P2(csList, workExList);
 		
-		InputStream reportStream3 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS3.jasper");
-		Map<String, Object> map3 = populateMapReport3(voluntaryList, learningList, otherInfoList);
+		InputStream reportStream3 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P3.jasper");
+		Map<String, Object> map3 = populateMapReport2025_P3(voluntaryList, learningList, otherInfoList);
 		
-		InputStream reportStream4 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS4.jasper");
-		Map<String, Object> map4 = populateMapReport4(otherObj, refList, govList);
+		InputStream reportStream4 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P4.jasper");
+		Map<String, Object> map4 = populateMapReport2025_P4(otherObj, refList, govList);
 		
 		/////////
 		
@@ -1144,6 +1144,153 @@ public class ReportsController {
 		return map;
 	}
 	
+	private Map<String, Object> populateMapReport2025_P1(Employee emp, List<FamilyBg> fbList, List<EducationalBackground> eduList) throws FileNotFoundException {
+		// Reuse the existing population logic, then overlay 2025-specific fields and date formats.
+		Map<String, Object> map = populateMapReport1(emp, fbList, eduList);
+
+		File p1Bg = ResourceUtils.getFile("classpath:static/images/PDS2025_P1.png");
+		map.put("FormBg", p1Bg.getAbsolutePath());
+
+		// Item 5 — Sex at Birth (2025 wording). Emit alongside legacy I.PI_Sex_M/F keys.
+		if("M".equalsIgnoreCase(emp.getGender())) {
+			map.put("I.PI_Sex_At_Birth_M", " X");
+			map.put("I.PI_Sex_At_Birth_F", "");
+		} else {
+			map.put("I.PI_Sex_At_Birth_M", "");
+			map.put("I.PI_Sex_At_Birth_F", " X");
+		}
+
+		// Items 10 and 13 — UMID and PhilSys (new in 2025).
+		map.put("I.PI_UMID_ID_NO", "  " + getStringValue(emp.getUmidNo()));
+		map.put("I.PI_PhilSys_PSN", "  " + getStringValue(emp.getPhilsysNo()));
+
+		// Item 3 — date of birth re-formatted dd/MM/yyyy (2025 form spec).
+		map.put("I.PI_Date_Of_Birth", "  " + formatDateDdMmYyyy(emp.getBirthdate()));
+
+		// Item 23 — children's birthdays re-formatted dd/MM/yyyy.
+		int ctrChild = 1;
+		for(FamilyBg fb : fbList) {
+			if(!"SPOUSE".equalsIgnoreCase(fb.getRelationship())
+					&& !"FATHER".equalsIgnoreCase(fb.getRelationship())
+					&& !"MOTHER".equalsIgnoreCase(fb.getRelationship())) {
+				map.put("II.FBG_Child_Birthday"+ctrChild, "  " + formatDateDdMmYyyy(fb.getBirthdate()));
+				ctrChild++;
+			}
+		}
+
+		// Item 26 — educational-background period dates re-formatted dd/MM/yyyy.
+		for(EducationalBackground eb : eduList) {
+			String lvl = (eb.getDegreeLevel() != null) ? eb.getDegreeLevel().getDegreeName() : "";
+			String prefix;
+			if("ELEMENTARY".equalsIgnoreCase(lvl)) prefix = "III.EB_Elementary";
+			else if("SECONDARY".equalsIgnoreCase(lvl)) prefix = "III.EB_Secondary";
+			else if("VOCATIONAL".equalsIgnoreCase(lvl)) prefix = "III.EB_Vocational_TradeCourse";
+			else if("COLLEGE".equalsIgnoreCase(lvl)) prefix = "III.EB_College";
+			else prefix = "III.EB_GraduateStudies";
+			map.put(prefix + "_Period_Of_Attendance_From", " " + formatDateDdMmYyyy(eb.getStartDate()));
+			map.put(prefix + "_Period_Of_Attendance_To", " " + formatDateDdMmYyyy(eb.getEndDate()));
+		}
+
+		return map;
+	}
+
+	private Map<String, Object> populateMapReport2025_P2(List<CivilServiceEligibility> csList, List<WorkExperience> workExList) throws FileNotFoundException {
+		Map<String, Object> map = populateMapReport2(csList, workExList);
+
+		File p2Bg = ResourceUtils.getFile("classpath:static/images/PDS2025_P2.png");
+		map.put("FormBg2", p2Bg.getAbsolutePath());
+
+		// Item 27 — eligibility exam dates and license validity re-formatted dd/MM/yyyy.
+		// CivilServiceEligibility stores exam date as separate examDay/examMonth/examYear fields.
+		int i = 1;
+		for(CivilServiceEligibility cs : csList) {
+			map.put("IV.CSE_Date_Of_Examination"+i, " " + formatExamDateDdMmYyyy(cs));
+			map.put("IV.CSE_License_Date_Of_Validity"+i, " " + formatDateDdMmYyyy(cs.getLicenseValidityDate()));
+			i++;
+		}
+
+		// Item 28 — work-experience inclusive dates re-formatted dd/MM/yyyy.
+		int j = 1;
+		for(WorkExperience we : workExList) {
+			map.put("V.WE_Inclusive_Dates_From"+j, " " + formatDateDdMmYyyy(we.getDateFrom()));
+			map.put("V.WE_Inclusive_Dates_To"+j, " " + formatDateDdMmYyyy(we.getDateTo()));
+			j++;
+		}
+
+		return map;
+	}
+
+	private Map<String, Object> populateMapReport2025_P3(List<VoluntaryWork> voluntaryList, List<LearningAndDevelopment> learningList, List<OtherInfo> otherList) throws FileNotFoundException {
+		Map<String, Object> map = populateMapReport3(voluntaryList, learningList, otherList);
+
+		File p3Bg = ResourceUtils.getFile("classpath:static/images/PDS2025_P3.png");
+		map.put("FormBg3", p3Bg.getAbsolutePath());
+
+		// Item 29 — voluntary-work inclusive dates re-formatted dd/MM/yyyy.
+		int i = 1;
+		for(VoluntaryWork vw : voluntaryList) {
+			map.put("VI.VW_Inclusive_Dates_From"+i, " " + formatDateDdMmYyyy(vw.getDateFrom()));
+			map.put("VI.VW_Inclusive_Dates_To"+i, " " + formatDateDdMmYyyy(vw.getDateTo()));
+			i++;
+		}
+
+		// Item 30 — L&D inclusive dates re-formatted dd/MM/yyyy.
+		int j = 1;
+		for(LearningAndDevelopment ld : learningList) {
+			map.put("VII.LAD_Inclusive_Dates_Of_Attendance_From"+j, " " + formatDateDdMmYyyy(ld.getDateFrom()));
+			map.put("VII.LAD_Inclusive_Dates_Of_Attendance_To"+j, " " + formatDateDdMmYyyy(ld.getDateTo()));
+			j++;
+		}
+
+		return map;
+	}
+
+	private Map<String, Object> populateMapReport2025_P4(OtherInfoQuestion otherInfoQuestion, List<EmpReferences> referencesList, List<GovermentIssuedId> govIdList) throws FileNotFoundException {
+		Map<String, Object> map = populateMapReport4(otherInfoQuestion, referencesList, govIdList);
+
+		File p4Bg = ResourceUtils.getFile("classpath:static/images/PDS2025_P4.png");
+		map.put("FormBg4", p4Bg.getAbsolutePath());
+
+		return map;
+	}
+
+	// CivilServiceEligibility stores the exam date as three separate fields
+	// (examDay int, examMonth String like "JAN", examYear int). Assemble them
+	// into dd/MM/yyyy for the 2025 PDS form. If day or year is missing/zero we
+	// fall back to the legacy "MMM YYYY" rendering used by populateMapReport2.
+	private static String formatExamDateDdMmYyyy(CivilServiceEligibility cs) {
+		if(cs == null) return "";
+		int day = cs.getExamDay();
+		String month = cs.getExamMonth();
+		int year = cs.getExamYear();
+		if(day > 0 && month != null && !month.isBlank() && year > 0) {
+			int mm = monthAbbrevToNumber(month);
+			if(mm > 0) {
+				return String.format("%02d/%02d/%04d", day, mm, year);
+			}
+		}
+		return getStringValue(cs.getExamDate());
+	}
+
+	private static int monthAbbrevToNumber(String m) {
+		if(m == null) return 0;
+		switch(m.trim().toUpperCase()) {
+			case "JAN": return 1;
+			case "FEB": return 2;
+			case "MAR": return 3;
+			case "APR": return 4;
+			case "MAY": return 5;
+			case "JUN": return 6;
+			case "JUL": return 7;
+			case "AUG": return 8;
+			case "SEPT": case "SEP": return 9;
+			case "OCT": return 10;
+			case "NOV": return 11;
+			case "DEC": return 12;
+			default: return 0;
+		}
+	}
+
 	@GetMapping("/viewEmployeeListReport")
 	public void viewEmployeeListReport(Model model, @PathVariable long employeeId, HttpServletRequest request, HttpServletResponse response) throws JRException, Exception {
 		
@@ -1549,6 +1696,15 @@ public class ReportsController {
 			return localDate.format(formatter);
 		}
 		
+		return "";
+	}
+	
+	// CS Form No. 212 (Revised 2025) uses dd/MM/yyyy throughout the PDS.
+	private static String formatDateDdMmYyyy(LocalDate localDate) {
+		if(localDate != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			return localDate.format(formatter);
+		}
 		return "";
 	}
 	

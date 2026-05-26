@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+    
+	<title>Human Resource Information System</title>
+
+
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+					
+	<!-- Page content -->
+	<div class="page-content">	
+		
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4><span class="font-weight-semibold">Service Record List</span></h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>					
+				</div>
+			</div>
+			<!-- /page header -->
+			
+			
+			<!-- Vertical form modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Service Record Information</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form id="employeeForm" th:action="@{/addServiceRecord}" method="post" class="form-horizontal" th:object="${serviceRecord}">
+							<input type="hidden" th:field="*{id}" name="id" id="id">
+							<input type="hidden" th:field="*{employee.id}" name="employeeId" id="employeeId">
+							<input type="hidden" th:field="*{employee.empHashCode}" name="empHashCode" id="empHashCode">
+							<input type="hidden" th:field="*{showMode}" name="showMode" id="showMode" value="">
+							<div class="modal-body">
+									<h6 class="font-weight-semibold">Service Record Information</h6>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-4">
+												<label for="dateFrom">Date From</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('dateFrom')}" th:errors="*{dateFrom}"></span>
+												<input id="dateFrom" name="dateFrom" th:value="${dateFrom}" type="date" class="form-control required-field-hrisp">										
+											</div>												
+											<div class="col-sm-4">
+												<label for="dateTo">Date To</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('dateTo')}" th:errors="*{dateTo}"></span>
+												<input id="dateTo" name="dateTo" th:value="${dateTo}" type="date" class="form-control">										
+											</div>             
+											<div class="col-sm-4">
+												<label for="gender">Is Present</label>
+												<select id="isPresent" name="isPresent" class="form-control" th:field="*{isPresent}">
+													<option value="NO">NO</option>
+													<option value="YES">YES</option>
+												</select>
+											</div>
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row"> 											
+											<div class="col-sm-4">
+												<label for="purpose">Employment Status</label>
+												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control required-field-hrisp">
+													<option selected value="">SELECT VALUE</option>
+													<option th:each="empStatus : ${employeeStatusList}" th:value="${empStatus.id}" th:text="${empStatus.employeeStatusName}">employeeStatusName</option>
+												</select>
+											</div>		
+											<div class="col-sm-8">
+												<label for="employmentStatusNotes">Employment Status Notes</label>
+												<input id="employmentStatusNotes" name="employmentStatusNotes" th:field="*{employmentStatusNotes}" placeholder="Employment Status Notes" type="text" class="form-control" >
+											</div>   																			
+										</div>
+									</div>	
+													
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-8">
+												<label for="designation">Designation</label>
+												<input id="designation" name="designation" th:field="*{designation}" placeholder="Designation" type="text" class="form-control required-field-hrisp" >
+											</div>	
+											<div class="col-sm-4">
+												<label for="salary">Salary</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></span>
+												<input id="salary" name="salary" th:value="${salary}" type="number" step="0.01" class="form-control required-field-hrisp">										
+											</div>   																			
+										</div>
+									</div>	
+									
+										
+									
+									<div class="form-group">
+										<div class="row">  											 
+											<div class="col-sm-4">
+												<label for="station">Station</label>
+												<input id="station" name="station" th:field="*{station}" placeholder="Station" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-4">
+												<label for="branch">Branch</label>
+												<input id="branch" name="branch" th:field="*{branch}" placeholder="Branch" type="text" class="form-control" >
+											</div>																				
+										</div>
+									</div>	
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-4">
+												<label for="lvAbs">L/V ABS W/O Pay</label>
+												<input id="lvAbs" name="lvAbs" th:field="*{lvAbs}" placeholder="L/V ABS W/O Pay" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-4">
+												<label for="separationCause">Mode of Separation</label>
+												<input id="separationCause" name="separationCause" th:field="*{separationCause}" placeholder="Separation Cause" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-4">
+												<label for="separationDate">Separation Date</label>
+												<span class="validationError text-danger" th:if="${#fields.hasErrors('dateTo')}" th:errors="*{dateTo}"></span>
+												<input id="separationDate" name="separationDate" th:value="${separationDate}" type="date" class="form-control">										
+											</div> 																			
+										</div>
+									</div>	
+									
+									<hr>	
+									
+									<h6 class="font-weight-semibold">Appointment Information</h6>	
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-3">
+												<label for="plantillaNo">Item No.</label>
+												<input id="plantillaNo" name="plantillaNo" th:field="*{plantillaNo}" placeholder="Item No." type="text" class="form-control required-field-hrisp" >
+											</div>	
+											<div class="col-sm-3">
+												<label for="pageNo">Page No.</label>
+												<input id="pageNo" name="pageNo" th:field="*{pageNo}" placeholder="Page No." type="text" class="form-control" >
+											</div>
+											<div class="col-sm-3">
+												<label for="signingDate">Date of Signing</label>
+												<input id="signingDate" name="signingDate" th:value="${signingDate}" type="date" class="form-control">				
+											</div>	
+											<div class="col-sm-3">
+												<label for="entranceDate">Date of Entrance</label>
+												<input id="entranceDate" name="entranceDate" th:value="${entranceDate}" type="date" class="form-control">										
+											</div> 																			
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-6">
+												<label for="positionTitle">Position Title</label>
+												<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control  required-field-hrisp">
+									               	<option selected value="">SELECT VALUE</option>
+									               	<option th:each="positionTitle : ${positionTitleList}" th:value="${positionTitle.id}" th:text="${positionTitle.positionTitleName}">positionTitleName</option>
+									            </select>
+											</div>	
+											<div class="col-sm-6">
+												<label for="levelOfPosition">Level of Position</label>
+												<input id="levelOfPosition" name="levelOfPosition" th:field="*{levelOfPosition}" placeholder="Level of Position" type="text" class="form-control" >			
+											</div>																		
+										</div>
+									</div>	
+									
+									<div class="form-group">
+										<div class="row">   											
+											<div class="col-sm-12">
+												<label for="positionTitleNotes">Position Title Notes</label>
+												<input id="positionTitleNotes" name="positionTitleNotes" th:field="*{positionTitleNotes}" placeholder="Position Title Notes" type="text" class="form-control" >			
+											</div>																		
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-6">
+												<label for="vice">Vice</label>
+												<input id="vice" name="vice" th:field="*{vice}" placeholder="Vice" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-6">
+												<label for="statusOfSepeparation">Status Of Sepeparation</label>
+												<input id="statusOfSepeparation" name="statusOfSepeparation" th:field="*{statusOfSepeparation}" placeholder="Status Of Sepeparation" type="text" class="form-control" >			
+											</div>																		
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-6">
+												<label for="statusOfAppointment">Nature of Appointment / Mode of Accession</label>
+												<input id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" placeholder="Status of Appointment" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-3">
+												<label for="salaryGrade">Salary Grade</label>
+												<input id="salaryGrade" name="salaryGrade" th:field="*{salaryGrade}" placeholder="Salary Grade" type="number" class="form-control" >			
+											</div>
+											<div class="col-sm-3">
+												<label for="stepInc">Step</label>
+												<input id="stepInc" name="stepInc" th:field="*{stepInc}" placeholder="Step" type="number" class="form-control" >			
+											</div>																	
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-4">
+												<label for="eligibility">Eligibility</label>
+												<input id="eligibility" name="eligibility" th:field="*{eligibility}" placeholder="Eligibility" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-4">
+												<label for="officeAssignment">Office Assignment</label>
+												<input id="officeAssignment" name="officeAssignment" th:field="*{officeAssignment}" placeholder="Office Assignment" type="text" class="form-control" >			
+											</div>
+											<div class="col-sm-4">
+												<label for="agencyReceivingOfficer">Receiving Officer</label>
+												<input id="agencyReceivingOfficer" name="agencyReceivingOfficer" th:field="*{agencyReceivingOfficer}" placeholder="Receiving Officer" type="text" class="form-control" >			
+											</div>														
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-6">
+												<label for="district">District</label>
+												<input id="district" name="district" th:field="*{district}" placeholder="District" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-3">
+												<label for="experience">Experience</label>
+												<input id="experience" name="experience" th:field="*{experience}" placeholder="Experience" type="text" class="form-control" >			
+											</div>
+											<div class="col-sm-3">
+												<label for="training">Training</label>
+												<input id="training" name="training" th:field="*{training}" placeholder="Training" type="text" class="form-control" >			
+											</div>																	
+										</div>
+									</div>									
+							        
+							        <h6 class="font-weight-semibold">For Report on Appointment</h6>	
+							        
+							        <div class="form-group">
+										<div class="row">   
+											<div class="col-sm-3">
+												<label for="publicationDateFrom">Publication Date From</label>
+												<input id="publicationDateFrom" name="publicationDateFrom" th:field="*{publicationDateFrom}" type="date" class="form-control" >
+											</div>	
+											<div class="col-sm-3">
+												<label for="publicationDateTo">Publication Date To</label>
+												<input id="publicationDateTo" name="publicationDateTo" th:field="*{publicationDateTo}" type="date" class="form-control" >
+											</div>	
+											<div class="col-sm-6">
+												<label for="modeOfPublication">Mode Of Publication</label>
+												<input id="modeOfPublication" name="modeOfPublication" th:field="*{modeOfPublication}" placeholder="Mode Of Publication" type="text" class="form-control" >			
+											</div>																	
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">   
+											<div class="col-sm-3">
+												<label for="dateOfActionCscAction">Date of Release CSC Action</label>
+												<input id="dateOfActionCscAction" name="dateOfActionCscAction" th:field="*{dateOfActionCscAction}" type="date" class="form-control" >
+											</div>	
+											<div class="col-sm-3">
+												<label for="dateOfReleaseCscAction">Date of Action CSC Action</label>
+												<input id="dateOfReleaseCscAction" name="dateOfReleaseCscAction" th:field="*{dateOfReleaseCscAction}" type="date" class="form-control" >
+											</div>	
+											<div class="col-sm-6">
+												<label for="validateInv">V-Validated CSC Action</label>
+												<input id="validateInv" name="validateInv" th:field="*{validateInv}" placeholder="V-Validated CSC Action" type="text" class="form-control" >			
+											</div>																	
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<div class="row">  
+											<div class="col-sm-12">
+												<label>Remarks</label>
+							            		<textarea id="remarks" name="remarks" rows="5" cols="5" placeholder="Remarks" class="form-control"></textarea>
+							           		</div>
+							            </div>
+							        </div>
+								
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Vertical form modal -->
+			
+			<!-- Modal for Report -->
+			<div id="modal_form_report" class="modal fade" tabindex="-1" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Service Record Report Parameters</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						
+							<div class="modal-body">
+									<!--
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="signatory">Signatory</label>
+												<input id="signatory" name="signatory" placeholder="Signatory" type="text" class="form-control" >
+											</div>	
+											<div class="col-sm-6">
+												<label for="Position">Position</label>
+												<input id="position" name="position" placeholder="Position" type="text" class="form-control" >
+											</div>
+										</div>
+									</div>
+									-->			
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="printDate">Print Date</label>
+												<input id="printDate" name="printDate" type="date" class="form-control" >
+											</div>												
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">       
+											<div class="col-sm-12">
+												<label for="notes" class="mb-1">Notes (You can change default notes below as needed.)</label>
+												<textarea id="notes" name="notes" class="form-control" rows="4">1. Did not incur any leave of absence without pay. &#10;2. This supersedes all previously submitted Service Records to GSIS.
+												</textarea>
+											</div>                    
+							            </div>
+									</div>					
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>								
+								<button type="button" class="btn bg-primary" onclick="displayServiceRecord();">Submit</button>								
+							</div>
+						
+					</div>
+				</div>
+			</div>
+			<!-- /Modal for Report -->
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Dashboard content -->
+				<div class="row">
+					<div class="col-xl-12">
+						<!-- Basic datatable -->
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">Service Record List</h5>
+								<div class="header-elements">
+									<div class="list-icons">				                				
+				                		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+				                		<button type="button" class="btn bg-violet" data-toggle="modal" data-target="#modal_form_report" id="rptButton">View Service Record Report</button>
+				                		<!--
+				                		<a th:href="@{'/viewServiceRecordReport/' + ${employee.id}}" class="btn bg-violet" target="_blank">View Service Record Report</a>
+				                		-->
+				                		<a th:href="@{/employee-list}" class="btn bg-green">Back to Employee List</a>
+				                	</div>
+			                	</div>
+							</div>
+		
+		
+							<table class="table table-basic table-hover" id="table-list">
+								<thead>
+									<tr>
+										<th width="180px;">&nbsp;</th>
+										<th>Date From</th>
+										<th>Date To</th>
+										<th>Present</th>	
+										<th>Designation</th>		
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="serviceRecord : ${serviceRecordList}">
+										<tr>
+											<td class="text-center">
+												<button id="editDegreeLevelButton" type="button" class="showDetails btn btn-primary"
+			                                         th:data-row-dateFrom="${serviceRecord.dateFrom}"	
+			                                         th:data-row-dateTo="${serviceRecord.dateTo}"
+			                                         th:data-row-isPresent="${serviceRecord.isPresent}"
+			                                         th:data-row-designation="${serviceRecord.designation}"
+			                                         th:data-row-salary="${serviceRecord.salary}"
+			                                         th:data-row-station="${serviceRecord.station}"
+			                                         th:data-row-branch="${serviceRecord.branch}"
+			                                         th:data-row-lvAbs="${serviceRecord.lvAbs}"
+			                                         th:data-row-separationCause="${serviceRecord.separationCause}"
+			                                         th:data-row-separationDate="${serviceRecord.separationDate}"
+			                                         th:data-row-employeeStatus="${serviceRecord.employeeStatus.id}"
+			                                         th:data-row-positionTitle="${serviceRecord.positionTitle.id}"
+			                                         th:data-row-employmentStatusNotes="${serviceRecord.employmentStatusNotes}"
+			                                         th:data-row-plantillaNo="${serviceRecord.plantillaNo}"
+			                                         th:data-row-pageNo="${serviceRecord.pageNo}"
+			                                         th:data-row-positionTitleNotes="${serviceRecord.positionTitleNotes}"
+			                                         th:data-row-vice="${serviceRecord.vice}"
+			                                         th:data-row-statusOfSepeparation="${serviceRecord.statusOfSepeparation}"
+			                                         th:data-row-statusOfAppointment="${serviceRecord.statusOfAppointment}"
+			                                         th:data-row-salaryGrade="${serviceRecord.salaryGrade}"
+			                                         th:data-row-stepInc="${serviceRecord.stepInc}"
+			                                         th:data-row-signingDate="${serviceRecord.signingDate}"
+			                                         th:data-row-entranceDate="${serviceRecord.entranceDate}"
+			                                         th:data-row-eligibility="${serviceRecord.eligibility}"
+			                                         th:data-row-officeAssignment="${serviceRecord.officeAssignment}"
+			                                         th:data-row-remarks="${serviceRecord.remarks}"
+			                                         th:data-row-district="${serviceRecord.district}"
+			                                         th:data-row-experience="${serviceRecord.experience}"
+			                                         th:data-row-training="${serviceRecord.training}"
+			                                         
+			                                         th:data-row-levelOfPosition="${serviceRecord.levelOfPosition}"
+			                                         th:data-row-publicationDateTo="${serviceRecord.publicationDateTo}"
+			                                         th:data-row-publicationDateFrom="${serviceRecord.publicationDateFrom}"
+			                                         th:data-row-modeOfPublication="${serviceRecord.modeOfPublication}"
+			                                         th:data-row-validateInv="${serviceRecord.validateInv}"
+			                                         th:data-row-dateOfActionCscAction="${serviceRecord.dateOfActionCscAction}"
+			                                         th:data-row-dateOfReleaseCscAction="${serviceRecord.dateOfReleaseCscAction}"
+			                                         th:data-row-agencyReceivingOfficer="${serviceRecord.agencyReceivingOfficer}"
+			                                         
+			                                         th:data-row-id="${serviceRecord.getId()}"												 
+													 data-toggle="modal" data-target="#modal_form_vertical">
+													 View Record
+												</button>
+											</td>		
+											<td th:text="${serviceRecord.dateFrom}">dateFrom</td>
+											<td th:text="${serviceRecord.dateTo}">dateTo</td>
+											<td th:text="${serviceRecord.isPresent}">isPresent</td>
+											<td th:text="${serviceRecord.designation}">designation</td>
+										</tr>
+									</th:block>							
+								</tbody>
+							</table>
+						</div>
+						<!-- /basic datatable -->					
+					</div>
+				</div>
+				<!-- /dashboard content -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->    
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/'';
+		
+		function displayServiceRecord() {
+	        
+	        //var signatory = document.getElementById('signatory').value;
+	        //var position = document.getElementById('position').value;
+	        var employeeId = document.getElementById('employeeId').value;
+	        var notes = document.getElementById('notes').value;
+	        var printDate = document.getElementById('printDate').value;
+	        //var encodedNotes = encodeURIComponent(notes);
+	        
+	         var saveurl = contextRoot + "/saveServiceRecordRequest";
+	        
+	        
+	        if (employeeId && notes && printDate) {
+	            // Create the URL with the parameters
+	            
+	            var requestdata = {
+			        employeeId: employeeId,
+			        printDate: printDate,
+			        notes: notes
+			    };
+			
+			    // Make a POST request to save the data
+			    fetch(saveurl, {
+			        method: 'POST',
+			        headers: {
+			            'Content-Type': 'application/json'
+			        },
+			        body: JSON.stringify(requestdata)
+			    })
+			    .then(response => {
+			        if (response.ok) {
+			            return response.json(); // Parse the JSON response
+			        }
+			        throw new Error('Network response was not ok.');
+			    })
+			    .then(data => {
+			        // Get the record ID from the response
+			        var recordId = data.recordId;
+			        // Use the recordId as needed
+			        console.log("Record ID:", recordId);
+			        
+			        var url = contextRoot + "/viewServiceRecordReportNew/" + recordId;
+			
+			    	window.open(url, '_blank');
+			    })
+			    .catch(error => {
+			        console.error('There was a problem with the fetch operation:', error);
+			    });
+	            
+	            
+	        } else {
+	             swal({
+						title: "Error!",
+						text: "Print Date and Notes are mandatory.",
+						icon: "error",
+						buttons: false,
+			            timer: 2000,
+					});
+		            emptyFields[0].focus();
+	        }  
+	    }
+	
+		$(document).ready(function() {
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#employeeListNav").addClass("active");			
+			
+			var today = new Date();
+			var formattedDate = today.toISOString().substr(0, 10);
+			document.getElementById("printDate").value = formattedDate;
+			
+			let msgCode = /*[[${msg == null ? '' : msg.code} ]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+			
+			if(msgCode === 'ERROR'){
+				$('#modal_form_vertical').modal('show');
+				swal({
+					title: "Error!",
+					text: msgDesc,
+					icon: "error",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			} else if(msgCode === 'EDIT-SUCCESS'){
+				swal({
+					title: "Success!",
+					text: msgDesc,
+					icon: "success",
+					buttons: false,
+		            timer: 2000,
+				});
+			}
+			
+			$('#employeeForm').submit(function(event) {
+		        var emptyFields = [];
+		        $('.required-field-hrisp').each(function() {
+		            if ($(this).val().trim() === '') {
+		                emptyFields.push($(this));
+		            }
+		        });
+		
+		        if (emptyFields.length > 0) {
+		            event.preventDefault();
+		            //var alertMessage = "Please fill out the following fields:\n";
+		            //$.each(emptyFields, function(index, field) {
+		            //    alertMessage += "- " + field.attr('name') + "\n";
+		            //});
+		            //alert(alertMessage);
+		            // Focus on the first empty field
+		            
+		            swal({
+						title: "Error!",
+						text: "Mandatory fields marked in RED are mandatory.",
+						icon: "error",
+						buttons: false,
+			            timer: 2000,
+					});
+		            //emptyFields[0].focus();
+		        } else {
+					$("#gender").prop("disabled", false);	
+				}
+		    });
+			
+			
+		});
+		
+		$('#table-list').DataTable({
+				"lengthMenu": [10, 25, 50],
+				"ordering": false,                
+		});
+		
+		$(document).on("click", ".showDetails", function() {
+
+			var id = $(this).attr('data-row-id');
+			var dateFrom = $(this).attr('data-row-dateFrom');
+			var dateTo = $(this).attr('data-row-dateTo');
+			var isPresent = $(this).attr('data-row-isPresent');
+			var designation = $(this).attr('data-row-designation');
+			var salary = $(this).attr('data-row-salary');
+			var station = $(this).attr('data-row-station');
+			var branch = $(this).attr('data-row-branch');
+			var lvAbs = $(this).attr('data-row-lvAbs');
+			var separationCause = $(this).attr('data-row-separationCause');
+			var separationDate = $(this).attr('data-row-separationDate');
+			var employeeStatus = $(this).attr('data-row-employeeStatus');
+			var positionTitle = $(this).attr('data-row-positionTitle');
+			
+			var employmentStatusNotes = $(this).attr('data-row-employmentStatusNotes');
+			var plantillaNo = $(this).attr('data-row-plantillaNo');
+			var pageNo = $(this).attr('data-row-pageNo');
+			var positionTitleNotes = $(this).attr('data-row-positionTitleNotes');
+			var vice = $(this).attr('data-row-vice');
+			var statusOfSepeparation = $(this).attr('data-row-statusOfSepeparation');
+			var statusOfAppointment = $(this).attr('data-row-statusOfAppointment');
+			var salaryGrade = $(this).attr('data-row-salaryGrade');
+			var stepInc = $(this).attr('data-row-stepInc');
+			var signingDate = $(this).attr('data-row-signingDate');
+			var entranceDate = $(this).attr('data-row-entranceDate');
+			var eligibility = $(this).attr('data-row-eligibility');
+			var officeAssignment = $(this).attr('data-row-officeAssignment');
+			var remarks = $(this).attr('data-row-remarks');
+			var district = $(this).attr('data-row-district');
+			var experience = $(this).attr('data-row-experience');
+			var training = $(this).attr('data-row-training');
+			
+			var levelOfPosition = $(this).attr('data-row-levelOfPosition');
+			var publicationDateTo = $(this).attr('data-row-publicationDateTo');
+			var publicationDateFrom = $(this).attr('data-row-publicationDateFrom');
+			var modeOfPublication = $(this).attr('data-row-modeOfPublication');
+			var validateInv = $(this).attr('data-row-validateInv');
+			var dateOfActionCscAction = $(this).attr('data-row-dateOfActionCscAction');
+			var dateOfReleaseCscAction = $(this).attr('data-row-dateOfReleaseCscAction');
+			var agencyReceivingOfficer = $(this).attr('data-row-agencyReceivingOfficer');
+			
+			$("#modal_form_vertical").find("#id").val(id);
+			$("#modal_form_vertical").find("#dateFrom").val(dateFrom);
+			$("#modal_form_vertical").find("#dateTo").val(dateTo);
+			$("#modal_form_vertical").find("#isPresent").val(isPresent);
+			$("#modal_form_vertical").find("#designation").val(designation);
+			$("#modal_form_vertical").find("#salary").val(salary);
+			$("#modal_form_vertical").find("#station").val(station);
+			$("#modal_form_vertical").find("#branch").val(branch);
+			$("#modal_form_vertical").find("#lvAbs").val(lvAbs);
+			$("#modal_form_vertical").find("#separationCause").val(separationCause);
+			$("#modal_form_vertical").find("#separationDate").val(separationDate);
+			$("#modal_form_vertical").find("#employeeStatus").val(employeeStatus);
+			
+			$("#modal_form_vertical").find("#positionTitle").val(positionTitle);
+			$("#modal_form_vertical").find("#employmentStatusNotes").val(employmentStatusNotes);
+			$("#modal_form_vertical").find("#plantillaNo").val(plantillaNo);
+			$("#modal_form_vertical").find("#pageNo").val(pageNo);
+			$("#modal_form_vertical").find("#positionTitleNotes").val(positionTitleNotes);
+			$("#modal_form_vertical").find("#vice").val(vice);
+			$("#modal_form_vertical").find("#statusOfSepeparation").val(statusOfSepeparation);
+			$("#modal_form_vertical").find("#statusOfAppointment").val(statusOfAppointment);
+			$("#modal_form_vertical").find("#salaryGrade").val(salaryGrade);
+			$("#modal_form_vertical").find("#stepInc").val(stepInc);
+			$("#modal_form_vertical").find("#signingDate").val(signingDate);
+			$("#modal_form_vertical").find("#entranceDate").val(entranceDate);
+			$("#modal_form_vertical").find("#eligibility").val(eligibility);
+			$("#modal_form_vertical").find("#officeAssignment").val(officeAssignment);
+			$("#modal_form_vertical").find("#remarks").val(remarks);
+			$("#modal_form_vertical").find("#district").val(district);
+			$("#modal_form_vertical").find("#experience").val(experience);
+			$("#modal_form_vertical").find("#training").val(training);
+			
+			$("#modal_form_vertical").find("#levelOfPosition").val(levelOfPosition);
+			$("#modal_form_vertical").find("#publicationDateTo").val(publicationDateTo);
+			$("#modal_form_vertical").find("#publicationDateFrom").val(publicationDateFrom);
+			$("#modal_form_vertical").find("#modeOfPublication").val(modeOfPublication);
+			$("#modal_form_vertical").find("#validateInv").val(validateInv);
+			$("#modal_form_vertical").find("#dateOfActionCscAction").val(dateOfActionCscAction);
+			$("#modal_form_vertical").find("#dateOfReleaseCscAction").val(dateOfReleaseCscAction);
+			$("#modal_form_vertical").find("#agencyReceivingOfficer").val(agencyReceivingOfficer);
+			
+		});
+	</script>
+</body>
+</html>
