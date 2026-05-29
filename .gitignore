@@ -74,6 +74,7 @@ fix-*.patch
 merged_report.pdf
 output.pdf
 pds*.png
+debug_overlay_*.png
 
 # Root-level utility/capture scripts
 capture_*.py
@@ -85,3 +86,16 @@ copy_*.ps1
 START_CAPTURE_SERVER.bat
 package.json
 package-lock.json
+
+# PDS calibration/debug helpers (generated, not source)
+rebuild_pds*.py
+detect_pds_grid.py
+fix_p4.py
+generate_pds.py
+pds_9_*.png
+pds_9_*.pdf
+compare_p*.png
+zoom_*.png
+annex_p*.png
+png_cit_crop.png
+crop_*.png

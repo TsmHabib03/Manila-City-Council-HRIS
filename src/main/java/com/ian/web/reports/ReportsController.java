@@ -351,25 +351,30 @@ public class ReportsController {
 		map.put("PI_Permanent_Province", "  " + getStringValueProvince(emp.getProvince2()));
 		map.put("PI_Permanent_Zipcode", "  " + getStringValue(emp.getZipcode2()));
 		
-		//TODO Fix this
-		if("FILIPINO BY BIRTH".equalsIgnoreCase(emp.getCitizenship())) {
+		// 16. CITIZENSHIP — Annex H-1 semantics:
+		//   Filipino + Dual are mutually exclusive top-level options.
+		//   by birth / by naturalization are sub-options under Dual Citizenship only.
+		String citizenship = emp.getCitizenship();
+		if("FILIPINO BY BIRTH".equalsIgnoreCase(citizenship)
+				|| "FILIPINO".equalsIgnoreCase(citizenship)
+				|| "FILIPINO BY NATURALIZATION".equalsIgnoreCase(citizenship)) {
 			map.put("I.PI_Citizenship_Filipino", " X");
 			map.put("I.PI_Citizenship_Dual", "");
 			map.put("I.PI_Citizenship_By_birth", "");
 			map.put("I.PI_Citizenship_By_naturalization", "");
 			map.put("I.PI_Citizenship_Indicate_Country", "");
-		} else if("FILIPINO BY NATURALIZATION".equalsIgnoreCase(emp.getCitizenship())) {
-			map.put("I.PI_Citizenship_Filipino", "");
-			map.put("I.PI_Citizenship_Dual", " X");
-			map.put("I.PI_Citizenship_By_birth", "");
-			map.put("I.PI_Citizenship_By_naturalization", " X");
-			map.put("I.PI_Citizenship_Indicate_Country", "");
-		} else if("DUAL CITIZENSHIP BY BIRTH".equalsIgnoreCase(emp.getCitizenship())) {
+		} else if("DUAL CITIZENSHIP BY BIRTH".equalsIgnoreCase(citizenship)) {
 			map.put("I.PI_Citizenship_Filipino", "");
 			map.put("I.PI_Citizenship_Dual", " X");
 			map.put("I.PI_Citizenship_By_birth", " X");
 			map.put("I.PI_Citizenship_By_naturalization", "");
-			map.put("I.PI_Citizenship_Indicate_Country", "");
+			map.put("I.PI_Citizenship_Indicate_Country", getStringValue(emp.getCountryOfOrigin()));
+		} else if("DUAL CITIZENSHIP BY NATURALIZATION".equalsIgnoreCase(citizenship)) {
+			map.put("I.PI_Citizenship_Filipino", "");
+			map.put("I.PI_Citizenship_Dual", " X");
+			map.put("I.PI_Citizenship_By_birth", "");
+			map.put("I.PI_Citizenship_By_naturalization", " X");
+			map.put("I.PI_Citizenship_Indicate_Country", getStringValue(emp.getCountryOfOrigin()));
 		} else {
 			map.put("I.PI_Citizenship_Filipino", "");
 			map.put("I.PI_Citizenship_Dual", "");

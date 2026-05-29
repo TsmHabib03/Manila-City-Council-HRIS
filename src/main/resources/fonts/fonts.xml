@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  JasperReports font extension for the PDS (CS Form 212 Revised 2025) templates.
+  Embeds the exact fonts used by the official ANNEX H-1 PDF so the rebuilt
+  vector templates render and print crisply and identically. pdfEmbedded=true
+  embeds glyph outlines into the exported PDF (self-contained / print-ready).
+-->
+<fontFamilies>
+  <fontFamily name="Arial">
+    <normal>fonts/arial.ttf</normal>
+    <bold>fonts/arialbd.ttf</bold>
+    <italic>fonts/ariali.ttf</italic>
+    <boldItalic>fonts/arialbi.ttf</boldItalic>
+    <pdfEncoding>Identity-H</pdfEncoding>
+    <pdfEmbedded>true</pdfEmbedded>
+  </fontFamily>
+  <fontFamily name="Arial Narrow">
+    <normal>fonts/ARIALN.TTF</normal>
+    <bold>fonts/ARIALNB.TTF</bold>
+    <italic>fonts/ARIALNI.TTF</italic>
+    <boldItalic>fonts/ARIALNBI.TTF</boldItalic>
+    <pdfEncoding>Identity-H</pdfEncoding>
+    <pdfEmbedded>true</pdfEmbedded>
+  </fontFamily>
+  <fontFamily name="Arial Black">
+    <normal>fonts/ariblk.ttf</normal>
+    <bold>fonts/ariblk.ttf</bold>
+    <italic>fonts/ariblk.ttf</italic>
+    <boldItalic>fonts/ariblk.ttf</boldItalic>
+    <pdfEncoding>Identity-H</pdfEncoding>
+    <pdfEmbedded>true</pdfEmbedded>
+  </fontFamily>
+  <fontFamily name="Tahoma">
+    <normal>fonts/tahoma.ttf</normal>
+    <bold>fonts/tahomabd.ttf</bold>
+    <italic>fonts/tahoma.ttf</italic>
+    <boldItalic>fonts/tahomabd.ttf</boldItalic>
+    <pdfEncoding>Identity-H</pdfEncoding>
+    <pdfEmbedded>true</pdfEmbedded>
+  </fontFamily>
+  <fontFamily name="Calibri">
+    <normal>fonts/calibri.ttf</normal>
+    <bold>fonts/calibrib.ttf</bold>
+    <italic>fonts/calibrii.ttf</italic>
+    <boldItalic>fonts/calibriz.ttf</boldItalic>
+    <pdfEncoding>Identity-H</pdfEncoding>
+    <pdfEmbedded>true</pdfEmbedded>
+  </fontFamily>
+</fontFamilies>
