@@ -70,21 +70,27 @@ P3_COLS = {
 
 # P4 has no x/width corrections needed, but requires y-coordinate shifts for
 # "If YES" detail fields to land below their static "If YES, give details:" labels.
-# Each entry: param_name -> new_y (label_y + label_height + 1 or label_y + 10 for 10-high labels)
+# Formula: textField.y + textField.height = underline.y, so textField.y = underline.y - 10
+# Each entry: param_name -> new_y (underline_y - 10)
 P4_Y_SHIFTS = {
-    "VIII.OI_34_If_Yes":      97,   # label at y=85, h=10 → 85+10+2
-    "VIII.OI_35_A_If_Yes":    134,  # label at y=123, h=10 → 123+10+1
-    "VIII.OI_35_B_If_Yes":    174,  # label at y=164, h=10 → 164+10
-    "VIII.OI_35_Date_Filed":  176,  # label at y=164, h=10 → shift to below label
-    "VIII.OI_35_Status_Of_Cases": 187,  # After Date_Filed field
-    "VIII.OI_36_If_Yes":      225,  # label at y=214, h=10 → 214+10+1
-    "VIII.OI_37_A_If_Yes":    263,  # label at y=252, h=10 → 252+10+1
-    "VIII.OI_38_A_If_Yes":    298,  # label at y=287, h=10 → 287+10+1
-    "VIII.OI_38_B_If_Yes":    324,  # label at y=313, h=10 → 313+10+1
-    "VIII.OI_39_A_If_Yes":    352,  # label at y=341, h=10 → 341+10+1
-    "VIII.OI_40_A_If_Yes":    418,  # label at y=407, h=10 → 407+10+1
-    "VIII.OI_40_B_If_Yes":    440,  # label at y=429, h=10 → 429+10+1
-    "VIII.OI_40_C_If_Yes":    462,  # label at y=451, h=10 → 451+10+1
+    "VIII.OI_34_If_Yes":      95,   # underline at y=105 (105-10)
+    "VIII.OI_35_A_If_Yes":    134,  # underline at y=144 (144-10) — already correct
+    "VIII.OI_35_B_If_Yes":    174,  # no dedicated underline — keep current
+    "VIII.OI_35_Date_Filed":  174,  # underline at y=184 (184-10)
+    "VIII.OI_35_Status_Of_Cases": 185,  # underline at y=195 (195-10)
+    "VIII.OI_36_If_Yes":      226,  # underline at y=236 (236-10)
+    "VIII.OI_37_A_If_Yes":    259,  # underline at y=269 (269-10)
+    "VIII.OI_38_A_If_Yes":    286,  # underline at y=296 (296-10) — was 298 (below line)
+    "VIII.OI_38_B_If_Yes":    313,  # underline at y=323 (323-10) — was 324 (below line)
+    "VIII.OI_39_A_If_Yes":    350,  # underline at y=360 (360-10)
+    "VIII.OI_40_A_If_Yes":    408,  # underline at y=418 (418-10)
+    "VIII.OI_40_B_If_Yes":    429,  # underline at y=439 (439-10)
+    "VIII.OI_40_C_If_Yes":    462,  # underline at y=472 (est. 472-10)
+}
+
+# P4 height anomalies: Q34 has height=22 (should be 10 like all others)
+P4_HEIGHT_FIXES = {
+    "VIII.OI_34_If_Yes": 10,  # change from 22 to 10
 }
 
 
@@ -96,7 +102,7 @@ def matches_prefix(param: str, prefixes) -> str | None:
     return None
 
 
-def remap(jrxml_path: Path, cols: dict, y_shifts: dict = None) -> int:
+def remap(jrxml_path: Path, cols: dict, y_shifts: dict = None, height_fixes: dict = None) -> int:
     src = jrxml_path.read_text(encoding="utf-8")
     out = []
     cursor = 0
@@ -115,7 +121,7 @@ def remap(jrxml_path: Path, cols: dict, y_shifts: dict = None) -> int:
         param = pm.group(1)
         prefix = matches_prefix(param, cols.keys())
         if prefix is None:
-            # No x/w change, but check if y-shift applies (for P4)
+            # No x/w change, but check if y-shift or height-fix applies (for P4)
             if y_shifts and param in y_shifts:
                 new_y = y_shifts[param]
                 new = re.sub(
@@ -124,6 +130,15 @@ def remap(jrxml_path: Path, cols: dict, y_shifts: dict = None) -> int:
                     block,
                     count=1,
                 )
+                # Also apply height fix if this param has one
+                if height_fixes and param in height_fixes:
+                    new_height = height_fixes[param]
+                    new = re.sub(
+                        r'height="\d+"',
+                        f'height="{new_height}"',
+                        new,
+                        count=1,
+                    )
                 if new != block:
                     changed += 1
                 out.append(new)
@@ -182,8 +197,9 @@ if __name__ == "__main__":
     n2 = remap(P2, P2_COLS)
     n3 = remap(P3, P3_COLS)
     # P4 needs y-shifts for "If YES" detail fields to land below static labels
+    # Also fix Q34 height anomaly (22 → 10)
     p4_path = ROOT / "src" / "main" / "resources" / "jasper" / "reports" / "PDS2025_P4.jrxml"
-    n4 = remap(p4_path, {}, P4_Y_SHIFTS)  # empty cols dict (no x/w changes), only y-shifts
+    n4 = remap(p4_path, {}, P4_Y_SHIFTS, P4_HEIGHT_FIXES)
     print(f"P2: {n2} textFields remapped")
     print(f"P3: {n3} textFields remapped")
-    print(f"P4: {n4} textFields remapped (y-shifts)")
+    print(f"P4: {n4} textFields remapped (y-shifts + height fixes)")
