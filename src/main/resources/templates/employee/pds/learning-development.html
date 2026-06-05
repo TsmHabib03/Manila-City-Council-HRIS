@@ -104,6 +104,11 @@
 							<div class="modal-footer">
 								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
 								<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
+							<button type="button" class="btn btn-outline-success ml-2"
+								onclick="validateAndGoNext(this.getAttribute('data-href'));"
+								th:attr="data-href=@{/employee/other-info/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+								Next: Other Information &#8594;
+							</button>
 							</div>
 						</form>
 					</div>
@@ -226,6 +231,29 @@
 	<!-- /Main sidebar -->
 	
 	<script th:inline="javascript">		
+		// Validation helper for "Next" navigation across PDS sections
+		function validateAndGoNext(nextUrl) {
+			var missed = [];
+			$('.required-field-hrisp').each(function() {
+				var v = $(this).val();
+				if (!v || v.trim() === '') {
+					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
+								|| $(this).attr('placeholder')
+								|| $(this).attr('name')
+								|| 'Unnamed field';
+					missed.push(label);
+				}
+			});
+			if (missed.length > 0) {
+				swal({
+					title: "Please fill required fields",
+					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
+					icon: "warning"
+				});
+				return;
+			}
+			window.location.href = nextUrl;
+		}
 	
 	    $(document).ready(function() {
 	    	

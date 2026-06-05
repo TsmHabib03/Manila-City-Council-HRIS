@@ -88,10 +88,18 @@
 												<label for="suffix">Suffix</label>
 												<input type="text" class="form-control" id="suffix" name="suffix" th:field="*{suffix}" placeholder="Sample Jr. Sr."/>
 											</div>
-															
+											<div class="col-sm-4" id="maidenNameGroup" style="display:none">
+												<label for="maidenName">Maiden Name</label>
+												<input type="text" class="form-control" id="maidenName" name="maidenName" th:field="*{maidenName}" placeholder="Maiden Name (before marriage)"/>
+											</div>
 											<div class="col-sm-4">
 												<label for="birthdate">Birthdate</label>
-												<input type="date" class="form-control required-field-hrisp" id="birthdate" name="birthdate" th:field="*{birthdate}" />
+												<input type="text" class="form-control date-mask-input"
+															   id="birthdate_display"
+															   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+															<input type="hidden" id="birthdate" name="birthdate"
+																   th:value="${familyBg.birthdate != null ? #temporals.format(familyBg.birthdate,'yyyy-MM-dd') : ''}" />
+															<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 											</div>
 											
 											<div class="col-sm-2">
@@ -170,6 +178,11 @@
 								<div class="modal-footer">
 									<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
 									<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
+							<button type="button" class="btn btn-outline-success ml-2"
+								onclick="validateAndGoNext(this.getAttribute('data-href'));"
+								th:attr="data-href=@{/employee/educationalbg/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+								Next: Educational Background &#8594;
+							</button>
 								</div>
 							</form>
 						</div>
@@ -239,7 +252,8 @@
 			                                                 th:data-row-suffix="${familyBg.getSuffix()}"
 			                                                 th:data-row-gender="${familyBg.getGender()}"
 			                                                 th:data-row-age="${familyBg.getAge()}"
-			                                                 th:data-row-id="${familyBg.getId()}"												 
+			                                                 th:data-row-id="${familyBg.getId()}"
+			                                                 th:data-row-maidenName="${familyBg.getMaidenName()}"
 															data-toggle="modal" data-target="#modal_form_vertical"
 			                                                >View Record</button>
 														</td>														
@@ -307,10 +321,33 @@
 		}
 	</script>
 	
-	<script th:inline="javascript">		
-	
+	<script th:inline="javascript">
+		// Validation helper for "Next" navigation across PDS sections
+		function validateAndGoNext(nextUrl) {
+			var missed = [];
+			$('.required-field-hrisp').each(function() {
+				var v = $(this).val();
+				if (!v || v.trim() === '') {
+					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
+								|| $(this).attr('placeholder')
+								|| $(this).attr('name')
+								|| 'Unnamed field';
+					missed.push(label);
+				}
+			});
+			if (missed.length > 0) {
+				swal({
+					title: "Please fill required fields",
+					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
+					icon: "warning"
+				});
+				return;
+			}
+			window.location.href = nextUrl;
+		}
+
 	    $(document).ready(function() {
-			
+
 			$('#addButton').click(function(){
 				let empHashCode = $('#empHashCode').val();
 				let employeeId = $('#employeeId').val();
@@ -339,6 +376,7 @@
 	            var suffix = $(this).attr('data-row-suffix');
 	            var gender = $(this).attr('data-row-gender');
 	            var age = $(this).attr('data-row-age');
+            var maidenName = $(this).attr('data-row-maidenName');
 	                    
 	            
 	            $("#modal_form_vertical").find("#id").val(id);
@@ -357,26 +395,27 @@
 	            $("#modal_form_vertical").find("#suffix").val(suffix);
 	            $("#modal_form_vertical").find("#gender").val(gender);
 	            $("#modal_form_vertical").find("#age").val(age);
+            $("#modal_form_vertical").find("#maidenName").val(maidenName);
 	            
 	            if(relationship === 'SPOUSE'){
 					$(".spouseField").show();
-					
-					$("#gender").val("FEMALE");
-					$("#gender").prop("disabled", true);					
+					$("#maidenNameGroup").show();
+					if(!gender) { $("#gender").val("FEMALE"); }
+					$("#gender").prop("disabled", false);
 					
 				} else if(relationship === 'MOTHER'){
-					
-					$("#gender").val("FEMALE");
-					$("#gender").prop("disabled", true);	
+					if(!gender) { $("#gender").val("FEMALE"); }
+					$("#gender").prop("disabled", false);
+					$("#maidenNameGroup").show();
 					$(".spouseField").hide();
 				} else if(relationship === 'FATHER'){
-					
-					$("#gender").val("MALE");
-					$("#gender").prop("disabled", true);	
+					if(!gender) { $("#gender").val("MALE"); }
+					$("#gender").prop("disabled", false);
+					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
 				} else {					
-					
-					$("#gender").prop("disabled", false);	
+					$("#gender").prop("disabled", false);
+					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
 				}
 	            
@@ -384,33 +423,66 @@
 			
 			$("#relationship").change(function() {
 		        var selectedValue = $(this).val();
-		        //console("Selected value: " + selectedValue);
 		        
 		        if(selectedValue === 'SPOUSE'){
 					$(".spouseField").show();
-					
-					$("#gender").val("FEMALE");
-					$("#gender").prop("disabled", true);					
+					$("#maidenNameGroup").show();
+					if(!$("#gender").val()) { $("#gender").val("FEMALE"); }
+					$("#gender").prop("disabled", false);
 					
 				} else if(selectedValue === 'MOTHER'){
-					
-					$("#gender").val("FEMALE");
-					$("#gender").prop("disabled", true);	
+					if(!$("#gender").val()) { $("#gender").val("FEMALE"); }
+					$("#gender").prop("disabled", false);
+					$("#maidenNameGroup").show();
 					$(".spouseField").hide();
 				} else if(selectedValue === 'FATHER'){
-					
-					$("#gender").val("MALE");
-					$("#gender").prop("disabled", true);	
+					if(!$("#gender").val()) { $("#gender").val("MALE"); }
+					$("#gender").prop("disabled", false);
+					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
 				} else {					
-					
-					$("#gender").prop("disabled", false);	
+					$("#gender").prop("disabled", false);
+					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
 				}
 		        
-		        // You can perform any action based on the selected value here
 		    });
 			
+
+			// ── Date Mask (dd/mm/yyyy ↔ yyyy-MM-dd) ──────────────────────────────
+			$(document).on('input', '.date-mask-input', function() {
+				var v = $(this).val().replace(/\D/g, '').substring(0, 8);
+				if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+				if (v.length >= 6) v = v.substring(0,5) + '/' + v.substring(5);
+				$(this).val(v);
+			});
+			$(document).on('blur', '.date-mask-input', function() {
+				var display = $(this).val().trim();
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var $hidden = $('#' + hiddenId);
+				var $err = $(this).nextAll('.date-error').first();
+				if (!display) { $hidden.val(''); $err.hide(); return; }
+				var parts = display.split('/');
+				if (parts.length !== 3) { $err.show(); return; }
+				var dd = parts[0], mm = parts[1], yy = parts[2];
+				var year = parseInt(yy, 10);
+				if (yy.length <= 2) year += (year <= 49 ? 2000 : 1900);
+				var d = new Date(year, parseInt(mm,10)-1, parseInt(dd,10));
+				if (isNaN(d.getTime()) || d.getDate() != parseInt(dd,10) || (d.getMonth()+1) != parseInt(mm,10)) {
+					$err.show(); $hidden.val(''); return;
+				}
+				$err.hide();
+				$hidden.val(year + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0'));
+			});
+			$('.date-mask-input').each(function() {
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var iso = $('#' + hiddenId).val();
+				if (iso && iso.length === 10) {
+					var parts = iso.split('-');
+					$(this).val(parts[2] + '/' + parts[1] + '/' + parts[0]);
+				}
+			});
+
 			// start update profile photo
 			const fileSelect = document.getElementById('fileSelect');
 		    const profilePhoto = document.getElementById('profilePhoto');
@@ -530,23 +602,16 @@
 				});
 			}
 			
-			$('#employeeForm').submit(function(event) {
+			$('#employeeForm').on('submit', function(e) {
+		        e.preventDefault();
 		        var emptyFields = [];
-		        $('.required-field-hrisp').each(function() {
+		        $('.required-field-hrisp', this).each(function() {
 		            if ($(this).val().trim() === '') {
 		                emptyFields.push($(this));
 		            }
 		        });
 		
 		        if (emptyFields.length > 0) {
-		            event.preventDefault();
-		            //var alertMessage = "Please fill out the following fields:\n";
-		            //$.each(emptyFields, function(index, field) {
-		            //    alertMessage += "- " + field.attr('name') + "\n";
-		            //});
-		            //alert(alertMessage);
-		            // Focus on the first empty field
-		            
 		            swal({
 						title: "Error!",
 						text: "Mandatory fields marked in RED are mandatory.",
@@ -555,9 +620,22 @@
 			            timer: 2000,
 					});
 		            emptyFields[0].focus();
-		        } else {
-					$("#gender").prop("disabled", false);	
-				}
+		            return;
+		        }
+
+		        $("#gender").prop("disabled", false);
+		        $.post($(this).attr('action'), $(this).serialize())
+		            .done(function() {
+		                $('#modal_form_vertical').modal('hide');
+		                window.location.reload();
+		            })
+		            .fail(function(xhr) {
+		                swal({
+		                    title: "Error!",
+		                    text: "Save failed: " + xhr.status,
+		                    icon: "error"
+		                });
+		            });
 		    });
 		    
 		    

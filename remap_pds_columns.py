@@ -29,12 +29,13 @@ P3 = ROOT / "src" / "main" / "resources" / "jasper" / "reports" / "PDS2025_P3.jr
 # 2017-form fields like V.WE_Montly_Salary that don't appear in the 2025 form).
 P2_COLS = {
     # IV. Civil Service Eligibility (Section 27)
-    "IV.CSE_Career_Service_RA_1080":   (38,  211, 6, "Left",   True,  False),
-    "IV.CSE_Rating":                   (249,  50, 7, "Center", False, False),
-    "IV.CSE_Date_Of_Examination":      (300,  50, 6, "Center", False, False),
-    "IV.CSE_Place_Of_Examination":     (351,  90, 6, "Left",   True,  False),
-    "IV.CSE_License_Number_":          (442,  42, 6, "Center", False, False),
-    "IV.CSE_License_Date_Of_Validity": (484,  36, 6, "Center", False, False),
+    # Fixed coordinates based on drawn rectangle grid (x=100 left border, x=251 first divider)
+    "IV.CSE_Career_Service_RA_1080":   (102,  147, 6, "Left",   True,  False),
+    "IV.CSE_Rating":                   (252,  48, 7, "Center", False, False),
+    "IV.CSE_Date_Of_Examination":      (303,  53, 6, "Center", False, False),
+    "IV.CSE_Place_Of_Examination":     (358,  70, 6, "Left",   True,  False),
+    "IV.CSE_License_Number_":          (431,  43, 6, "Center", False, False),
+    "IV.CSE_License_Date_Of_Validity": (477,  43, 6, "Center", False, False),
     # V. Work Experience (Section 28)
     "V.WE_Inclusive_Dates_From":            (101, 39, 7, "Center", False, False),
     "V.WE_Inclusive_Dates_To":              (140, 39, 7, "Center", False, False),
@@ -67,6 +68,25 @@ P3_COLS = {
     "VIII.OI_Membership_In_Association":       (435, 125, 6, "Left", True, False),
 }
 
+# P4 has no x/width corrections needed, but requires y-coordinate shifts for
+# "If YES" detail fields to land below their static "If YES, give details:" labels.
+# Each entry: param_name -> new_y (label_y + label_height + 1 or label_y + 10 for 10-high labels)
+P4_Y_SHIFTS = {
+    "VIII.OI_34_If_Yes":      97,   # label at y=85, h=10 → 85+10+2
+    "VIII.OI_35_A_If_Yes":    134,  # label at y=123, h=10 → 123+10+1
+    "VIII.OI_35_B_If_Yes":    174,  # label at y=164, h=10 → 164+10
+    "VIII.OI_35_Date_Filed":  176,  # label at y=164, h=10 → shift to below label
+    "VIII.OI_35_Status_Of_Cases": 187,  # After Date_Filed field
+    "VIII.OI_36_If_Yes":      225,  # label at y=214, h=10 → 214+10+1
+    "VIII.OI_37_A_If_Yes":    263,  # label at y=252, h=10 → 252+10+1
+    "VIII.OI_38_A_If_Yes":    298,  # label at y=287, h=10 → 287+10+1
+    "VIII.OI_38_B_If_Yes":    324,  # label at y=313, h=10 → 313+10+1
+    "VIII.OI_39_A_If_Yes":    352,  # label at y=341, h=10 → 341+10+1
+    "VIII.OI_40_A_If_Yes":    418,  # label at y=407, h=10 → 407+10+1
+    "VIII.OI_40_B_If_Yes":    440,  # label at y=429, h=10 → 429+10+1
+    "VIII.OI_40_C_If_Yes":    462,  # label at y=451, h=10 → 451+10+1
+}
+
 
 def matches_prefix(param: str, prefixes) -> str | None:
     """Return the matching prefix (longest first) or None."""
@@ -76,7 +96,7 @@ def matches_prefix(param: str, prefixes) -> str | None:
     return None
 
 
-def remap(jrxml_path: Path, cols: dict) -> int:
+def remap(jrxml_path: Path, cols: dict, y_shifts: dict = None) -> int:
     src = jrxml_path.read_text(encoding="utf-8")
     out = []
     cursor = 0
@@ -95,6 +115,20 @@ def remap(jrxml_path: Path, cols: dict) -> int:
         param = pm.group(1)
         prefix = matches_prefix(param, cols.keys())
         if prefix is None:
+            # No x/w change, but check if y-shift applies (for P4)
+            if y_shifts and param in y_shifts:
+                new_y = y_shifts[param]
+                new = re.sub(
+                    r'y="\d+"',
+                    f'y="{new_y}"',
+                    block,
+                    count=1,
+                )
+                if new != block:
+                    changed += 1
+                out.append(new)
+                cursor = m.end()
+                continue
             out.append(block)
             cursor = m.end()
             continue
@@ -147,5 +181,9 @@ def remap(jrxml_path: Path, cols: dict) -> int:
 if __name__ == "__main__":
     n2 = remap(P2, P2_COLS)
     n3 = remap(P3, P3_COLS)
+    # P4 needs y-shifts for "If YES" detail fields to land below static labels
+    p4_path = ROOT / "src" / "main" / "resources" / "jasper" / "reports" / "PDS2025_P4.jrxml"
+    n4 = remap(p4_path, {}, P4_Y_SHIFTS)  # empty cols dict (no x/w changes), only y-shifts
     print(f"P2: {n2} textFields remapped")
     print(f"P3: {n3} textFields remapped")
+    print(f"P4: {n4} textFields remapped (y-shifts)")

@@ -43,12 +43,22 @@
 										<div class="col-sm-4">
 											<label for="firstName">Date From</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('dateFrom')}" th:errors="*{dateFrom}"></span>
-											<input id="dateFrom" name="dateFrom" th:field="*{dateFrom}" type="date" class="form-control required-field-hrisp" >
+											<input type="text" class="form-control date-mask-input"
+													   id="dateFrom_display"
+													   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+													<input type="hidden" id="dateFrom" name="dateFrom"
+														   th:value="${workExperience.dateFrom != null ? #temporals.format(workExperience.dateFrom,'yyyy-MM-dd') : ''}" />
+													<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>	
 										<div class="col-sm-4">
 											<label for="firstName">Date To</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('dateTo')}" th:errors="*{dateTo}"></span>
-											<input id="dateTo" name="dateTo" th:field="*{dateTo}" type="date" class="form-control required-field-hrisp" >
+											<input type="text" class="form-control date-mask-input"
+													   id="dateTo_display"
+													   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+													<input type="hidden" id="dateTo" name="dateTo"
+														   th:value="${workExperience.dateTo != null ? #temporals.format(workExperience.dateTo,'yyyy-MM-dd') : ''}" />
+													<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>	
 										<div class="col-sm-4">
 											<label for="firstName">&nbsp;</label><br>
@@ -96,12 +106,12 @@
 										<div class="col-sm-4">
 											<label for="salaryGrade">Salary Grade</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('salaryGrade')}" th:errors="*{salaryGrade}"></span>
-											<input id="salaryGrade" name="salaryGrade" th:field="*{salaryGrade}" placeholder="Salary" type="number" class="form-control required-field-hrisp" >
+											<input id="salaryGrade" name="salaryGrade" th:field="*{salaryGrade}" placeholder="Salary Grade" type="number" class="form-control required-field-hrisp" >
 										</div>
 										<div class="col-sm-4">
-											<label for="salaryGrade">Step Number</label>
+											<label for="stepNo">Step Number</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('stepNo')}" th:errors="*{stepNo}"></span>
-											<input id="stepNo" name="stepNo" th:field="*{stepNo}" placeholder="Salary" type="number" class="form-control required-field-hrisp" >
+											<input id="stepNo" name="stepNo" th:field="*{stepNo}" placeholder="Step No." type="number" class="form-control required-field-hrisp" >
 										</div>
 									</div>
 									<div class="row  mt-3">
@@ -142,6 +152,11 @@
 							<div class="modal-footer">
 								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
 								<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
+							<button type="button" class="btn btn-outline-success ml-2"
+								onclick="validateAndGoNext(this.getAttribute('data-href'));"
+								th:attr="data-href=@{/employee/voluntary-work/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+								Next: Voluntary Work &#8594;
+							</button>
 							</div>
 						</form>
 					</div>
@@ -267,6 +282,29 @@
 	<!-- /Main sidebar -->
 	
 	<script th:inline="javascript">		
+		// Validation helper for "Next" navigation across PDS sections
+		function validateAndGoNext(nextUrl) {
+			var missed = [];
+			$('.required-field-hrisp').each(function() {
+				var v = $(this).val();
+				if (!v || v.trim() === '') {
+					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
+								|| $(this).attr('placeholder')
+								|| $(this).attr('name')
+								|| 'Unnamed field';
+					missed.push(label);
+				}
+			});
+			if (missed.length > 0) {
+				swal({
+					title: "Please fill required fields",
+					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
+					icon: "warning"
+				});
+				return;
+			}
+			window.location.href = nextUrl;
+		}
 	
 	$(document).ready(function() {
 			
@@ -317,6 +355,41 @@
 	            
 	        });
 					
+
+			// ── Date Mask (dd/mm/yyyy ↔ yyyy-MM-dd) ──────────────────────────────
+			$(document).on('input', '.date-mask-input', function() {
+				var v = $(this).val().replace(/\D/g, '').substring(0, 8);
+				if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+				if (v.length >= 6) v = v.substring(0,5) + '/' + v.substring(5);
+				$(this).val(v);
+			});
+			$(document).on('blur', '.date-mask-input', function() {
+				var display = $(this).val().trim();
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var $hidden = $('#' + hiddenId);
+				var $err = $(this).nextAll('.date-error').first();
+				if (!display) { $hidden.val(''); $err.hide(); return; }
+				var parts = display.split('/');
+				if (parts.length !== 3) { $err.show(); return; }
+				var dd = parts[0], mm = parts[1], yy = parts[2];
+				var year = parseInt(yy, 10);
+				if (yy.length <= 2) year += (year <= 49 ? 2000 : 1900);
+				var d = new Date(year, parseInt(mm,10)-1, parseInt(dd,10));
+				if (isNaN(d.getTime()) || d.getDate() != parseInt(dd,10) || (d.getMonth()+1) != parseInt(mm,10)) {
+					$err.show(); $hidden.val(''); return;
+				}
+				$err.hide();
+				$hidden.val(year + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0'));
+			});
+			$('.date-mask-input').each(function() {
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var iso = $('#' + hiddenId).val();
+				if (iso && iso.length === 10) {
+					var parts = iso.split('-');
+					$(this).val(parts[2] + '/' + parts[1] + '/' + parts[0]);
+				}
+			});
+
 			// start update profile photo
 			const fileSelect = document.getElementById('fileSelect');
 		    const profilePhoto = document.getElementById('profilePhoto');

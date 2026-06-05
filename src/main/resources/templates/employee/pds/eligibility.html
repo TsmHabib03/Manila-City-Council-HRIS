@@ -47,25 +47,27 @@
 												<option value="">SELECT VALUE</option>
 												<option th:each="type: ${eligibilityList}" th:value="${type.getEligibilityName()}" th:text="${type.getEligibilityName()}"></option>
 												<option value="OTHERS">OTHERS</option>
+												<option value="N/A">N/A (Not Applicable)</option>
 											</select>
 										</div>
 										<div class="col-sm-4">
 											<label for="otherEligibility">Other Eligibility</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('otherEligibility')}" th:errors="*{otherEligibility}"></span>
-											<input id="otherEligibility" name="otherEligibility" th:field="*{otherEligibility}" placeholder="Other Eligibility" type="text" class="form-control" readonly>
+											<input id="otherEligibility" name="otherEligibility" th:field="*{otherEligibility}" placeholder="Other Eligibility" type="text" class="form-control">
 										</div>
 										<div class="col-sm-4">
 											<label for="rating">Rating</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></span>
-											<input id="rating" name="rating" th:field="*{rating}" placeholder="Rating" type="text" class="form-control required-field-hrisp" >
+											<input id="rating" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>		
 									</div>
 
+								<div id="eligibility-detail-rows">
 									<div class="row mt-3">										
 										<div class="col-sm-4">
 											<label for="examMonth">Exam Month</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('examMonth')}" th:errors="*{examMonth}"></span>
-											<select name="examMonth" id="examMonth" class="form-control required-field-hrisp" th:field="*{examMonth}">
+											<select name="examMonth" id="examMonth" class="form-control required-field-hrisp eligibility-conditional-required" th:field="*{examMonth}">
 												<option value="">SELECT VALUE</option>
 												<option value="JAN">JAN</option>
 												<option value="FEB">FEB</option>
@@ -84,17 +86,19 @@
 										<div class="col-sm-2">
 											<label for="examDay">Exam Day</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('examDay')}" th:errors="*{examDay}"></span>
-											<input id="examDay" name="examDay" th:field="*{examDay}" placeholder="Exam Day" type="number" class="form-control required-field-hrisp" >
+											<input id="examDay" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>	
 										<div class="col-sm-2">
 											<label for="examYear">Exam Year</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('examYear')}" th:errors="*{examYear}"></span>
-											<input id="examYear" name="examYear" th:field="*{examYear}" placeholder="Exam Year" type="number" class="form-control required-field-hrisp" >
+											<select id="examYear" name="examYear" th:data-examyear="*{examYear}" class="form-control required-field-hrisp eligibility-conditional-required">
+												<option value="0">SELECT YEAR</option>
+											</select>
 										</div>
 										<div class="col-sm-4">
 											<label for="placeOfExam">Place of Exam</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('placeOfExam')}" th:errors="*{placeOfExam}"></span>
-											<input id="placeOfExam" name="placeOfExam" th:field="*{placeOfExam}" placeholder="Place of Exam" type="text" class="form-control required-field-hrisp" >
+											<input id="placeOfExam" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>		
 									</div>
 
@@ -102,26 +106,32 @@
 										<div class="col-sm-4">
 											<label for="licenseNo">License Number</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('licenseNo')}" th:errors="*{licenseNo}"></span>
-											<input id="licenseNo" name="licenseNo" th:field="*{licenseNo}" placeholder="License Number" type="text" class="form-control required-field-hrisp" >
+											<input id="licenseNo" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>
 										<div class="col-sm-4">
 											<label for="licenseValidityDate">License Validity Date</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('licenseValidityDate')}" th:errors="*{licenseValidityDate}"></span>
-											<input id="licenseValidityDate" name="licenseValidityDate" th:field="*{licenseValidityDate}" placeholder="License Validity Date" type="date" class="form-control required-field-hrisp" >
+											<input id="licenseValidityDate" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>
 										<div class="col-sm-4">
 											<label for="licenseReleaseDate">License Release Date</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('licenseReleaseDate')}" th:errors="*{licenseReleaseDate}"></span>
-											<input id="licenseReleaseDate" name="licenseReleaseDate" th:field="*{licenseReleaseDate}" placeholder="License Release Date" type="date" class="form-control required-field-hrisp" >
+											<input id="licenseReleaseDate" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>	
 									</div>
 
 								</div>
+								</div><!-- /eligibility-detail-rows -->
 							</div>
 
 							<div class="modal-footer">
 								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
 								<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
+							<button type="button" class="btn btn-outline-success ml-2"
+								onclick="validateAndGoNext(this.getAttribute('data-href'));"
+								th:attr="data-href=@{/employee/work-experience/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+								Next: Work Experience &#8594;
+							</button>
 							</div>
 						</form>
 					</div>
@@ -246,22 +256,63 @@
 	<div th:replace="fragments/common::footer"></div>
 	<!-- /Main sidebar -->
 	
-	<script th:inline="javascript">		
-	
+	<script th:inline="javascript">
+		// Validation helper for "Next" navigation across PDS sections
+		function validateAndGoNext(nextUrl) {
+			var missed = [];
+			$('.required-field-hrisp').each(function() {
+				var v = $(this).val();
+				if (!v || v.trim() === '') {
+					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
+								|| $(this).attr('placeholder')
+								|| $(this).attr('name')
+								|| 'Unnamed field';
+					missed.push(label);
+				}
+			});
+			if (missed.length > 0) {
+				swal({
+					title: "Please fill required fields",
+					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
+					icon: "warning"
+				});
+				return;
+			}
+			window.location.href = nextUrl;
+		}
+
 	    $(document).ready(function() {
-			
+
+			function applyEligibilityNaMode(isNa) {
+				if(isNa) {
+					$('.eligibility-conditional-required').removeClass('required-field-hrisp');
+					$('#eligibility-detail-rows').hide();
+					$('#rating').removeClass('required-field-hrisp').val('N/A');
+				} else {
+					$('.eligibility-conditional-required').addClass('required-field-hrisp');
+					$('#eligibility-detail-rows').show();
+					if($('#rating').val() === 'N/A') { $('#rating').val(''); }
+				}
+			}
+
+			// Populate exam year dropdown
+			(function() {
+				var currentYear = new Date().getFullYear();
+				for(var y = currentYear; y >= 1960; y--) {
+					$('#examYear').append('<option value="' + y + '">' + y + '</option>');
+				}
+				var savedYear = parseInt($('#examYear').attr('data-examyear'));
+				if(savedYear > 0) { $('#examYear').val(savedYear); }
+			})();
+
 			$("#eligibility").change(function() {
 		        var selectedValue = $(this).val();
-		        
-		        if(selectedValue === 'OTHERS'){				
-					$("#otherEligibility").prop("readOnly", false);
-					$("#otherEligibility").addClass("required-field-hrisp");
-					$("#otherEligibility").focus();
-				} else {					
-					$("#otherEligibility").prop("readOnly", true);
-					$("#otherEligibility").removeClass("required-field-hrisp");
+
+		        if(selectedValue === 'N/A') {
+					applyEligibilityNaMode(true);
+				} else {
+					applyEligibilityNaMode(false);
 				}
-				
 		    });
 	    	
 	    	$('#consultation-list').DataTable({
@@ -333,7 +384,15 @@
 	            $("#modal_form_vertical").find("#placeOfExam").val(placeOfExam);
 	            $("#modal_form_vertical").find("#licenseNo").val(licenseNo);
 	            $("#modal_form_vertical").find("#licenseValidityDate").val(licenseValidityDate);
-	            $("#modal_form_vertical").find("#licenseReleaseDate").val(licenseReleaseDate);    
+	            $("#modal_form_vertical").find("#licenseReleaseDate").val(licenseReleaseDate);
+			// Apply N/A mode if eligibility loaded is N/A
+			var loadedElig = $("#modal_form_vertical #eligibility").val();
+			if(loadedElig === 'N/A') { applyEligibilityNaMode(true); }
+			else { applyEligibilityNaMode(false); }
+			// Populate year dropdown for loaded record
+			var loadedYear = parseInt($("#modal_form_vertical #examYear").attr('data-examyear') || 0);
+			if(!loadedYear) { loadedYear = parseInt($(this).attr('data-row-examYear') || 0); }
+			if(loadedYear > 0) { $('#examYear').val(loadedYear); }
 		});
 
 		$('#employeeForm').submit(function(event) {
