@@ -12,8 +12,9 @@ cell on the new (correct) Annex H-1 background. This script reads each
 parameter's prefix to look up the canonical (x, w, font, align, overflow)
 and rewrites the matching <reportElement>.
 
-Y-coordinates are left alone — those were already close to correct for
-the new background (verified via debug_overlay_pds.py).
+Y-coordinates: Round 3 corrects row y-positioning. Data was printing in
+wrong grid rows (CSE row 1 → grid row 3, WE row 1 → grid row 4).
+Fixed by aligning textField y to grid row boundaries (y = grid_top + 2).
 """
 
 from pathlib import Path
@@ -92,6 +93,19 @@ P4_Y_SHIFTS = {
 P4_HEIGHT_FIXES = {
     "VIII.OI_34_If_Yes": 10,  # change from 22 to 10
 }
+
+# P2 row y-coordinate fixes: data was printing in wrong grid rows
+# Grid row tops derived from horizontal divider rectangles (height=1, backcolor=#000000)
+# Rule: textField y = grid_row_top + 2 (2 px padding inside cell)
+CSE_GRID_TOPS = [53, 73, 93, 112, 132, 151, 171]  # 7 CSE rows
+WE_GRID_TOPS  = [258, 275, 293, 310, 327, 345, 362, 380,  # 28 WE rows
+                  397, 414, 432, 449, 467, 484, 501, 519,
+                  536, 554, 572, 589, 606, 624, 641, 659,
+                  676, 693, 711, 728]
+
+# Build row -> y mapping: row number (1-indexed) maps to correct y value
+CSE_ROW_Y = {n+1: y+2 for n, y in enumerate(CSE_GRID_TOPS)}
+WE_ROW_Y  = {n+1: y+2 for n, y in enumerate(WE_GRID_TOPS)}
 
 
 def matches_prefix(param: str, prefixes) -> str | None:
@@ -193,13 +207,76 @@ def remap(jrxml_path: Path, cols: dict, y_shifts: dict = None, height_fixes: dic
     return changed
 
 
+def remap_row_y(jrxml_path: Path) -> int:
+    """Fix P2 row y-coordinates: CSE and WE data were printing in wrong grid rows.
+
+    Scans all textFields, extracts row number from param name (e.g., '_1', '_2'),
+    and patches y="..." to align with grid row tops (CSE rows 1-7, WE rows 1-28).
+    """
+    src = jrxml_path.read_text(encoding="utf-8")
+    out = []
+    cursor = 0
+    changed = 0
+
+    tf_pat = re.compile(r"<textField\b.*?</textField>", re.DOTALL)
+
+    for m in tf_pat.finditer(src):
+        out.append(src[cursor : m.start()])
+        block = m.group(0)
+        pm = re.search(r"\$P\{([^}]+)\}", block)
+
+        if not pm:
+            out.append(block)
+            cursor = m.end()
+            continue
+
+        param = pm.group(1)
+
+        # Extract row number from param name (last digits, e.g., '_1', '_28')
+        row_match = re.search(r'(\d+)$', param)
+        if not row_match:
+            out.append(block)
+            cursor = m.end()
+            continue
+
+        row_num = int(row_match.group(1))
+        new_y = None
+
+        # Determine which grid (CSE or WE) and look up correct y
+        if param.startswith('IV.CSE_') and row_num in CSE_ROW_Y:
+            new_y = CSE_ROW_Y[row_num]
+        elif param.startswith('V.WE_') and row_num in WE_ROW_Y:
+            new_y = WE_ROW_Y[row_num]
+
+        if new_y is not None:
+            # Patch y="..." in the reportElement
+            new = re.sub(
+                r'y="\d+"',
+                f'y="{new_y}"',
+                block,
+                count=1,
+            )
+            if new != block:
+                changed += 1
+            out.append(new)
+        else:
+            out.append(block)
+
+        cursor = m.end()
+
+    out.append(src[cursor:])
+    jrxml_path.write_text("".join(out), encoding="utf-8")
+    return changed
+
+
 if __name__ == "__main__":
     n2 = remap(P2, P2_COLS)
+    n2_row = remap_row_y(P2)  # Fix P2 row y-coordinates (CSE/WE data in wrong grid rows)
     n3 = remap(P3, P3_COLS)
     # P4 needs y-shifts for "If YES" detail fields to land below static labels
     # Also fix Q34 height anomaly (22 → 10)
     p4_path = ROOT / "src" / "main" / "resources" / "jasper" / "reports" / "PDS2025_P4.jrxml"
     n4 = remap(p4_path, {}, P4_Y_SHIFTS, P4_HEIGHT_FIXES)
-    print(f"P2: {n2} textFields remapped")
+    print(f"P2: {n2} textFields remapped (x/w/align), {n2_row} textFields remapped (row y)")
     print(f"P3: {n3} textFields remapped")
     print(f"P4: {n4} textFields remapped (y-shifts + height fixes)")
