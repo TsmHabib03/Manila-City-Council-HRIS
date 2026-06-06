@@ -155,7 +155,7 @@ public class ReportsController {
 
 		// Add employee photo to P4 if available
 		InputStream photoStream = null;
-		String profilePhoto = objEmp.getProfilePhoto();
+		String profilePhoto = employee.getProfilePhoto();
 		if (profilePhoto != null && !profilePhoto.isEmpty()) {
 			String fileName = profilePhoto.substring(profilePhoto.lastIndexOf('/') + 1);
 			Path photoPath = Paths.get(fileStorageProperties.getUploadDir()).resolve(fileName);
