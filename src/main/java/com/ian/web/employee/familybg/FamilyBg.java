@@ -41,7 +41,8 @@ public class FamilyBg extends Person {
 	private String businessAdd;
 	private String employmentStatus;
 	private String mobileNo;
-		
+	private String maidenName;
+
 	@Transient
 	private String showMode;
 	

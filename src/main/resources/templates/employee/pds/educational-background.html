@@ -297,6 +297,29 @@
 			let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
 			window.location.href = contextRoot + "/employee-list";
 		}
+
+		function validateAndGoNext(nextUrl) {
+			var missed = [];
+			$('.required-field-hrisp:visible').each(function() {
+				var v = $(this).val();
+				if (!v || v.trim() === '') {
+					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
+								|| $(this).attr('placeholder')
+								|| $(this).attr('name')
+								|| 'Unnamed field';
+					missed.push(label);
+				}
+			});
+			if (missed.length > 0) {
+				swal({
+					title: "Please fill required fields",
+					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
+					icon: "warning"
+				});
+				return;
+			}
+			window.location.href = nextUrl;
+		}
 	</script>
 	
 	<script th:inline="javascript">		

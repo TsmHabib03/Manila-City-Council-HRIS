@@ -187,9 +187,8 @@ public class EmployeeController {
 	        employee.setEmpNo(employeeOldRecord.getEmpNo());
 	        employee.setAssumptiondate(employeeOldRecord.getAssumptiondate());
 	        employee.setPlantillaNo(employeeOldRecord.getPlantillaNo());
-	        employee.setPositionTitle(employeeOldRecord.getPositionTitle());
-	        employee.setDivision(employeeOldRecord.getDivision());
 	        employee.setEmployeeStatus(employeeOldRecord.getEmployeeStatus());
+	        // positionTitle and division are now employee-editable
 	    }
 
 		if (errors.hasErrors()) {

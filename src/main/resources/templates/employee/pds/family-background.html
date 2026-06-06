@@ -341,7 +341,7 @@
 		// Validation helper for "Next" navigation across PDS sections
 		function validateAndGoNext(nextUrl) {
 			var missed = [];
-			$('.required-field-hrisp').each(function() {
+			$('.required-field-hrisp:visible').each(function() {
 				var v = $(this).val();
 				if (!v || v.trim() === '') {
 					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
@@ -489,6 +489,14 @@
 				}
 				$err.hide();
 				$hidden.val(year + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0'));
+				var ageField = document.getElementById('age');
+				if (ageField) {
+					var today = new Date();
+					var age = today.getFullYear() - d.getFullYear();
+					var mo = today.getMonth() - d.getMonth();
+					if (mo < 0 || (mo === 0 && today.getDate() < d.getDate())) age--;
+					ageField.value = age >= 0 ? age : '';
+				}
 			});
 			$('.date-mask-input').each(function() {
 				var hiddenId = $(this).attr('id').replace('_display', '');

@@ -70,7 +70,8 @@ public class EducationalBackground {
 	private boolean upToPresent;
 	private String unitsEarned;
 	private int yearGraduated;	
-	private String remarks;	
+	private String remarks;
+	private String schoolCustomName;
 
 	@Transient
 	private String showMode;	
@@ -78,6 +79,13 @@ public class EducationalBackground {
 	private String attachmentUrl;	
 	@Transient
 	private MultipartFile attachedFile;	
+
+	public String getEffectiveSchoolName() {
+		if (school != null && school.getSchoolName() != null && !school.getSchoolName().isBlank()) {
+			return school.getSchoolName();
+		}
+		return schoolCustomName != null ? schoolCustomName : "";
+	}
 
 	public String getDateToString(){
 		if(startDate != null && endDate != null) {

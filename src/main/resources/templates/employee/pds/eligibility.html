@@ -58,7 +58,7 @@
 										<div class="col-sm-4">
 											<label for="rating">Rating</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></span>
-											<input id="rating" class="form-control required-field-hrisp eligibility-conditional-required" >
+											<input id="rating" name="rating" th:field="*{rating}" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>		
 									</div>
 
@@ -86,19 +86,19 @@
 										<div class="col-sm-2">
 											<label for="examDay">Exam Day</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('examDay')}" th:errors="*{examDay}"></span>
-											<input id="examDay" class="form-control required-field-hrisp eligibility-conditional-required" >
+											<input id="examDay" name="examDay" th:field="*{examDay}" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>	
 										<div class="col-sm-2">
 											<label for="examYear">Exam Year</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('examYear')}" th:errors="*{examYear}"></span>
-											<select id="examYear" name="examYear" th:data-examyear="*{examYear}" class="form-control required-field-hrisp eligibility-conditional-required">
+											<select id="examYear" name="examYear" th:field="*{examYear}" class="form-control required-field-hrisp eligibility-conditional-required">
 												<option value="0">SELECT YEAR</option>
 											</select>
 										</div>
 										<div class="col-sm-4">
 											<label for="placeOfExam">Place of Exam</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('placeOfExam')}" th:errors="*{placeOfExam}"></span>
-											<input id="placeOfExam" class="form-control required-field-hrisp eligibility-conditional-required" >
+											<input id="placeOfExam" name="placeOfExam" th:field="*{placeOfExam}" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>		
 									</div>
 
@@ -106,17 +106,27 @@
 										<div class="col-sm-4">
 											<label for="licenseNo">License Number</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('licenseNo')}" th:errors="*{licenseNo}"></span>
-											<input id="licenseNo" class="form-control required-field-hrisp eligibility-conditional-required" >
+											<input id="licenseNo" name="licenseNo" th:field="*{licenseNo}" class="form-control required-field-hrisp eligibility-conditional-required" >
 										</div>
 										<div class="col-sm-4">
 											<label for="licenseValidityDate">License Validity Date</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('licenseValidityDate')}" th:errors="*{licenseValidityDate}"></span>
-											<input id="licenseValidityDate" class="form-control required-field-hrisp eligibility-conditional-required" >
+											<input type="text" class="form-control date-mask-input required-field-hrisp eligibility-conditional-required"
+													id="licenseValidityDate_display"
+													placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+											<input type="hidden" id="licenseValidityDate" name="licenseValidityDate"
+													th:value="${civilServiceEligibility.licenseValidityDate != null ? #temporals.format(civilServiceEligibility.licenseValidityDate,'yyyy-MM-dd') : ''}" />
+											<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>
 										<div class="col-sm-4">
 											<label for="licenseReleaseDate">License Release Date</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('licenseReleaseDate')}" th:errors="*{licenseReleaseDate}"></span>
-											<input id="licenseReleaseDate" class="form-control required-field-hrisp eligibility-conditional-required" >
+											<input type="text" class="form-control date-mask-input required-field-hrisp eligibility-conditional-required"
+													id="licenseReleaseDate_display"
+													placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+											<input type="hidden" id="licenseReleaseDate" name="licenseReleaseDate"
+													th:value="${civilServiceEligibility.licenseReleaseDate != null ? #temporals.format(civilServiceEligibility.licenseReleaseDate,'yyyy-MM-dd') : ''}" />
+											<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>	
 									</div>
 
@@ -229,13 +239,13 @@
 									<!-- PDS Section Navigation -->
 									<div class="card mt-2">
 										<div class="card-body d-flex justify-content-between align-items-center py-2">
-											<a th:href="@{{/employee/educationalbg/{{id}}/{{mode}}/{{hash}}(id=${{{employee.id}}},mode=${{{employee.showMode}}},hash=${{{employee.empHashCode}}})}"
+											<a th:href="@{/employee/educationalbg/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}"
 											   class="btn btn-outline-secondary btn-sm">
 												&#8592; Previous: Educational Background
 											</a>
 											<button type="button" class="btn btn-success btn-sm"
 												onclick="validateAndGoNext(this.getAttribute('data-href'));"
-												th:attr="data-href=@{{/employee/work-experience/{{id}}/{{mode}}/{{hash}}(id=${{{employee.id}}},mode=${{{employee.showMode}}},hash=${{{employee.empHashCode}}})}" >
+												th:attr="data-href=@{/employee/work-experience/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}" >
 												Next: Work Experience &#8594;
 											</button>
 										</div>
@@ -282,7 +292,7 @@
 		// Validation helper for "Next" navigation across PDS sections
 		function validateAndGoNext(nextUrl) {
 			var missed = [];
-			$('.required-field-hrisp').each(function() {
+			$('.required-field-hrisp:visible').each(function() {
 				var v = $(this).val();
 				if (!v || v.trim() === '') {
 					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()

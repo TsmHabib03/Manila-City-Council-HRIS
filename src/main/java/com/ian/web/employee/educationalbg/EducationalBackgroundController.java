@@ -35,6 +35,7 @@ import com.ian.web.systemsettings.degree_courses.DegreeCoursesRepository;
 import com.ian.web.systemsettings.degreelevels.DegreeLevelRepository;
 import com.ian.web.systemsettings.scholarship.Scholarship;
 import com.ian.web.systemsettings.scholarship.ScholarshipRepository;
+import com.ian.web.systemsettings.schools.School;
 import com.ian.web.systemsettings.schools.SchoolRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -170,7 +171,24 @@ public class EducationalBackgroundController {
 		} else if(educBackground.getScholarship().getId() == null) {
 			educBackground.setScholarship(null);
 		}
-		
+
+		// When "OTHER (type below)" is selected, school.id == 0.
+		// Auto-create (or reuse) a School record from the custom name.
+		boolean schoolIdIsAbsent = educBackground.getSchool() == null
+				|| educBackground.getSchool().getId() == null
+				|| educBackground.getSchool().getId() == 0L;
+		if (schoolIdIsAbsent) {
+			String customName = educBackground.getSchoolCustomName();
+			if (customName != null && !customName.isBlank()) {
+				School resolvedSchool = schoolRepository.findBySchoolName(customName.trim())
+						.orElseGet(() -> schoolRepository.save(
+								School.builder().schoolName(customName.trim()).isActive(true).build()));
+				educBackground.setSchool(resolvedSchool);
+			} else {
+				educBackground.setSchool(null);
+			}
+		}
+
 		// Ownership check
 		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
 		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());

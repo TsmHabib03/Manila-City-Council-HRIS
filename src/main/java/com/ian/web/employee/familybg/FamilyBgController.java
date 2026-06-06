@@ -1,5 +1,8 @@
 package com.ian.web.employee.familybg;
 
+import java.beans.PropertyEditorSupport;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +12,9 @@ import javax.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -48,6 +53,20 @@ public class FamilyBgController {
 	private final GovermentIssuedIdRepository govermentIssuedIdRepository;
 	
 	
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(LocalDate.class, new PropertyEditorSupport() {
+			@Override
+			public void setAsText(String text) throws IllegalArgumentException {
+				if (text == null || text.trim().isEmpty()) {
+					setValue(null);
+				} else {
+					setValue(LocalDate.parse(text.trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+				}
+			}
+		});
+	}
+
 	@GetMapping("/employee/familybg/{employeeId}/{showMode}/{empHashCode}")
 	//@GetMapping({"/profile/familybg/{employeeId}/{empHashCode}", "/employee/familybg/{employeeId}/{empHashCode}"})
 	public String viewEmployee(Model model, @PathVariable long employeeId, @PathVariable String showMode, @PathVariable String empHashCode, HttpServletRequest request) {
@@ -101,22 +120,23 @@ public class FamilyBgController {
 			,Model model
 			,HttpServletRequest request
 			) {
-	    
-	    String uxMessageText = "Record added successfully.";	    
-	    
+
+	    String uxMessageText = "Record added successfully.";
+	    String showModeEarly = familyBg.getShowMode() != null ? familyBg.getShowMode() : "HRADMIN";
+	    String redirectBase = "redirect:/employee/familybg/"
+	            + familyBg.getEmployee().getId() + "/" + showModeEarly + "/" + familyBg.getEmployee().getEmpHashCode();
+
 		if (errors.hasErrors()) {
-			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			model.addAttribute("familyBgList", familyBgRepository.findByEmployeeId(familyBg.getEmployee().getId()));
-			return "employee/pds/family-background";
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
+			return redirectBase;
 		} else {
 			if(familyBg.getId() == 0 && !"CHILDREN".equalsIgnoreCase(familyBg.getRelationship())) {
 				FamilyBg recordMatch = familyBgRepository.findByEmployeeIdAndRelationship(familyBg.getEmployee().getId(), familyBg.getRelationship());
 				if (recordMatch != null) {
-					model.addAttribute("msg", new UXMessage("ERROR", "You already have a record for your " + familyBg.getRelationship()));
-					model.addAttribute("familyBgList", familyBgRepository.findByEmployeeId(familyBg.getEmployee().getId()));
-					return "employee/pds/family-background";
+					redirect.addFlashAttribute("msg", new UXMessage("ERROR", "You already have a record for your " + familyBg.getRelationship()));
+					return redirectBase;
 				} else {
-				    redirect.addFlashAttribute("msg", new UXMessage("SUCCESS", uxMessageText));			    
+				    redirect.addFlashAttribute("msg", new UXMessage("SUCCESS", uxMessageText));
 				}
 			}
 		}		
@@ -129,8 +149,6 @@ public class FamilyBgController {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
 			return "redirect:/dashboard";
 		}
-
-		familyBg.setBirthdate(familyBg.getBirthdate().plusDays(1));
 
 		String showMode = familyBg.getShowMode();
 		familyBg = familyBgRepository.save(familyBg);

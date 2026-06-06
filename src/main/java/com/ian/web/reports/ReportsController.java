@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -58,6 +61,7 @@ import com.ian.web.employee.voluntary_workexperience.VoluntaryWork;
 import com.ian.web.employee.voluntary_workexperience.VoluntaryWorkRepository;
 import com.ian.web.employee.workexperience.WorkExperience;
 import com.ian.web.employee.workexperience.WorkExperienceRepository;
+import com.ian.web.fileupload.FileStorageProperties;
 import com.ian.web.systemsettings.division.DivisionRepository;
 import com.ian.web.systemsettings.employee_status.EmployeeStatusRepository;
 import com.ian.web.systemsettings.position_title.PositionTitleRepository;
@@ -101,7 +105,8 @@ public class ReportsController {
 	private final ClearanceApproversRepository clearanceApproversRepository;
 	private final ServiceRecordReportRequestRepository serviceRecordReportRequestRepository;
 	private final ServiceRecordSignatoryRepository serviceRecordSignatoryRepository;
-	
+	private final FileStorageProperties fileStorageProperties;
+
 	private final ResourceLoader resourceLoader;
 	
 	@GetMapping("/viewPds/{employeeId}")
@@ -147,9 +152,30 @@ public class ReportsController {
 		
 		InputStream reportStream4 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P4.jasper");
 		Map<String, Object> map4 = populateMapReport2025_P4(otherObj, refList, govList);
-		
+
+		// Add employee photo to P4 if available
+		InputStream photoStream = null;
+		String profilePhoto = objEmp.getProfilePhoto();
+		if (profilePhoto != null && !profilePhoto.isEmpty()) {
+			String fileName = profilePhoto.substring(profilePhoto.lastIndexOf('/') + 1);
+			Path photoPath = Paths.get(fileStorageProperties.getUploadDir()).resolve(fileName);
+			if (Files.exists(photoPath)) {
+				try {
+					photoStream = Files.newInputStream(photoPath);
+					map4.put("VIII.EmployeePhoto", photoStream);
+				} catch (Exception e) {
+					// If photo load fails, continue without it
+					map4.put("VIII.EmployeePhoto", null);
+				}
+			} else {
+				map4.put("VIII.EmployeePhoto", null);
+			}
+		} else {
+			map4.put("VIII.EmployeePhoto", null);
+		}
+
 		/////////
-		
+
 		JasperPrint jasperPrint1 = JasperFillManager.fillReport(reportStream, map, new JREmptyDataSource());
 		JasperPrint jasperPrint2 = JasperFillManager.fillReport(reportStream2, map2, new JREmptyDataSource());
 		JasperPrint jasperPrint3 = JasperFillManager.fillReport(reportStream3, map3, new JREmptyDataSource());
@@ -324,12 +350,12 @@ public class ReportsController {
 		map.put("I.PI_Height", "  " + getStringValue(emp.getHeight()));
 		map.put("I.PI_Weight", "  " + getStringValue(emp.getWeight()));
 		map.put("I.PI_Bloodtype", "  " + getStringValue(emp.getBloodType()));
-		map.put("I.PI_GSIS_ID_NO.", "  " + getStringValue(emp.getGsisIdNo()));
-		map.put("I.PI_Pagibig_ID_NO.", "  " + getStringValue(emp.getPagibigNo()));
-		map.put("I.PI_PhilHealth_NO.", "  " + getStringValue(emp.getPhilhealthNo()));
-		map.put("I.PI_SSS_NO.", "  " + getStringValue(emp.getSssNo()));
-		map.put("I.PI_TIN_NO.", "  " + getStringValue(emp.getTin()));
-		map.put("I.PI_Agency_Employee_NO.", "  " + getStringValue(emp.getEmpNo()));
+		map.put("I.PI_GSIS_ID_NO.", "  " + getDisplayValue(emp.getGsisIdNo()));
+		map.put("I.PI_Pagibig_ID_NO.", "  " + getDisplayValue(emp.getPagibigNo()));
+		map.put("I.PI_PhilHealth_NO.", "  " + getDisplayValue(emp.getPhilhealthNo()));
+		map.put("I.PI_SSS_NO.", "  " + getDisplayValue(emp.getSssNo()));
+		map.put("I.PI_TIN_NO.", "  " + getDisplayValue(emp.getTin()));
+		map.put("I.PI_Agency_Employee_NO.", "  " + getDisplayValue(emp.getEmpNo()));
 		
 		//Residential Address
 		//Get Province Map
@@ -368,13 +394,13 @@ public class ReportsController {
 			map.put("I.PI_Citizenship_Dual", " X");
 			map.put("I.PI_Citizenship_By_birth", " X");
 			map.put("I.PI_Citizenship_By_naturalization", "");
-			map.put("I.PI_Citizenship_Indicate_Country", getStringValue(emp.getCountryOfOrigin()));
+			map.put("I.PI_Citizenship_Indicate_Country", "  " + getCountryName(emp.getCountryOfOrigin()));
 		} else if("DUAL CITIZENSHIP BY NATURALIZATION".equalsIgnoreCase(citizenship)) {
 			map.put("I.PI_Citizenship_Filipino", "");
 			map.put("I.PI_Citizenship_Dual", " X");
 			map.put("I.PI_Citizenship_By_birth", "");
 			map.put("I.PI_Citizenship_By_naturalization", " X");
-			map.put("I.PI_Citizenship_Indicate_Country", getStringValue(emp.getCountryOfOrigin()));
+			map.put("I.PI_Citizenship_Indicate_Country", "  " + getCountryName(emp.getCountryOfOrigin()));
 		} else {
 			map.put("I.PI_Citizenship_Filipino", "");
 			map.put("I.PI_Citizenship_Dual", "");
@@ -411,35 +437,39 @@ public class ReportsController {
 				map.put("II.FBG_Father_Firstname", "  " + fb.getFirstName());
 				map.put("II.FBG_Father_Name_Extension", "  " + fb.getSuffix());
 				map.put("II.FBG_Father_Middlename", "  " + fb.getMiddleName());
+				map.put("II.FBG_Father_Birthday", "  " + formatDateOrNA(fb.getBirthdate()));
 			} else if("MOTHER".equalsIgnoreCase(fb.getRelationship())) {
-				map.put("II.FBG_Mother_Maidenname", "");
+				map.put("II.FBG_Mother_Maidenname", "  " + getStringValue(fb.getMaidenName()));
 				map.put("II.FBG_Mother_Surname", "  " + fb.getLastName());
 				map.put("II.FBG_Mother_Firstname", "  " + fb.getFirstName());
 				map.put("II.FBG_Mother_Middlename", "  " + fb.getMiddleName());
+				map.put("II.FBG_Mother_Birthday", "  " + formatDateOrNA(fb.getBirthdate()));
 				motherPopulated = true;
 			} else {
-				map.put("II.FBG_Child_name"+ctrForChild, "  " + fb.getFirstName() + " " + fb.getMiddleName() + " " + fb.getLastName());				
-				map.put("II.FBG_Child_Birthday"+ctrForChild, "  " + formatDate(fb.getBirthdate()) );
+				map.put("II.FBG_Child_name"+ctrForChild, "  " + fb.getFirstName() + " " + fb.getMiddleName() + " " + fb.getLastName());
+				map.put("II.FBG_Child_Birthday"+ctrForChild, "  " + formatDateOrNA(fb.getBirthdate()));
 				ctrForChild++;
 			}			
 		}
 		
 		if(motherPopulated) {
-			
+
 		} else {
 			map.put("II.FBG_Mother_Maidenname", "");
 			map.put("II.FBG_Mother_Surname", "");
 			map.put("II.FBG_Mother_Firstname", "");
 			map.put("II.FBG_Mother_Middlename", "");
+			map.put("II.FBG_Mother_Birthday", "");
 		}
-		
+
 		if(fatherPopulated) {
-			
+
 		} else {
 			map.put("II.FBG_Father_Surname", "");
 			map.put("II.FBG_Father_Firstname", "");
 			map.put("II.FBG_Father_Name_Extension", "");
 			map.put("II.FBG_Father_Middlename", "");
+			map.put("II.FBG_Father_Birthday", "");
 		}
 
 		if(spousePopulated) {
@@ -470,10 +500,11 @@ public class ReportsController {
 		boolean gradopulated = false;
 		
 		for(EducationalBackground eb : eduList) {
-			if("ELEMENTARY".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())) {
+			if("ELEMENTARY".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())
+					|| "ELEMENTARY GRADUATE".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())) {
 				elemPopulated = true;
-				map.put("III.EB_Elementary_School", " " + eb.getSchool().getSchoolName());
-				
+				map.put("III.EB_Elementary_School", " " + eb.getEffectiveSchoolName());
+
 				if(eb.getDegreeCourse() != null) {
 					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
 						map.put("III.EB_Elementary_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
@@ -483,135 +514,135 @@ public class ReportsController {
 				} else {
 					map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
 				}
-				
+
 				map.put("III.EB_Elementary_Period_Of_Attendance_From", " " + formatDateMonthYearOnly(eb.getStartDate()));
 				map.put("III.EB_Elementary_Period_Of_Attendance_To", " " + formatDateMonthYearOnly(eb.getEndDate()));
 				map.put("III.EB_Elementary_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_Elementary_Year_Graduated", " " + eb.getYearGraduated());
-				
-				if(eb.getScholarship() != null) {
-					if(eb.getScholarship().getScholarshipName() != null) {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", " " + eb.getScholarship().getScholarshipName());
-					} else {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+
+				{
+					String honorsVal = "";
+					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
+						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
+						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
-				} else {
-					map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+					map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", honorsVal);
 				}
 				
 				
 			} else if("SECONDARY".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())) {
 				secPopulated = true;
-				map.put("III.EB_Secondary_School", " " + eb.getSchool().getSchoolName());
-				
+				map.put("III.EB_Secondary_School", " " + eb.getEffectiveSchoolName());
+
 				if(eb.getDegreeCourse() != null) {
 					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
+						map.put("III.EB_Secondary_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
 					} else {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
+						map.put("III.EB_Secondary_BasicEducation_Degree_Course", "");
 					}
 				} else {
-					map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
+					map.put("III.EB_Secondary_BasicEducation_Degree_Course", "");
 				}
-				
+
 				map.put("III.EB_Secondary_Period_Of_Attendance_From",  " " + formatDateMonthYearOnly(eb.getStartDate()));
 				map.put("III.EB_Secondary_Period_Of_Attendance_To", " " + formatDateMonthYearOnly(eb.getEndDate()));
 				map.put("III.EB_Secondary_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_Secondary_Year_Graduated", " " + eb.getYearGraduated());
-				
-				if(eb.getScholarship() != null) {
-					if(eb.getScholarship().getScholarshipName() != null) {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", " " + eb.getScholarship().getScholarshipName());
-					} else {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+
+				{
+					String honorsVal = "";
+					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
+						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
+						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
-				} else {
-					map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+					map.put("III.EB_Secondary_Scholarship_Academic_Honors_Recieved", honorsVal);
 				}
 			} else if("VOCATIONAL".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())) {
 				vocPopulated = true;
-				map.put("III.EB_Vocational_TradeCourse_School", " " + eb.getSchool().getSchoolName());
-				
+				map.put("III.EB_Vocational_TradeCourse_School", " " + eb.getEffectiveSchoolName());
+
 				if(eb.getDegreeCourse() != null) {
 					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
+						map.put("III.EB_Vocational_TradeCourse_Basic_Education_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
 					} else {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
+						map.put("III.EB_Vocational_TradeCourse_Basic_Education_Degree_Course", "");
 					}
 				} else {
-					map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
+					map.put("III.EB_Vocational_TradeCourse_Basic_Education_Degree_Course", "");
 				}
-				
+
 				map.put("III.EB_Vocational_TradeCourse_Period_Of_Attendance_From",  " " + formatDateMonthYearOnly(eb.getStartDate()));
 				map.put("III.EB_Vocational_TradeCourse_Period_Of_Attendance_To", " " + formatDateMonthYearOnly(eb.getEndDate()));
 				map.put("III.EB_Vocational_TradeCourse_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_Vocational_TradeCourse_Year_Graduated", " " + eb.getYearGraduated());
 
-				if(eb.getScholarship() != null) {
-					if(eb.getScholarship().getScholarshipName() != null) {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", " " + eb.getScholarship().getScholarshipName());
-					} else {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+				{
+					String honorsVal = "";
+					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
+						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
+						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
-				} else {
-					map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+					map.put("III.EB_Vocational_TradeCourse_Scholarship_Academic_Honors_Received", honorsVal);
 				}
 			} else if("COLLEGE".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())) {
 				collegePopulated = true;
-				map.put("III.EB_College_School", " " + eb.getSchool().getSchoolName());
-				
+				map.put("III.EB_College_School", " " + eb.getEffectiveSchoolName());
+
 				if(eb.getDegreeCourse() != null) {
 					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
+						map.put("III.EB_College_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
 					} else {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
+						map.put("III.EB_College_BasicEducation_Degree_Course", "");
 					}
 				} else {
-					map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
+					map.put("III.EB_College_BasicEducation_Degree_Course", "");
 				}
-				
+
 				map.put("III.EB_College_Period_Of_Attendance_From",  " " + formatDateMonthYearOnly(eb.getStartDate()));
 				map.put("III.EB_College_Period_Of_Attendance_To", " " + formatDateMonthYearOnly(eb.getEndDate()));
 				map.put("III.EB_College_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_College_Year_Graduated", " " + eb.getYearGraduated());
-				
-				if(eb.getScholarship() != null) {
-					if(eb.getScholarship().getScholarshipName() != null) {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", " " + eb.getScholarship().getScholarshipName());
-					} else {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+
+				{
+					String honorsVal = "";
+					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
+						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
+						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
-				} else {
-					map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+					map.put("III.EB_College_Scholarship_Academic_Honors_Received", honorsVal);
 				}
-								
+
 			} else {
 				gradopulated = true;
-				map.put("III.EB_GraduateStudies_School", " " + eb.getSchool().getSchoolName());
-				
+				map.put("III.EB_GraduateStudies_School", " " + eb.getEffectiveSchoolName());
+
 				if(eb.getDegreeCourse() != null) {
 					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
+						map.put("III.EB_GraduateStudies_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
 					} else {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
+						map.put("III.EB_GraduateStudies_BasicEducation_Degree_Course", "");
 					}
 				} else {
-					map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
+					map.put("III.EB_GraduateStudies_BasicEducation_Degree_Course", "");
 				}
-				
+
 				map.put("III.EB_GraduateStudies_Period_Of_Attendance_From",  " " + formatDateMonthYearOnly(eb.getStartDate()));
-				map.put("III.EB_GraduateStudies_Period_Of_Attendance_To ",  " " + formatDateMonthYearOnly(eb.getEndDate()));
+				map.put("III.EB_GraduateStudies_Period_Of_Attendance_To",  " " + formatDateMonthYearOnly(eb.getEndDate()));
 				map.put("III.EB_GraduateStudies_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_GraduateStudies_Year_Graduated", " " + eb.getYearGraduated());
-				
-				if(eb.getScholarship() != null) {
-					if(eb.getScholarship().getScholarshipName() != null) {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", " " + eb.getScholarship().getScholarshipName());
-					} else {
-						map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+
+				{
+					String honorsVal = "";
+					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
+						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
+						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
-				} else {
-					map.put("III.EB_Elementary_Scholarship_Acad_Honors_Recieved", "");
+					map.put("III.EB_GraduateStudies_Scholarship_Academic_Honors_Received", honorsVal);
 				}
 			}
 		}
@@ -670,7 +701,7 @@ public class ReportsController {
 			map.put("III.EB_GraduateStudies_School", "");
 			map.put("III.EB_GraduateStudies_BasicEducation_Degree_Course",  "");
 			map.put("III.EB_GraduateStudies_Period_Of_Attendance_From",  "");
-			map.put("III.EB_GraduateStudies_Period_Of_Attendance_To ",  "");
+			map.put("III.EB_GraduateStudies_Period_Of_Attendance_To",  "");
 			map.put("III.EB_GraduateStudies_HighestLvl_UnitsEarned", "");
 			map.put("III.EB_GraduateStudies_Year_Graduated", "");
 			map.put("III.EB_GraduateStudies_Scholarship_Academic_Honors_Received", "");
@@ -1166,8 +1197,11 @@ public class ReportsController {
 		}
 
 		// Items 10 and 13 — UMID and PhilSys (new in 2025).
-		map.put("I.PI_UMID_ID_NO", "  " + getStringValue(emp.getUmidNo()));
-		map.put("I.PI_PhilSys_PSN", "  " + getStringValue(emp.getPhilsysNo()));
+		map.put("I.PI_UMID_ID_NO", "  " + getDisplayValue(emp.getUmidNo()));
+		map.put("I.PI_PhilSys_PSN", "  " + getDisplayValue(emp.getPhilsysNo()));
+
+		// Maiden name — applicable to married female employees.
+		map.put("I.PI_MaidenName", "  " + getStringValue(emp.getMaidenName()));
 
 		// Item 3 — date of birth re-formatted dd/MM/yyyy (2025 form spec).
 		map.put("I.PI_Date_Of_Birth", "  " + formatDateDdMmYyyy(emp.getBirthdate()));
@@ -1178,7 +1212,7 @@ public class ReportsController {
 			if(!"SPOUSE".equalsIgnoreCase(fb.getRelationship())
 					&& !"FATHER".equalsIgnoreCase(fb.getRelationship())
 					&& !"MOTHER".equalsIgnoreCase(fb.getRelationship())) {
-				map.put("II.FBG_Child_Birthday"+ctrChild, "  " + formatDateDdMmYyyy(fb.getBirthdate()));
+				map.put("II.FBG_Child_Birthday"+ctrChild, "  " + formatDateOrNA(fb.getBirthdate()));
 				ctrChild++;
 			}
 		}
@@ -1192,8 +1226,8 @@ public class ReportsController {
 			else if("VOCATIONAL".equalsIgnoreCase(lvl)) prefix = "III.EB_Vocational_TradeCourse";
 			else if("COLLEGE".equalsIgnoreCase(lvl)) prefix = "III.EB_College";
 			else prefix = "III.EB_GraduateStudies";
-			map.put(prefix + "_Period_Of_Attendance_From", " " + formatDateDdMmYyyy(eb.getStartDate()));
-			map.put(prefix + "_Period_Of_Attendance_To", " " + formatDateDdMmYyyy(eb.getEndDate()));
+			map.put(prefix + "_Period_Of_Attendance_From", " " + formatDateOrNA(eb.getStartDate()));
+			map.put(prefix + "_Period_Of_Attendance_To", eb.isUpToPresent() ? " PRESENT" : " " + formatDateOrNA(eb.getEndDate()));
 		}
 
 		return map;
@@ -1210,15 +1244,15 @@ public class ReportsController {
 		int i = 1;
 		for(CivilServiceEligibility cs : csList) {
 			map.put("IV.CSE_Date_Of_Examination"+i, " " + formatExamDateDdMmYyyy(cs));
-			map.put("IV.CSE_License_Date_Of_Validity"+i, " " + formatDateDdMmYyyy(cs.getLicenseValidityDate()));
+			map.put("IV.CSE_License_Date_Of_Validity"+i, " " + formatDateOrNA(cs.getLicenseValidityDate()));
 			i++;
 		}
 
 		// Item 28 — work-experience inclusive dates re-formatted dd/MM/yyyy.
 		int j = 1;
 		for(WorkExperience we : workExList) {
-			map.put("V.WE_Inclusive_Dates_From"+j, " " + formatDateDdMmYyyy(we.getDateFrom()));
-			map.put("V.WE_Inclusive_Dates_To"+j, " " + formatDateDdMmYyyy(we.getDateTo()));
+			map.put("V.WE_Inclusive_Dates_From"+j, " " + formatDateOrNA(we.getDateFrom()));
+			map.put("V.WE_Inclusive_Dates_To"+j, we.isUpToPresent() ? " PRESENT" : " " + formatDateOrNA(we.getDateTo()));
 			j++;
 		}
 
@@ -1712,6 +1746,14 @@ public class ReportsController {
 		}
 		return "";
 	}
+
+	/** dd/MM/yyyy for optional fields — prints "N/A" when the date is null. */
+	private static String formatDateOrNA(LocalDate localDate) {
+		if(localDate != null) {
+			return localDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		}
+		return "N/A";
+	}
 	
 	private static ServiceRecordReportDto convertToDto(ServiceRecord serviceRecord) {
         ServiceRecordReportDto dto = new ServiceRecordReportDto();
@@ -1841,7 +1883,276 @@ public class ReportsController {
 			}
 		} else {
 			return "";
-		}		
+		}
+	}
+
+	/** Returns the value for display, substituting "N/A" when the value is blank. */
+	private static String getDisplayValue(String val) {
+		String s = getStringValue(val);
+		return s.isBlank() ? "N/A" : s;
+	}
+
+	/**
+	 * Converts a stored country value to its full display name for the PDS report.
+	 * The form previously stored 3-letter ISO codes (e.g., "ARM"); now it stores full names.
+	 * This helper handles both old codes and new full-name values transparently.
+	 */
+	private static String getCountryName(String val) {
+		if (val == null || val.isBlank()) return "";
+		// If the value is already a full name (not a short code), return it directly.
+		if (val.length() > 4) return val;
+		// Legacy 2-4 letter ISO code lookup.
+		switch (val.toUpperCase()) {
+			case "AFG": return "Afghanistan";
+			case "ALA": return "Aland Islands";
+			case "ALB": return "Albania";
+			case "DZA": return "Algeria";
+			case "ASM": return "American Samoa";
+			case "AND": return "Andorra";
+			case "AGO": return "Angola";
+			case "AIA": return "Anguilla";
+			case "ATA": return "Antarctica";
+			case "ATG": return "Antigua and Barbuda";
+			case "ARG": return "Argentina";
+			case "ARM": return "Armenia";
+			case "ABW": return "Aruba";
+			case "AUS": return "Australia";
+			case "AUT": return "Austria";
+			case "AZE": return "Azerbaijan";
+			case "BHS": return "Bahamas";
+			case "BHR": return "Bahrain";
+			case "BGD": return "Bangladesh";
+			case "BRB": return "Barbados";
+			case "BLR": return "Belarus";
+			case "BEL": return "Belgium";
+			case "BLZ": return "Belize";
+			case "BEN": return "Benin";
+			case "BMU": return "Bermuda";
+			case "BTN": return "Bhutan";
+			case "BOL": return "Bolivia";
+			case "BIH": return "Bosnia and Herzegovina";
+			case "BWA": return "Botswana";
+			case "BVT": return "Bouvet Island";
+			case "BRA": return "Brazil";
+			case "IOT": return "British Indian Ocean Territory";
+			case "BRN": return "Brunei";
+			case "BGR": return "Bulgaria";
+			case "BFA": return "Burkina Faso";
+			case "BDI": return "Burundi";
+			case "CPV": return "Cabo Verde";
+			case "KHM": return "Cambodia";
+			case "CMR": return "Cameroon";
+			case "CAN": return "Canada";
+			case "CYM": return "Cayman Islands";
+			case "CAF": return "Central African Republic";
+			case "TCD": return "Chad";
+			case "CHL": return "Chile";
+			case "CHN": return "China";
+			case "CXR": return "Christmas Island";
+			case "CCK": return "Cocos Islands";
+			case "COL": return "Colombia";
+			case "COM": return "Comoros";
+			case "COD": return "Congo (DRC)";
+			case "COG": return "Congo (Republic)";
+			case "COK": return "Cook Islands";
+			case "CRI": return "Costa Rica";
+			case "CIV": return "Cote d'Ivoire";
+			case "HRV": return "Croatia";
+			case "CUB": return "Cuba";
+			case "CUW": return "Curacao";
+			case "CYP": return "Cyprus";
+			case "CZE": return "Czech Republic";
+			case "DNK": return "Denmark";
+			case "DJI": return "Djibouti";
+			case "DMA": return "Dominica";
+			case "DOM": return "Dominican Republic";
+			case "ECU": return "Ecuador";
+			case "EGY": return "Egypt";
+			case "SLV": return "El Salvador";
+			case "GNQ": return "Equatorial Guinea";
+			case "ERI": return "Eritrea";
+			case "EST": return "Estonia";
+			case "SWZ": return "Eswatini";
+			case "ETH": return "Ethiopia";
+			case "FLK": return "Falkland Islands";
+			case "FRO": return "Faroe Islands";
+			case "FJI": return "Fiji";
+			case "FIN": return "Finland";
+			case "FRA": return "France";
+			case "GUF": return "French Guiana";
+			case "PYF": return "French Polynesia";
+			case "ATF": return "French Southern Territories";
+			case "GAB": return "Gabon";
+			case "GMB": return "Gambia";
+			case "GEO": return "Georgia";
+			case "DEU": return "Germany";
+			case "GHA": return "Ghana";
+			case "GIB": return "Gibraltar";
+			case "GRC": return "Greece";
+			case "GRL": return "Greenland";
+			case "GRD": return "Grenada";
+			case "GLP": return "Guadeloupe";
+			case "GUM": return "Guam";
+			case "GTM": return "Guatemala";
+			case "GGY": return "Guernsey";
+			case "GIN": return "Guinea";
+			case "GNB": return "Guinea-Bissau";
+			case "GUY": return "Guyana";
+			case "HTI": return "Haiti";
+			case "HMD": return "Heard Island";
+			case "VAT": return "Holy See";
+			case "HND": return "Honduras";
+			case "HKG": return "Hong Kong";
+			case "HUN": return "Hungary";
+			case "ISL": return "Iceland";
+			case "IND": return "India";
+			case "IDN": return "Indonesia";
+			case "IRN": return "Iran";
+			case "IRQ": return "Iraq";
+			case "IRL": return "Ireland";
+			case "IMN": return "Isle of Man";
+			case "ISR": return "Israel";
+			case "ITA": return "Italy";
+			case "JAM": return "Jamaica";
+			case "JPN": return "Japan";
+			case "JEY": return "Jersey";
+			case "JOR": return "Jordan";
+			case "KAZ": return "Kazakhstan";
+			case "KEN": return "Kenya";
+			case "KIR": return "Kiribati";
+			case "PRK": return "Korea (North)";
+			case "KOR": return "Korea (South)";
+			case "KWT": return "Kuwait";
+			case "KGZ": return "Kyrgyzstan";
+			case "LAO": return "Laos";
+			case "LVA": return "Latvia";
+			case "LBN": return "Lebanon";
+			case "LSO": return "Lesotho";
+			case "LBR": return "Liberia";
+			case "LBY": return "Libya";
+			case "LIE": return "Liechtenstein";
+			case "LTU": return "Lithuania";
+			case "LUX": return "Luxembourg";
+			case "MAC": return "Macao";
+			case "MDG": return "Madagascar";
+			case "MWI": return "Malawi";
+			case "MYS": return "Malaysia";
+			case "MDV": return "Maldives";
+			case "MLI": return "Mali";
+			case "MLT": return "Malta";
+			case "MHL": return "Marshall Islands";
+			case "MTQ": return "Martinique";
+			case "MRT": return "Mauritania";
+			case "MUS": return "Mauritius";
+			case "MYT": return "Mayotte";
+			case "MEX": return "Mexico";
+			case "FSM": return "Micronesia";
+			case "MDA": return "Moldova";
+			case "MCO": return "Monaco";
+			case "MNG": return "Mongolia";
+			case "MNE": return "Montenegro";
+			case "MSR": return "Montserrat";
+			case "MAR": return "Morocco";
+			case "MOZ": return "Mozambique";
+			case "MMR": return "Myanmar";
+			case "NAM": return "Namibia";
+			case "NRU": return "Nauru";
+			case "NPL": return "Nepal";
+			case "NLD": return "Netherlands";
+			case "NCL": return "New Caledonia";
+			case "NZL": return "New Zealand";
+			case "NIC": return "Nicaragua";
+			case "NER": return "Niger";
+			case "NGA": return "Nigeria";
+			case "NIU": return "Niue";
+			case "NFK": return "Norfolk Island";
+			case "MKD": return "North Macedonia";
+			case "MNP": return "Northern Mariana Islands";
+			case "NOR": return "Norway";
+			case "OMN": return "Oman";
+			case "PAK": return "Pakistan";
+			case "PLW": return "Palau";
+			case "PSE": return "Palestine";
+			case "PAN": return "Panama";
+			case "PNG": return "Papua New Guinea";
+			case "PRY": return "Paraguay";
+			case "PER": return "Peru";
+			case "PHL": return "Philippines";
+			case "PCN": return "Pitcairn";
+			case "POL": return "Poland";
+			case "PRT": return "Portugal";
+			case "PRI": return "Puerto Rico";
+			case "QAT": return "Qatar";
+			case "REU": return "Reunion";
+			case "ROU": return "Romania";
+			case "RUS": return "Russia";
+			case "RWA": return "Rwanda";
+			case "BLM": return "Saint Barthelemy";
+			case "SHN": return "Saint Helena";
+			case "KNA": return "Saint Kitts and Nevis";
+			case "LCA": return "Saint Lucia";
+			case "MAF": return "Saint Martin";
+			case "SPM": return "Saint Pierre and Miquelon";
+			case "VCT": return "Saint Vincent and the Grenadines";
+			case "WSM": return "Samoa";
+			case "SMR": return "San Marino";
+			case "STP": return "Sao Tome and Principe";
+			case "SAU": return "Saudi Arabia";
+			case "SEN": return "Senegal";
+			case "SRB": return "Serbia";
+			case "SYC": return "Seychelles";
+			case "SLE": return "Sierra Leone";
+			case "SGP": return "Singapore";
+			case "SXM": return "Sint Maarten";
+			case "SVK": return "Slovakia";
+			case "SVN": return "Slovenia";
+			case "SLB": return "Solomon Islands";
+			case "SOM": return "Somalia";
+			case "ZAF": return "South Africa";
+			case "SGS": return "South Georgia";
+			case "SSD": return "South Sudan";
+			case "ESP": return "Spain";
+			case "LKA": return "Sri Lanka";
+			case "SDN": return "Sudan";
+			case "SUR": return "Suriname";
+			case "SJM": return "Svalbard and Jan Mayen";
+			case "SWE": return "Sweden";
+			case "CHE": return "Switzerland";
+			case "SYR": return "Syria";
+			case "TWN": return "Taiwan";
+			case "TJK": return "Tajikistan";
+			case "TZA": return "Tanzania";
+			case "THA": return "Thailand";
+			case "TLS": return "Timor-Leste";
+			case "TGO": return "Togo";
+			case "TKL": return "Tokelau";
+			case "TON": return "Tonga";
+			case "TTO": return "Trinidad and Tobago";
+			case "TUN": return "Tunisia";
+			case "TUR": return "Turkey";
+			case "TKM": return "Turkmenistan";
+			case "TCA": return "Turks and Caicos Islands";
+			case "TUV": return "Tuvalu";
+			case "UGA": return "Uganda";
+			case "UKR": return "Ukraine";
+			case "ARE": return "United Arab Emirates";
+			case "GBR": return "United Kingdom";
+			case "USA": return "United States";
+			case "UMI": return "US Minor Outlying Islands";
+			case "URY": return "Uruguay";
+			case "UZB": return "Uzbekistan";
+			case "VUT": return "Vanuatu";
+			case "VEN": return "Venezuela";
+			case "VNM": return "Vietnam";
+			case "VGB": return "Virgin Islands (British)";
+			case "VIR": return "Virgin Islands (US)";
+			case "WLF": return "Wallis and Futuna";
+			case "ESH": return "Western Sahara";
+			case "YEM": return "Yemen";
+			case "ZMB": return "Zambia";
+			case "ZWE": return "Zimbabwe";
+			default: return val; // unknown code or already a full name
+		}
 	}
 	
 	private static String getStringValueProvince(String val) {

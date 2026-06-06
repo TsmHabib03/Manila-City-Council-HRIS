@@ -42,11 +42,7 @@ public class Person extends Auditable {
 	
 	
 	public LocalDate getBirthdate() {
-		if(birthdate != null) {
-			return birthdate.plusDays(1);
-		} else {
-			return birthdate;
-		}
+		return birthdate;
 	}
     
     public String getFullName() {

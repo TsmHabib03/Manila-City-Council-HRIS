@@ -243,9 +243,23 @@
 											</tbody>
 										</table>
 									</div>
-									
-									
-											
+
+									<!-- PDS Section Navigation -->
+									<div class="card mt-2">
+										<div class="card-body d-flex justify-content-between align-items-center py-2">
+											<a th:href="@{/employee/civil-eligibility/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}"
+											   class="btn btn-outline-secondary btn-sm">
+												&#8592; Previous: Civil Service Eligibility
+											</a>
+											<button type="button" class="btn btn-success btn-sm"
+												onclick="validateAndGoNext(this.getAttribute('data-href'));"
+												th:attr="data-href=@{/employee/voluntary-work/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+												Next: Voluntary Work &#8594;
+											</button>
+										</div>
+									</div>
+									<!-- /PDS Section Navigation -->
+
 								</div>
 							</div>
 							<!-- /dashboard content -->
@@ -285,7 +299,7 @@
 		// Validation helper for "Next" navigation across PDS sections
 		function validateAndGoNext(nextUrl) {
 			var missed = [];
-			$('.required-field-hrisp').each(function() {
+			$('.required-field-hrisp:visible').each(function() {
 				var v = $(this).val();
 				if (!v || v.trim() === '') {
 					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
