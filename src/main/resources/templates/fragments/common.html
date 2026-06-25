@@ -10,6 +10,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
 </th:block>
 
 <th:block th:fragment="header-import-css">
@@ -129,11 +131,56 @@
 	<script th:src="@{/global_assets/js/plugins/visualization/echarts/echarts.min.js}"></script>
     
     <script th:src="@{/js/philippines.js}"></script>
-    
-    
-    
-    
-    
+
+
+
+
+
+</th:block>
+
+<!-- Alternative header-import-js WITHOUT fileinput plugin (for 201 Files page) -->
+<th:block th:fragment="header-import-js-no-fileinput">
+	<!-- Sweet Alert files -->
+  	<script th:src="@{/global_assets/js/sweetalert/sweetalert.min.js}"></script>
+
+    <!-- Core JS files -->
+    <script th:src="@{/global_assets/js/main/jquery.min.js}"></script>
+    <script th:src="@{/global_assets/js/main/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/loaders/blockui.min.js}"></script>
+    <!-- /core JS files -->
+
+    <!-- Theme JS files 1-->
+    <script th:src="@{/global_assets/js/plugins/visualization/d3/d3.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/visualization/d3/d3_tooltip.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/forms/styling/switchery.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/ui/moment/moment.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/pickers/daterangepicker.js}"></script>
+    <script th:src="@{/global_assets/js/demo_pages/dashboard.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/streamgraph.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/sparklines.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/lines.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/areas.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/donuts.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/bars.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/progress.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/heatmaps.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/pies.js}"></script>
+    <script th:src="@{/global_assets/js/demo_charts/pages/dashboard/light/bullets.js}"></script>
+    <!-- /theme JS files 1-->
+
+    <!-- Theme JS files 2 (WITHOUT fileinput plugin files) -->
+    <script th:src="@{/global_assets/js/plugins/tables/datatables/datatables.min.js}"></script>
+    <script th:src="@{/global_assets/js/plugins/forms/selects/select2.min.js}"></script>
+
+    <script th:src="@{/assets/js/app.js}"></script>
+
+    <script th:src="@{/global_assets/js/demo_pages/datatables_advanced.js}"></script>
+    <!-- /theme JS files 2-->
+
+    <!-- Graph JS files -->
+	<script th:src="@{/global_assets/js/plugins/visualization/echarts/echarts.min.js}"></script>
+
+    <script th:src="@{/js/philippines.js}"></script>
 </th:block>
 
 
@@ -224,7 +271,7 @@
 						</div>
 										
 				</div>
-				<form id="fileUploadForm" method="post" enctype="multipart/form-data">
+				<form id="fileUploadForm" method="post" enctype="multipart/form-data" style="display:none">
 					    <input type="file" name="profilePhoto" id="profilePhoto" accept="image/*" class="inputfile" />
 					    <input type="hidden" name="employeeId" th:value="${employee.id}">
 					    <div style="text-align: center;" th:if="${false}">
@@ -341,6 +388,38 @@
 		
 	</div>
 	<!-- /right content -->
+
+	<script th:inline="javascript">
+	(function() {
+	    var sEmpId = /*[[${employee.id}]]*/ 0;
+	    var sUploadUrl = /*[[${#request.getContextPath() + '/file/upload/profilePhoto'}]]*/ '';
+	    var sFSel = document.getElementById('fileSelect');
+	    var sPP = document.getElementById('profilePhoto');
+	    var sPreview = document.getElementById('photoPreview');
+	    if (!sFSel || !sPP) return;
+	    sFSel.addEventListener('click', function(e) { e.preventDefault(); sPP.click(); });
+	    sPP.addEventListener('change', async function() {
+	        var file = this.files[0];
+	        if (!file) return;
+	        var reader = new FileReader();
+	        reader.onload = function(e) { if (sPreview) sPreview.src = e.target.result; };
+	        reader.readAsDataURL(file);
+	        var fd = new FormData();
+	        fd.append('profilePhoto', file);
+	        fd.append('employeeId', sEmpId);
+	        var csrfM = document.querySelector('meta[name="_csrf"]');
+	        var csrfH = document.querySelector('meta[name="_csrf_header"]');
+	        var hdrs = {};
+	        if (csrfM && csrfH) hdrs[csrfH.content] = csrfM.content;
+	        var resp = await fetch(sUploadUrl, {method:'POST', body:fd, headers:hdrs});
+	        if (resp.ok) {
+	            swal({title:'Success!', text:'Profile photo saved.', icon:'success', buttons:false, timer:2000}).then(function() { window.location.reload(); });
+	        } else {
+	            swal({title:'Upload Failed', text:'Could not save photo.', icon:'error', buttons:false, timer:2000});
+	        }
+	    });
+	})();
+	</script>
 
 </th:block>
 
@@ -466,6 +545,7 @@
 								<li class="nav-item"><a th:href="@{/employee-reports}" class="nav-link" id="clearanceListNav"><i class="icon-paste2"></i> Reports</a></li>
 								-->
 								<li class="nav-item"><a th:href="@{/appointments}" class="nav-link" id="appointmentsListNav"><i class="icon-user-tie"></i> Appointments</a></li>
+								<li class="nav-item"><a th:href="@{/201files}" class="nav-link" id="docs201ListNav"><i class="icon-magazine"></i> 201 Files</a></li>
 								<li class="nav-item nav-item-submenu" id="employeeReportsNav" style="display:none">
 									<a href="#" class="nav-link"><i class="icon-vcard"></i> Reports</a>
 									<ul class="nav nav-group-sub">

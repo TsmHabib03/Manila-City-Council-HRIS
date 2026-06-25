@@ -32,10 +32,10 @@ import com.ian.web.systemsettings.academichonors.AcademicHonors;
 import com.ian.web.systemsettings.academichonors.AcademicHonorsRepository;
 import com.ian.web.systemsettings.degree_courses.DegreeCourses;
 import com.ian.web.systemsettings.degree_courses.DegreeCoursesRepository;
+import com.ian.web.systemsettings.degreelevels.DegreeLevel;
 import com.ian.web.systemsettings.degreelevels.DegreeLevelRepository;
 import com.ian.web.systemsettings.scholarship.Scholarship;
 import com.ian.web.systemsettings.scholarship.ScholarshipRepository;
-import com.ian.web.systemsettings.schools.School;
 import com.ian.web.systemsettings.schools.SchoolRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -117,11 +117,22 @@ public class EducationalBackgroundController {
 			}
 			
 			model.addAttribute("educationalBgList", educationalBgListNew);
-			
-			model.addAttribute("degreeLevelList", degreeLevelRepository.findAll());
+
+			// Deduplicate degree levels by name (safety net — ideally fixed in DB)
+			List<DegreeLevel> rawLevels = degreeLevelRepository.findAll();
+			List<DegreeLevel> degreeLevelList = rawLevels.stream()
+				.collect(java.util.stream.Collectors.toMap(
+					DegreeLevel::getDegreeName,
+					d -> d,
+					(a, b) -> a.getId() < b.getId() ? a : b
+				))
+				.values().stream()
+				.sorted(java.util.Comparator.comparing(DegreeLevel::getDegreeName))
+				.collect(java.util.stream.Collectors.toList());
+			model.addAttribute("degreeLevelList", degreeLevelList);
 			model.addAttribute("schoolList", schoolRepository.findAllByOrderBySchoolNameAsc());
 			model.addAttribute("degreeCourseList", degreeCoursesRepository.findAllByOrderByDegreeCourseNameAsc());
-			model.addAttribute("scholarshipList", scholarshipRepository.findAll());			
+			model.addAttribute("scholarshipList", scholarshipRepository.findAll());
 			model.addAttribute("academicHonorsList", academicHonorsRepository.findAll());
 			
 			EducationalBackground educationalBg = new EducationalBackground();
@@ -172,22 +183,9 @@ public class EducationalBackgroundController {
 			educBackground.setScholarship(null);
 		}
 
-		// When "OTHER (type below)" is selected, school.id == 0.
-		// Auto-create (or reuse) a School record from the custom name.
-		boolean schoolIdIsAbsent = educBackground.getSchool() == null
-				|| educBackground.getSchool().getId() == null
-				|| educBackground.getSchool().getId() == 0L;
-		if (schoolIdIsAbsent) {
-			String customName = educBackground.getSchoolCustomName();
-			if (customName != null && !customName.isBlank()) {
-				School resolvedSchool = schoolRepository.findBySchoolName(customName.trim())
-						.orElseGet(() -> schoolRepository.save(
-								School.builder().schoolName(customName.trim()).isActive(true).build()));
-				educBackground.setSchool(resolvedSchool);
-			} else {
-				educBackground.setSchool(null);
-			}
-		}
+		// Per change request V1: School and Degree/Course are free-text fields
+		// (stored in schoolCustomName / degreeCourseCustomName). No FK lookup or auto-create.
+		educBackground.setSchool(null);
 
 		// Ownership check
 		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");

@@ -68,10 +68,12 @@ public class EducationalBackground {
 	private LocalDate endDate;	
 	
 	private boolean upToPresent;
+	private String academicHonorsText;
 	private String unitsEarned;
 	private int yearGraduated;	
 	private String remarks;
 	private String schoolCustomName;
+	private String degreeCourseCustomName;
 
 	@Transient
 	private String showMode;	
@@ -81,10 +83,17 @@ public class EducationalBackground {
 	private MultipartFile attachedFile;	
 
 	public String getEffectiveSchoolName() {
-		if (school != null && school.getSchoolName() != null && !school.getSchoolName().isBlank()) {
-			return school.getSchoolName();
+		if (schoolCustomName != null && !schoolCustomName.isBlank()) {
+			return schoolCustomName;
 		}
-		return schoolCustomName != null ? schoolCustomName : "";
+		return (school != null && school.getSchoolName() != null) ? school.getSchoolName() : "";
+	}
+
+	public String getEffectiveDegreeCourseName() {
+		if (degreeCourseCustomName != null && !degreeCourseCustomName.isBlank()) {
+			return degreeCourseCustomName;
+		}
+		return (degreeCourse != null && degreeCourse.getDegreeCourseName() != null) ? degreeCourse.getDegreeCourseName() : "";
 	}
 
 	public String getDateToString(){

@@ -57,24 +57,13 @@
 										   		</select>
 											</div>
 											<div class="col-sm-4">
-												<label for="school">School</label>
-												<select th:field="*{school.id}" id="school" class="form-control required-field-hrisp">
-													<option selected value="">SELECT VALUE</option>
-													<option th:each="school : ${schoolList}" th:value="${school.id}" th:text="${school.schoolName}">schoolName</option>
-													<option value="0">OTHER (type below)</option>
-										   		</select>
-											</div>
-											<div class="col-sm-4" id="schoolCustomGroup" style="display:none">
-												<label for="schoolCustomName">School Name (custom)</label>
-												<input type="text" class="form-control" id="schoolCustomName" name="schoolCustomName" th:field="*{schoolCustomName}" placeholder="Enter school name"/>
+												<label for="schoolCustomName">Name of School (write in full)</label>
+												<input type="text" class="form-control required-field-hrisp" id="schoolCustomName" name="schoolCustomName" th:field="*{schoolCustomName}" placeholder="Enter name of school"/>
 											</div>
 											<div class="col-sm-4">
-												<label for="degreeCourse">Degree/Course</label>
-												<select th:field="*{degreeCourse.id}" id="degreeCourse" class="form-control">
-													<option selected value="">SELECT VALUE</option>
-													<option th:each="degreeCourse : ${degreeCourseList}" th:value="${degreeCourse.id}" th:text="${degreeCourse.degreeCourseName}">degreeCourseName</option>
-										   		</select>
-											</div>	
+												<label for="degreeCourseCustomName">Basic Education / Degree / Course (write in full)</label>
+												<input type="text" class="form-control" id="degreeCourseCustomName" name="degreeCourseCustomName" th:field="*{degreeCourseCustomName}" placeholder="Enter degree / course"/>
+											</div>
 										</div>
 									</div>								
 									
@@ -82,21 +71,17 @@
 										<div class="row">
 											<div class="col-sm-4">
 												<label for="startDate">Start Period</label>
-												<input type="text" class="form-control date-mask-input"
-															   id="startDate_display"
-															   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+												<input type="number" class="form-control" id="startDate_display"
+															   placeholder="YYYY" min="1900" max="2099" autocomplete="off" />
 															<input type="hidden" id="startDate" name="startDate"
 																   th:value="${educationalBg.startDate != null ? #temporals.format(educationalBg.startDate,'yyyy-MM-dd') : ''}" />
-															<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 											</div>
 											<div class="col-sm-4">
 												<label for="endDate">End Period</label>
-												<input type="text" class="form-control date-mask-input"
-															   id="endDate_display"
-															   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+												<input type="number" class="form-control" id="endDate_display"
+															   placeholder="YYYY" min="1900" max="2099" autocomplete="off" />
 															<input type="hidden" id="endDate" name="endDate"
 																   th:value="${educationalBg.endDate != null ? #temporals.format(educationalBg.endDate,'yyyy-MM-dd') : ''}" />
-															<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 											</div>
 											<div class="col-sm-4">
 												<label for="unitsEarned">Units Earned</label>
@@ -120,11 +105,9 @@
 										   		</select>
 											</div>
 											<div class="col-sm-4">
-												<label for="academicHonors">Academic Honors</label>
-												<select th:field="*{academicHonors.id}" id="academicHonors" class="form-control">
-													<option selected value="">SELECT VALUE</option>
-													<option th:each="academicHonors : ${academicHonorsList}" th:value="${academicHonors.id}" th:text="${academicHonors.academicHonorsName}">academicHonorsName</option>
-										   		</select>
+												<label for="academicHonorsText">Academic Honors</label>
+												<input type="text" class="form-control" id="academicHonorsText" name="academicHonorsText"
+													   th:field="*{academicHonorsText}" placeholder="e.g. Cum Laude, With Honors" />
 											</div>										
 										</div>
 									</div>
@@ -206,23 +189,23 @@
 															<button id="editDegreeLevelButton" type="button" class="showDetails btn btn-primary"
 			                                                 th:data-row-degreeLevel="${educationalBg.getDegreeLevel().getId()}"	
 			                                                 th:data-row-school="${educationalBg.getSchool() != null ? educationalBg.getSchool().getId() : 0}"
-			                                                 th:data-row-degreeCourse="${educationalBg.getDegreeCourse().getId()}"
+			                                                 th:data-row-degreeCourseCustomName="${educationalBg.getEffectiveDegreeCourseName()}"
 			                                                 th:data-row-scholarship="${educationalBg.getScholarship().getId()}"
-			                                                 th:data-row-academicHonors="${educationalBg.getAcademicHonors().getId()}"
+			                                                 th:data-row-academicHonorsText="${educationalBg.getAcademicHonorsText()}"
 			                                                 th:data-row-startDate="${educationalBg.getStartDate()}"
 			                                                 th:data-row-endDate="${educationalBg.getEndDate()}"
 			                                                 th:data-row-unitsEarned="${educationalBg.getUnitsEarned()}"
 			                                                 th:data-row-yearGraduated="${educationalBg.getYearGraduated()}"
 			                                                 th:data-row-remarks="${educationalBg.getRemarks()}"
 			                                                 th:data-row-id="${educationalBg.getId()}"
-			                                                 th:data-row-schoolCustomName="${educationalBg.getSchoolCustomName()}"												 
+			                                                 th:data-row-schoolCustomName="${educationalBg.getEffectiveSchoolName()}"
 															data-toggle="modal" data-target="#modal_form_vertical"
 			                                                >View Record</button>
 														</td>														
 														
 														<td th:text="${educationalBg.getDegreeLevel().getDegreeName()}">Full Name</td>
 														<td th:text="${educationalBg.getEffectiveSchoolName()}">Relationship</td>
-														<td th:text="${educationalBg.getDegreeCourse().getDegreeCourseName()}">Birthday</td>
+														<td th:text="${educationalBg.getEffectiveDegreeCourseName()}">Birthday</td>
 														<td th:text="${educationalBg.getDateToString()}">Age</td>
 														
 													</tr>
@@ -341,54 +324,32 @@
 				
 	            var id = $(this).attr('data-row-id');
 	            var degreeLevel = $(this).attr('data-row-degreeLevel'); 
-	            var school = $(this).attr('data-row-school');
-	            var degreeCourse = $(this).attr('data-row-degreeCourse');
 	            var scholarship = $(this).attr('data-row-scholarship');
-	            var academicHonors = $(this).attr('data-row-academicHonors');
+	            var academicHonorsText = $(this).attr('data-row-academicHonorsText');
 	            var startDate = $(this).attr('data-row-startDate');
 	            var endDate = $(this).attr('data-row-endDate');
 	            var unitsEarned = $(this).attr('data-row-unitsEarned');
 	            var yearGraduated = $(this).attr('data-row-yearGraduated');
 	            var remarks = $(this).attr('data-row-remarks');
             var schoolCustomName = $(this).attr('data-row-schoolCustomName');
+            var degreeCourseCustomName = $(this).attr('data-row-degreeCourseCustomName');
 	                    
 	            
 	            $("#modal_form_vertical").find("#id").val(id);
 	            $("#modal_form_vertical").find("#degreeLevel").val(degreeLevel);
-	            $("#modal_form_vertical").find("#school").val(school);
-	            $("#modal_form_vertical").find("#degreeCourse").val(degreeCourse);
 	            $("#modal_form_vertical").find("#scholarship").val(scholarship);
-	            $("#modal_form_vertical").find("#academicHonors").val(academicHonors);
+	            $("#modal_form_vertical").find("#academicHonorsText").val(academicHonorsText);
 	            $("#modal_form_vertical").find("#startDate").val(startDate);
 	            $("#modal_form_vertical").find("#endDate").val(endDate);
+	            $("#startDate_display").val(startDate ? startDate.substring(0, 4) : '');
+	            $("#endDate_display").val(endDate ? endDate.substring(0, 4) : '');
 	            $("#modal_form_vertical").find("#unitsEarned").val(unitsEarned);
 	            $("#modal_form_vertical").find("#yearGraduated").val(yearGraduated);
 	            $("#modal_form_vertical").find("#remarks").val(remarks);
             $("#modal_form_vertical").find("#schoolCustomName").val(schoolCustomName);
-            if(school == "0" || (school === "" && schoolCustomName)) {
-                $("#school").val("0");
-                $("#schoolCustomGroup").show();
-                $("#school").removeClass("required-field-hrisp");
-                $("#schoolCustomName").addClass("required-field-hrisp");
-            } else {
-                $("#schoolCustomGroup").hide();
-                $("#school").addClass("required-field-hrisp");
-                $("#schoolCustomName").removeClass("required-field-hrisp");
-            }
-	            
+            $("#modal_form_vertical").find("#degreeCourseCustomName").val(degreeCourseCustomName);
+
 	        });
-			$("#school").change(function() {
-				if($(this).val() === "0") {
-					$("#schoolCustomGroup").show();
-					$(this).removeClass("required-field-hrisp");
-					$("#schoolCustomName").addClass("required-field-hrisp");
-				} else {
-					$("#schoolCustomGroup").hide();
-					$(this).addClass("required-field-hrisp");
-					$("#schoolCustomName").removeClass("required-field-hrisp");
-					$("#schoolCustomName").val("");
-				}
-			});
 
 			
 			
@@ -426,6 +387,17 @@
 					$(this).val(parts[2] + '/' + parts[1] + '/' + parts[0]);
 				}
 			});
+
+			// Year-only sync for start/end period
+			$('#startDate_display, #endDate_display').on('change blur', function() {
+				var year = parseInt($(this).val(), 10);
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				$('#' + hiddenId).val((year >= 1900 && year <= 2099) ? year + '-01-01' : '');
+			});
+			var startIso = $('#startDate').val();
+			var endIso = $('#endDate').val();
+			if (startIso) $('#startDate_display').val(startIso.substring(0, 4));
+			if (endIso) $('#endDate_display').val(endIso.substring(0, 4));
 
 			// start update profile photo
 			const fileSelect = document.getElementById('fileSelect');

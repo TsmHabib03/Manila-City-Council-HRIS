@@ -32,7 +32,7 @@ public class ChangePasswordController {
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found with ID: " + id));
         model.addAttribute("employee", employee);
         model.addAttribute("changePassword", new ChangePassword());
-        return "/changepassword/change-password";
+        return "changepassword/change-password";
     }
 
     @PostMapping("/save-change-password/{employeeId}")

@@ -61,9 +61,12 @@
 													<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>	
 										<div class="col-sm-4">
-											<label for="firstName">&nbsp;</label><br>
-											<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" placeholder="N/A" type="checkbox"> 
-											<label for="dateTo">isPresent</label>
+											<label>&nbsp;</label><br>
+											<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" type="checkbox">
+											<label for="upToPresent">isPresent</label>
+											&nbsp;&nbsp;
+											<input th:field="*{partTime}" id="partTime" name="partTime" type="checkbox">
+											<label for="partTime">Part-Time</label>
 										</div>
 									</div>
 
@@ -214,6 +217,7 @@
 															 th:data-row-dateFrom="${experience.getDateFrom()}"
 															 th:data-row-dateTo="${experience.getDateTo()}"
 															 th:data-row-upToPresent="${experience.isUpToPresent()}"
+			                                                 th:data-row-partTime="${experience.isPartTime()}"
 			                                                 th:data-row-positionTitle="${experience.getPositionTitle()}"	
 			                                                 th:data-row-department="${experience.getDepartment()}"
 			                                                 th:data-row-officeName="${experience.getOfficeName()}"
@@ -340,6 +344,7 @@
 				var dateFrom = $(this).attr('data-row-dateFrom');
 				var dateTo = $(this).attr('data-row-dateTo');
 				var upToPresent = $(this).attr('data-row-upToPresent');
+				var partTime = $(this).attr('data-row-partTime');
 	            var department = $(this).attr('data-row-department'); 
 	            var officeName = $(this).attr('data-row-officeName');
 	            var immediateSupervisor = $(this).attr('data-row-immediateSupervisor');
@@ -353,8 +358,11 @@
 	                    
 	            $("#modal_form_vertical").find("#id").val(id);
 				$("#modal_form_vertical").find("#dateFrom").val(dateFrom);
+				if (dateFrom && dateFrom.length === 10) { var dfP = dateFrom.split('-'); $("#modal_form_vertical").find("#dateFrom_display").val(dfP[2]+'/'+dfP[1]+'/'+dfP[0]); } else { $("#modal_form_vertical").find("#dateFrom_display").val(''); }
 				$("#modal_form_vertical").find("#dateTo").val(dateTo);
-				$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent);
+				if (dateTo && dateTo.length === 10) { var dtP = dateTo.split('-'); $("#modal_form_vertical").find("#dateTo_display").val(dtP[2]+'/'+dtP[1]+'/'+dtP[0]); } else { $("#modal_form_vertical").find("#dateTo_display").val(''); }
+				$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent === 'true');
+				$("#modal_form_vertical").find("#partTime").prop("checked", partTime === 'true');
 	            $("#modal_form_vertical").find("#positionTitle").val(positionTitle);
 	            $("#modal_form_vertical").find("#department").val(department);
 	            $("#modal_form_vertical").find("#officeName").val(officeName);

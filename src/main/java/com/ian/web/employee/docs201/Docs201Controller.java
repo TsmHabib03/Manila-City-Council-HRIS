@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +40,13 @@ public class Docs201Controller {
 	private final DocumentTypeRepository documentTypeRepository;
 	private final StorageService storageService;
 	
+	@GetMapping("/201files")
+	public String view201FilesList(Model model) {
+		List<Employee> employeeList = employeeRepository.findAll();
+		model.addAttribute("employeeList", employeeList);
+		return "employee/docs201/employee-list-201files";
+	}
+
 	@GetMapping("/201files/{employeeId}/{empHashCode}")
 	public String viewEmployeeClearance(Model model, @PathVariable long employeeId, @PathVariable String empHashCode, HttpServletRequest request) {
 		Optional<Employee> optional = employeeRepository.findByIdAndEmpHashCode(employeeId, empHashCode);
@@ -107,7 +115,19 @@ public class Docs201Controller {
 		
 	}
 	
+	@GetMapping("/delete201File/{id}")
+	@Transactional
+	public String delete201File(@PathVariable Long id, final RedirectAttributes redirect) {
+		Docs201 doc = docs201Repository.findById(id).orElseThrow();
+		long employeeId = doc.getEmployee().getId();
+		String hashCode = doc.getEmployee().getEmpHashCode();
+		docs201Repository.deleteById(id);
+		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Deleted."));
+		return "redirect:/201files/" + employeeId + "/" + hashCode;
+	}
+
 	@PostMapping({"/addMy201Files", "/add201Files"})
+	@Transactional
 	public String save201Files(
 			@Valid Docs201 docs201
 			,Errors errors
@@ -116,7 +136,6 @@ public class Docs201Controller {
 			,HttpServletRequest request
 			) {
 		
-		List<String> docFileUrls =new ArrayList<>();
         long empId = docs201.getEmployee().getId();
         if (errors.hasErrors()  || docs201.getDocumentType().getId() <= 0) {
         	if (docs201.getDocumentType().getId() <= 0) {
@@ -136,14 +155,36 @@ public class Docs201Controller {
             return "employee/docs201/docs201";
         }		
 		
-		MultipartFile[] files = docs201.getDocFiles();
-		if(files.length > 0 && files[0].getOriginalFilename().isEmpty()) {
-			Docs201 docObj = docs201Repository.findById(docs201.getId()).orElseGet(() -> new Docs201());
-			docFileUrls = docObj.getDocFileUrls();
+		Employee employee = employeeRepository.findById(empId).orElseGet(() -> new Employee());
+		DocumentType docType = documentTypeRepository.findById(docs201.getDocumentType().getId())
+				    .orElseGet(() -> new DocumentType());
+
+		// Use a managed entity so @ElementCollection updates correctly.
+		// Detached-entity merge does not reliably update element collections.
+		Docs201 entityToSave;
+		if (docs201.getId() != null && docs201.getId() > 0) {
+			entityToSave = docs201Repository.findById(docs201.getId()).orElseGet(Docs201::new);
 		} else {
+			entityToSave = new Docs201();
+		}
+		entityToSave.setTransDate(docs201.getTransDate());
+		entityToSave.setRemarks(docs201.getRemarks());
+		entityToSave.setEmployee(employee);
+		entityToSave.setDocumentType(docType);
+
+		MultipartFile[] files = docs201.getDocFiles();
+		List<String> docFileUrls;
+		String firstFileName = (files != null && files.length > 0) ? files[0].getOriginalFilename() : null;
+		if (files == null || (files.length > 0 && (firstFileName == null || firstFileName.isEmpty()))) {
+			// No new files selected — preserve whatever URLs the managed entity already holds
+			docFileUrls = entityToSave.getDocFileUrls() != null ? entityToSave.getDocFileUrls() : new ArrayList<>();
+		} else {
+			docFileUrls = new ArrayList<>();
 		    for (int i = 0; i < files.length; i++) {
 		    	try {
-		    		String fileExt = files[i].getOriginalFilename().substring(files[i].getOriginalFilename().lastIndexOf("."));
+		    		String name    = files[i].getOriginalFilename();
+		    		if (name == null || name.isEmpty()) continue;
+		    		String fileExt = name.substring(name.lastIndexOf('.'));
 		    		String fileName = "emp_201file_" + empId + '_' + i + "_" + System.currentTimeMillis() + fileExt;
 		    		FileDTO fileDTO = storageService.uploadFile(files[i], fileName);
 		    		docFileUrls.add(fileDTO.getDownloadUri());
@@ -152,17 +193,11 @@ public class Docs201Controller {
 		    	}
 		    }
 		}
-		docs201.setDocFileUrls(docFileUrls);
-		Employee employee = employeeRepository.findById(empId).orElseGet(() -> new Employee());
-		docs201.setEmployee(employee);
-		DocumentType docType = documentTypeRepository.findById(docs201.getDocumentType().getId())
-				    .orElseGet(() -> new DocumentType());
-		docs201.setDocumentType(docType);			
-		
-		docs201Repository.save(docs201);
-		
+		entityToSave.setDocFileUrls(docFileUrls);
+		docs201Repository.save(entityToSave);
+
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Updated."));
-		return "redirect:/201files/"+docs201.getEmployee().getId()+"/"+docs201.getEmployee().getEmpHashCode();
+		return "redirect:/201files/" + employee.getId() + "/" + employee.getEmpHashCode();
 	}
 
 }

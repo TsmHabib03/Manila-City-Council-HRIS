@@ -122,8 +122,7 @@ public class ServiceRecord {
 	private LocalDate dateOfReleaseCscAction;
 	
 	private String agencyReceivingOfficer;
-	
-	
+
 //	public LocalDate getSigningDate() {
 //		if(signingDate != null) {
 //			return signingDate.plusDays(1);

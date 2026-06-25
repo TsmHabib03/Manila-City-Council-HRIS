@@ -37,7 +37,9 @@ public class WorkExperience {
 	private LocalDate dateTo;
 	
 	private boolean upToPresent;
-	
+
+	private boolean partTime;
+
 	@NotBlank
     private String positionTitle;
 	private String department;

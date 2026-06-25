@@ -8,6 +8,8 @@ import java.io.SequenceInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import org.springframework.core.io.ClassPathResource;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -251,8 +253,7 @@ public class ReportsController {
 		
 		Map<String, Object> map = populateMapReport1(employee, fbList, eduList);
 		
-		File file2 = ResourceUtils.getFile("classpath:static/images/PDS2.png");
-		String bgImg2 = file2.getAbsolutePath();
+		String bgImg2 = getImageAbsolutePath("static/images/PDS2.png");
 		map.put("V.CSE_Career_Service_RA_1080_1", "test");
 		map.put("FormBg2", bgImg2);
 		
@@ -285,9 +286,18 @@ public class ReportsController {
 //		JasperRunManager.runReportToPdfStream(pds2Stream,	response.getOutputStream(), map, beanColDataSource);
 	}
 	
-	private Map<String, Object> populateMapReport1(Employee emp, List<FamilyBg> fbList, List<EducationalBackground> eduList) throws FileNotFoundException {
-		File file = ResourceUtils.getFile("classpath:static/images/PDS1.png");
-		String bgImg = file.getAbsolutePath();
+	private String getImageAbsolutePath(String classpathImage) throws Exception {
+		ClassPathResource resource = new ClassPathResource(classpathImage);
+		File tempFile = File.createTempFile("pds-img-", ".png");
+		tempFile.deleteOnExit();
+		try (InputStream is = resource.getInputStream()) {
+			Files.copy(is, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+		return tempFile.getAbsolutePath();
+	}
+
+	private Map<String, Object> populateMapReport1(Employee emp, List<FamilyBg> fbList, List<EducationalBackground> eduList) throws Exception {
+		String bgImg = getImageAbsolutePath("static/images/PDS1.png");
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
@@ -349,8 +359,7 @@ public class ReportsController {
 		
 		map.put("I.PI_Height", "  " + getStringValue(emp.getHeight()));
 		map.put("I.PI_Weight", "  " + getStringValue(emp.getWeight()));
-		map.put("I.PI_Bloodtype", "  " + getStringValue(emp.getBloodType()));
-		map.put("I.PI_GSIS_ID_NO.", "  " + getDisplayValue(emp.getGsisIdNo()));
+		map.put("I.PI_Bloodtype", "  " + formatBloodType(emp.getBloodType()));
 		map.put("I.PI_Pagibig_ID_NO.", "  " + getDisplayValue(emp.getPagibigNo()));
 		map.put("I.PI_PhilHealth_NO.", "  " + getDisplayValue(emp.getPhilhealthNo()));
 		map.put("I.PI_SSS_NO.", "  " + getDisplayValue(emp.getSssNo()));
@@ -422,29 +431,51 @@ public class ReportsController {
 		//Family
 		for(FamilyBg fb : fbList) {
 			if("SPOUSE".equalsIgnoreCase(fb.getRelationship())) {
-				map.put("II.FBG_Spouse_Surname", "  " + fb.getLastName());
-				map.put("II.FBG_Spouse_Firstname", "  " + fb.getFirstName());
-				map.put("II.FBG_Spouse_Name_Extension", "  " + fb.getSuffix());
-				map.put("II.FBG_Spouse_Middlename", "  " + fb.getMiddleName());
-				map.put("II.FBG_Spouse_Occupation", "  " + fb.getOccupation());
-				map.put("II.FBG_Spouse_Employer", "  " + fb.getEmployer());
-				map.put("II.FBG_Spouse_Business_Address", "  " + fb.getBusinessAdd());
-				map.put("II.FBG_Spouse_TelephoneNO", "  " + fb.getTelNo());
 				spousePopulated = true;
+				if(fb.isDeceased() && getStringValue(fb.getLastName()).isBlank() && getStringValue(fb.getFirstName()).isBlank()) {
+					map.put("II.FBG_Spouse_Surname", "  DECEASED");
+					map.put("II.FBG_Spouse_Firstname", "");
+					map.put("II.FBG_Spouse_Name_Extension", "");
+					map.put("II.FBG_Spouse_Middlename", "");
+				} else {
+					map.put("II.FBG_Spouse_Surname", "  " + getStringValue(fb.getLastName()) + (fb.isDeceased() ? " (DECEASED)" : ""));
+					map.put("II.FBG_Spouse_Firstname", "  " + getStringValue(fb.getFirstName()));
+					map.put("II.FBG_Spouse_Name_Extension", "  " + getStringValue(fb.getSuffix()));
+					map.put("II.FBG_Spouse_Middlename", "  " + getStringValue(fb.getMiddleName()));
+				}
+				map.put("II.FBG_Spouse_Occupation", "  " + getStringValue(fb.getOccupation()));
+				map.put("II.FBG_Spouse_Employer", "  " + getStringValue(fb.getEmployer()));
+				map.put("II.FBG_Spouse_Business_Address", "  " + getStringValue(fb.getBusinessAdd()));
+				map.put("II.FBG_Spouse_TelephoneNO", "  " + getStringValue(fb.getTelNo()));
 			} else if("FATHER".equalsIgnoreCase(fb.getRelationship())) {
 				fatherPopulated = true;
-				map.put("II.FBG_Father_Surname", "  " + fb.getLastName());
-				map.put("II.FBG_Father_Firstname", "  " + fb.getFirstName());
-				map.put("II.FBG_Father_Name_Extension", "  " + fb.getSuffix());
-				map.put("II.FBG_Father_Middlename", "  " + fb.getMiddleName());
-				map.put("II.FBG_Father_Birthday", "  " + formatDateOrNA(fb.getBirthdate()));
+				if(fb.isDeceased() && getStringValue(fb.getLastName()).isBlank() && getStringValue(fb.getFirstName()).isBlank()) {
+					map.put("II.FBG_Father_Surname", "  DECEASED");
+					map.put("II.FBG_Father_Firstname", "");
+					map.put("II.FBG_Father_Name_Extension", "");
+					map.put("II.FBG_Father_Middlename", "");
+					map.put("II.FBG_Father_Birthday", "");
+				} else {
+					map.put("II.FBG_Father_Surname", "  " + getStringValue(fb.getLastName()) + (fb.isDeceased() ? " (DECEASED)" : ""));
+					map.put("II.FBG_Father_Firstname", "  " + getStringValue(fb.getFirstName()));
+					map.put("II.FBG_Father_Name_Extension", "  " + getStringValue(fb.getSuffix()));
+					map.put("II.FBG_Father_Middlename", "  " + getStringValue(fb.getMiddleName()));
+					map.put("II.FBG_Father_Birthday", "  " + formatDateOrNA(fb.getBirthdate()));
+				}
 			} else if("MOTHER".equalsIgnoreCase(fb.getRelationship())) {
-				map.put("II.FBG_Mother_Maidenname", "  " + getStringValue(fb.getMaidenName()));
-				map.put("II.FBG_Mother_Surname", "  " + fb.getLastName());
-				map.put("II.FBG_Mother_Firstname", "  " + fb.getFirstName());
-				map.put("II.FBG_Mother_Middlename", "  " + fb.getMiddleName());
-				map.put("II.FBG_Mother_Birthday", "  " + formatDateOrNA(fb.getBirthdate()));
 				motherPopulated = true;
+				map.put("II.FBG_Mother_Maidenname", "  " + getStringValue(fb.getMaidenName()));
+				if(fb.isDeceased() && getStringValue(fb.getLastName()).isBlank() && getStringValue(fb.getFirstName()).isBlank()) {
+					map.put("II.FBG_Mother_Surname", "  DECEASED");
+					map.put("II.FBG_Mother_Firstname", "");
+					map.put("II.FBG_Mother_Middlename", "");
+					map.put("II.FBG_Mother_Birthday", "");
+				} else {
+					map.put("II.FBG_Mother_Surname", "  " + getStringValue(fb.getLastName()) + (fb.isDeceased() ? " (DECEASED)" : ""));
+					map.put("II.FBG_Mother_Firstname", "  " + getStringValue(fb.getFirstName()));
+					map.put("II.FBG_Mother_Middlename", "  " + getStringValue(fb.getMiddleName()));
+					map.put("II.FBG_Mother_Birthday", "  " + formatDateOrNA(fb.getBirthdate()));
+				}
 			} else {
 				map.put("II.FBG_Child_name"+ctrForChild, "  " + fb.getFirstName() + " " + fb.getMiddleName() + " " + fb.getLastName());
 				map.put("II.FBG_Child_Birthday"+ctrForChild, "  " + formatDateOrNA(fb.getBirthdate()));
@@ -497,33 +528,27 @@ public class ReportsController {
 		boolean secPopulated = false;
 		boolean vocPopulated = false;
 		boolean collegePopulated = false;
+		int collegeCount = 0;   // up to 2 college entries appear on the PDS
 		boolean gradopulated = false;
 		
 		for(EducationalBackground eb : eduList) {
+			if(eb.getDegreeLevel() == null) continue;
 			if("ELEMENTARY".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())
 					|| "ELEMENTARY GRADUATE".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())) {
 				elemPopulated = true;
 				map.put("III.EB_Elementary_School", " " + eb.getEffectiveSchoolName());
 
-				if(eb.getDegreeCourse() != null) {
-					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
-					} else {
-						map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
-					}
-				} else {
-					map.put("III.EB_Elementary_BasicEducation_Degree_Course", "");
-				}
+				map.put("III.EB_Elementary_BasicEducation_Degree_Course", " " + eb.getEffectiveDegreeCourseName());
 
-				map.put("III.EB_Elementary_Period_Of_Attendance_From", " " + formatDateMonthYearOnly(eb.getStartDate()));
-				map.put("III.EB_Elementary_Period_Of_Attendance_To", " " + formatDateMonthYearOnly(eb.getEndDate()));
+				map.put("III.EB_Elementary_Period_Of_Attendance_From", " " + formatYearOnly(eb.getStartDate()));
+				map.put("III.EB_Elementary_Period_Of_Attendance_To", " " + formatYearOnly(eb.getEndDate()));
 				map.put("III.EB_Elementary_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_Elementary_Year_Graduated", " " + eb.getYearGraduated());
 
 				{
 					String honorsVal = "";
-					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
-						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					if (eb.getAcademicHonorsText() != null && !eb.getAcademicHonorsText().isBlank()) {
+						honorsVal = " " + eb.getAcademicHonorsText();
 					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
 						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
@@ -531,29 +556,21 @@ public class ReportsController {
 				}
 				
 				
-			} else if("SECONDARY".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())) {
+			} else if(eb.getDegreeLevel().getDegreeName() != null && (eb.getDegreeLevel().getDegreeName().toUpperCase().contains("SECONDARY") || "HIGH SCHOOL".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName()))) {
 				secPopulated = true;
 				map.put("III.EB_Secondary_School", " " + eb.getEffectiveSchoolName());
 
-				if(eb.getDegreeCourse() != null) {
-					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_Secondary_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
-					} else {
-						map.put("III.EB_Secondary_BasicEducation_Degree_Course", "");
-					}
-				} else {
-					map.put("III.EB_Secondary_BasicEducation_Degree_Course", "");
-				}
+				map.put("III.EB_Secondary_BasicEducation_Degree_Course", " " + eb.getEffectiveDegreeCourseName());
 
-				map.put("III.EB_Secondary_Period_Of_Attendance_From",  " " + formatDateMonthYearOnly(eb.getStartDate()));
-				map.put("III.EB_Secondary_Period_Of_Attendance_To", " " + formatDateMonthYearOnly(eb.getEndDate()));
+				map.put("III.EB_Secondary_Period_Of_Attendance_From",  " " + formatYearOnly(eb.getStartDate()));
+				map.put("III.EB_Secondary_Period_Of_Attendance_To", " " + formatYearOnly(eb.getEndDate()));
 				map.put("III.EB_Secondary_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_Secondary_Year_Graduated", " " + eb.getYearGraduated());
 
 				{
 					String honorsVal = "";
-					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
-						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					if (eb.getAcademicHonorsText() != null && !eb.getAcademicHonorsText().isBlank()) {
+						honorsVal = " " + eb.getAcademicHonorsText();
 					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
 						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
@@ -563,82 +580,60 @@ public class ReportsController {
 				vocPopulated = true;
 				map.put("III.EB_Vocational_TradeCourse_School", " " + eb.getEffectiveSchoolName());
 
-				if(eb.getDegreeCourse() != null) {
-					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_Vocational_TradeCourse_Basic_Education_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
-					} else {
-						map.put("III.EB_Vocational_TradeCourse_Basic_Education_Degree_Course", "");
-					}
-				} else {
-					map.put("III.EB_Vocational_TradeCourse_Basic_Education_Degree_Course", "");
-				}
+				map.put("III.EB_Vocational_TradeCourse_Basic_Education_Degree_Course", " " + eb.getEffectiveDegreeCourseName());
 
-				map.put("III.EB_Vocational_TradeCourse_Period_Of_Attendance_From",  " " + formatDateMonthYearOnly(eb.getStartDate()));
-				map.put("III.EB_Vocational_TradeCourse_Period_Of_Attendance_To", " " + formatDateMonthYearOnly(eb.getEndDate()));
+				map.put("III.EB_Vocational_TradeCourse_Period_Of_Attendance_From",  " " + formatYearOnly(eb.getStartDate()));
+				map.put("III.EB_Vocational_TradeCourse_Period_Of_Attendance_To", " " + formatYearOnly(eb.getEndDate()));
 				map.put("III.EB_Vocational_TradeCourse_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_Vocational_TradeCourse_Year_Graduated", " " + eb.getYearGraduated());
 
 				{
 					String honorsVal = "";
-					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
-						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					if (eb.getAcademicHonorsText() != null && !eb.getAcademicHonorsText().isBlank()) {
+						honorsVal = " " + eb.getAcademicHonorsText();
 					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
 						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
 					map.put("III.EB_Vocational_TradeCourse_Scholarship_Academic_Honors_Received", honorsVal);
 				}
-			} else if("COLLEGE".equalsIgnoreCase(eb.getDegreeLevel().getDegreeName())) {
+			} else if(collegeCount < 2 && eb.getDegreeLevel().getDegreeName() != null && (eb.getDegreeLevel().getDegreeName().toUpperCase().startsWith("COLLEGE") || eb.getDegreeLevel().getDegreeName().toUpperCase().startsWith("UNDERGRADUATE"))) {
+				String cpfx = (collegeCount == 0) ? "III.EB_College" : "III.EB_College2";
+				collegeCount++;
 				collegePopulated = true;
-				map.put("III.EB_College_School", " " + eb.getEffectiveSchoolName());
+				map.put(cpfx + "_School", " " + eb.getEffectiveSchoolName());
 
-				if(eb.getDegreeCourse() != null) {
-					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_College_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
-					} else {
-						map.put("III.EB_College_BasicEducation_Degree_Course", "");
-					}
-				} else {
-					map.put("III.EB_College_BasicEducation_Degree_Course", "");
-				}
+				map.put(cpfx + "_BasicEducation_Degree_Course", " " + eb.getEffectiveDegreeCourseName());
 
-				map.put("III.EB_College_Period_Of_Attendance_From",  " " + formatDateMonthYearOnly(eb.getStartDate()));
-				map.put("III.EB_College_Period_Of_Attendance_To", " " + formatDateMonthYearOnly(eb.getEndDate()));
-				map.put("III.EB_College_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
-				map.put("III.EB_College_Year_Graduated", " " + eb.getYearGraduated());
+				map.put(cpfx + "_Period_Of_Attendance_From",  " " + formatYearOnly(eb.getStartDate()));
+				map.put(cpfx + "_Period_Of_Attendance_To", " " + formatYearOnly(eb.getEndDate()));
+				map.put(cpfx + "_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
+				map.put(cpfx + "_Year_Graduated", " " + eb.getYearGraduated());
 
 				{
 					String honorsVal = "";
-					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
-						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					if (eb.getAcademicHonorsText() != null && !eb.getAcademicHonorsText().isBlank()) {
+						honorsVal = " " + eb.getAcademicHonorsText();
 					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
 						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
-					map.put("III.EB_College_Scholarship_Academic_Honors_Received", honorsVal);
+					map.put(cpfx + "_Scholarship_Academic_Honors_Received", honorsVal);
 				}
 
-			} else {
+			} else if(!gradopulated && eb.getDegreeLevel().getDegreeName() != null && eb.getDegreeLevel().getDegreeName().toUpperCase().contains("GRADUATE")) {
 				gradopulated = true;
 				map.put("III.EB_GraduateStudies_School", " " + eb.getEffectiveSchoolName());
 
-				if(eb.getDegreeCourse() != null) {
-					if(eb.getDegreeCourse().getDegreeCourseName() != null) {
-						map.put("III.EB_GraduateStudies_BasicEducation_Degree_Course", " " + eb.getDegreeCourse().getDegreeCourseName());
-					} else {
-						map.put("III.EB_GraduateStudies_BasicEducation_Degree_Course", "");
-					}
-				} else {
-					map.put("III.EB_GraduateStudies_BasicEducation_Degree_Course", "");
-				}
+				map.put("III.EB_GraduateStudies_BasicEducation_Degree_Course", " " + eb.getEffectiveDegreeCourseName());
 
-				map.put("III.EB_GraduateStudies_Period_Of_Attendance_From",  " " + formatDateMonthYearOnly(eb.getStartDate()));
-				map.put("III.EB_GraduateStudies_Period_Of_Attendance_To",  " " + formatDateMonthYearOnly(eb.getEndDate()));
+				map.put("III.EB_GraduateStudies_Period_Of_Attendance_From",  " " + formatYearOnly(eb.getStartDate()));
+				map.put("III.EB_GraduateStudies_Period_Of_Attendance_To",  " " + formatYearOnly(eb.getEndDate()));
 				map.put("III.EB_GraduateStudies_HighestLvl_UnitsEarned", " " + eb.getUnitsEarned());
 				map.put("III.EB_GraduateStudies_Year_Graduated", " " + eb.getYearGraduated());
 
 				{
 					String honorsVal = "";
-					if (eb.getAcademicHonors() != null && eb.getAcademicHonors().getAcademicHonorsName() != null) {
-						honorsVal = " " + eb.getAcademicHonors().getAcademicHonorsName();
+					if (eb.getAcademicHonorsText() != null && !eb.getAcademicHonorsText().isBlank()) {
+						honorsVal = " " + eb.getAcademicHonorsText();
 					} else if (eb.getScholarship() != null && eb.getScholarship().getScholarshipName() != null) {
 						honorsVal = " " + eb.getScholarship().getScholarshipName();
 					}
@@ -694,7 +689,18 @@ public class ReportsController {
 			map.put("III.EB_College_Year_Graduated", "");
 			map.put("III.EB_College_Scholarship_Academic_Honors_Received", "");
 		}
-		
+
+		// 2nd college row — blank when fewer than 2 college entries exist.
+		if(collegeCount < 2) {
+			map.put("III.EB_College2_School", "");
+			map.put("III.EB_College2_BasicEducation_Degree_Course",  "");
+			map.put("III.EB_College2_Period_Of_Attendance_From",  "");
+			map.put("III.EB_College2_Period_Of_Attendance_To", "");
+			map.put("III.EB_College2_HighestLvl_UnitsEarned", "");
+			map.put("III.EB_College2_Year_Graduated", "");
+			map.put("III.EB_College2_Scholarship_Academic_Honors_Received", "");
+		}
+
 		if(gradopulated) {
 			
 		} else {
@@ -725,10 +731,9 @@ public class ReportsController {
 		return map;
 	}
 	
-	private Map<String, Object> populateMapReport2(List<CivilServiceEligibility> csList, List<WorkExperience> workExList) throws FileNotFoundException {
+	private Map<String, Object> populateMapReport2(List<CivilServiceEligibility> csList, List<WorkExperience> workExList) throws Exception {
 		Map<String, Object> map = new HashMap<String, Object>();
-		File file = ResourceUtils.getFile("classpath:static/images/PDS2.png");
-		String bgImg = file.getAbsolutePath();
+		String bgImg = getImageAbsolutePath("static/images/PDS2.png");
 		
 		map.put("FormBg2", bgImg);
 		
@@ -739,7 +744,7 @@ public class ReportsController {
 			map.put("IV.CSE_Date_Of_Examination"+ctrForCS, " " + getStringValue(cs.getExamDate()) );
 			map.put("IV.CSE_Place_Of_Examination"+ctrForCS, " " + getStringValue(cs.getPlaceOfExam()) );
 			map.put("IV.CSE_License_Number_"+ctrForCS, " " + getStringValue(cs.getLicenseNo()) );
-			map.put("IV.CSE_License_Date_Of_Validity"+ctrForCS, " " + formatDateMonthYearOnly(cs.getLicenseValidityDate()) );
+			map.put("IV.CSE_License_Date_Of_Validity"+ctrForCS, " " + getStringValue(cs.getLicenseValidityDate()) );
 			ctrForCS++;
 		}
 		
@@ -787,10 +792,9 @@ public class ReportsController {
 		return map;
 	}
 	
-	private Map<String, Object> populateMapReport3(List<VoluntaryWork> voluntaryList, List<LearningAndDevelopment> learningList, List<OtherInfo> otherList) throws FileNotFoundException {
+	private Map<String, Object> populateMapReport3(List<VoluntaryWork> voluntaryList, List<LearningAndDevelopment> learningList, List<OtherInfo> otherList) throws Exception {
 		Map<String, Object> map = new HashMap<String, Object>();
-		File file = ResourceUtils.getFile("classpath:static/images/PDS3.png");
-		String bgImg = file.getAbsolutePath();
+		String bgImg = getImageAbsolutePath("static/images/PDS3.png");
 		
 		map.put("FormBg3", bgImg);
 		
@@ -816,10 +820,15 @@ public class ReportsController {
 		
 		int ctrForLd = 1;
 		for(LearningAndDevelopment ld : learningList) {
-			map.put("VII.LAD_Training_Programs"+ctrForLd, " " + getStringValue(ld.getTitleOfSeminar()) );
+			String ldTitle = getStringValue(ld.getTitleOfSeminar());
+			if (ldTitle.length() > 110) ldTitle = ldTitle.substring(0, 107) + "...";
+			map.put("VII.LAD_Training_Programs"+ctrForLd, " " + ldTitle);
 			map.put("VII.LAD_Inclusive_Dates_Of_Attendance_From"+ctrForLd, " " + formatDateMonthYearOnly(ld.getDateFrom()) );
-			map.put("VII.LAD_Inclusive_Dates_Of_Attendance_To"+ctrForLd, " " + formatDateMonthYearOnly(ld.getDateTo()) );			
-			map.put("VII.LAD_Number_Of_Hours"+ctrForLd,  " " + getStringValue(ld.getNoHours() + "") );
+			map.put("VII.LAD_Inclusive_Dates_Of_Attendance_To"+ctrForLd, " " + formatDateMonthYearOnly(ld.getDateTo()) );
+			String ldHours = (ld.getHoursDisplay() != null && !ld.getHoursDisplay().isBlank())
+				? ld.getHoursDisplay()
+				: (ld.getNoHours() != null ? ld.getNoHours().toString() : "");
+			map.put("VII.LAD_Number_Of_Hours"+ctrForLd, " " + ldHours);
 			map.put("VII.LAD_Type_Of_LD"+ctrForLd, " " + getStringValue(ld.getLearningType()) );
 			map.put("VII.Conducted_Sponsored_By"+ctrForLd, " " + getStringValue(ld.getProviders()) );
 			ctrForLd++;
@@ -859,10 +868,9 @@ public class ReportsController {
 		return map;
 	}
 	
-	private Map<String, Object> populateMapReport4(OtherInfoQuestion otherInfoQuestion, List<EmpReferences> referencesList, List<GovermentIssuedId> govIdList) throws FileNotFoundException {
+	private Map<String, Object> populateMapReport4(OtherInfoQuestion otherInfoQuestion, List<EmpReferences> referencesList, List<GovermentIssuedId> govIdList) throws Exception {
 		Map<String, Object> map = new HashMap<String, Object>();
-		File file = ResourceUtils.getFile("classpath:static/images/PDS4.png");
-		String bgImg = file.getAbsolutePath();
+		String bgImg = getImageAbsolutePath("static/images/PDS4.png");
 		
 		map.put("FormBg4", bgImg);
 		
@@ -1142,17 +1150,22 @@ public class ReportsController {
 		//References
 		int ctrForRef = 1;
 		for(EmpReferences ref : referencesList) {
-			map.put("VIII.OI_41_References_Name"+ctrForRef, " " + getStringValue(ref.getReferenceName()) );
+			String refName = getStringValue(ref.getReferenceName());
+			String refPos = getStringValue(ref.getPositionTitle());
+			// Per change request V1: references show name only, no position.
+			map.put("VIII.OI_41_References_Name"+ctrForRef, " " + refName);
 			map.put("VIII.OI_41_References_Address"+ctrForRef, " " + getStringValue(ref.getCompanyAddress()) );
 			map.put("VIII.OI_41_References_Tel_No"+ctrForRef, " " + getStringValue(ref.getCompanyContactNo()) );
+			map.put("VIII.OI_41_References_Position"+ctrForRef, " " + refPos);
 			ctrForRef++;
 		}
-		
+
 		if(ctrForRef < 3) {
-			for(int x = ctrForRef; x <= 7; x++) {				
+			for(int x = ctrForRef; x <= 7; x++) {
 				map.put("VIII.OI_41_References_Name"+x, "");
 				map.put("VIII.OI_41_References_Address"+x, "");
 				map.put("VIII.OI_41_References_Tel_No"+x, "");
+				map.put("VIII.OI_41_References_Position"+x, "");
 			}
 		}
 		
@@ -1161,7 +1174,10 @@ public class ReportsController {
 			GovermentIssuedId obj =  govIdList.get(0);
 			map.put("VIII.OI_42_Gov_ID", obj.getGovermentIssuedName());
 			map.put("VIII.OI_42_ID_License_Passport_No", obj.getIdNo());
-			map.put("VIII.OI_42_Date_Place_Of_Issurance", obj.getPlaceOfIssuance());
+			String govIdDateStr = (obj.getIssuanceDate() != null)
+				? obj.getIssuanceDate().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")).toUpperCase() + " / "
+				: "";
+			map.put("VIII.OI_42_Date_Place_Of_Issurance", govIdDateStr + getStringValue(obj.getPlaceOfIssuance()));
 			
 		} else {
 			map.put("VIII.OI_42_Gov_ID", "");
@@ -1180,12 +1196,11 @@ public class ReportsController {
 		return map;
 	}
 	
-	private Map<String, Object> populateMapReport2025_P1(Employee emp, List<FamilyBg> fbList, List<EducationalBackground> eduList) throws FileNotFoundException {
+	private Map<String, Object> populateMapReport2025_P1(Employee emp, List<FamilyBg> fbList, List<EducationalBackground> eduList) throws Exception {
 		// Reuse the existing population logic, then overlay 2025-specific fields and date formats.
 		Map<String, Object> map = populateMapReport1(emp, fbList, eduList);
 
-		File p1Bg = ResourceUtils.getFile("classpath:static/images/PDS2025_P1.png");
-		map.put("FormBg", p1Bg.getAbsolutePath());
+		map.put("FormBg", getImageAbsolutePath("static/images/PDS2025_P1.png"));
 
 		// Item 5 — Sex at Birth (2025 wording). Emit alongside legacy I.PI_Sex_M/F keys.
 		if("M".equalsIgnoreCase(emp.getGender())) {
@@ -1218,33 +1233,46 @@ public class ReportsController {
 		}
 
 		// Item 26 — educational-background period dates re-formatted dd/MM/yyyy.
+		// Use first-entry-wins per level to match the single-row jrxml layout.
+		java.util.Set<String> dateOverriddenLevels = new java.util.HashSet<>();
+		int collegeIdx = 0;   // mirrors the up-to-2-college layout
 		for(EducationalBackground eb : eduList) {
 			String lvl = (eb.getDegreeLevel() != null) ? eb.getDegreeLevel().getDegreeName() : "";
+			if(lvl.isBlank()) continue;
 			String prefix;
-			if("ELEMENTARY".equalsIgnoreCase(lvl)) prefix = "III.EB_Elementary";
-			else if("SECONDARY".equalsIgnoreCase(lvl)) prefix = "III.EB_Secondary";
+			if("ELEMENTARY".equalsIgnoreCase(lvl) || "ELEMENTARY GRADUATE".equalsIgnoreCase(lvl)) prefix = "III.EB_Elementary";
+			else if(lvl.toUpperCase().contains("SECONDARY") || "HIGH SCHOOL".equalsIgnoreCase(lvl)) prefix = "III.EB_Secondary";
 			else if("VOCATIONAL".equalsIgnoreCase(lvl)) prefix = "III.EB_Vocational_TradeCourse";
-			else if("COLLEGE".equalsIgnoreCase(lvl)) prefix = "III.EB_College";
-			else prefix = "III.EB_GraduateStudies";
-			map.put(prefix + "_Period_Of_Attendance_From", " " + formatDateOrNA(eb.getStartDate()));
-			map.put(prefix + "_Period_Of_Attendance_To", eb.isUpToPresent() ? " PRESENT" : " " + formatDateOrNA(eb.getEndDate()));
+			else if(lvl.toUpperCase().startsWith("COLLEGE") || lvl.toUpperCase().startsWith("UNDERGRADUATE")) {
+				prefix = (collegeIdx == 0) ? "III.EB_College" : "III.EB_College2";
+				collegeIdx++;
+				if(collegeIdx > 2) continue;
+			}
+			else if(lvl.toUpperCase().contains("GRADUATE")) prefix = "III.EB_GraduateStudies";
+			else continue;
+			// College rows are handled by collegeIdx (always write); other levels are first-entry-wins.
+			if(prefix.startsWith("III.EB_College") || dateOverriddenLevels.add(prefix)) {
+				map.put(prefix + "_Period_Of_Attendance_From", " " + formatYearOnly(eb.getStartDate()));
+				map.put(prefix + "_Period_Of_Attendance_To", eb.isUpToPresent() ? " PRESENT" : " " + formatYearOnly(eb.getEndDate()));
+			}
 		}
 
 		return map;
 	}
 
-	private Map<String, Object> populateMapReport2025_P2(List<CivilServiceEligibility> csList, List<WorkExperience> workExList) throws FileNotFoundException {
+	private Map<String, Object> populateMapReport2025_P2(List<CivilServiceEligibility> csList, List<WorkExperience> workExList) throws Exception {
 		Map<String, Object> map = populateMapReport2(csList, workExList);
 
-		File p2Bg = ResourceUtils.getFile("classpath:static/images/PDS2025_P2.png");
-		map.put("FormBg2", p2Bg.getAbsolutePath());
+		map.put("FormBg2", getImageAbsolutePath("static/images/PDS2025_P2.png"));
 
 		// Item 27 — eligibility exam dates and license validity re-formatted dd/MM/yyyy.
 		// CivilServiceEligibility stores exam date as separate examDay/examMonth/examYear fields.
 		int i = 1;
 		for(CivilServiceEligibility cs : csList) {
 			map.put("IV.CSE_Date_Of_Examination"+i, " " + formatExamDateDdMmYyyy(cs));
-			map.put("IV.CSE_License_Date_Of_Validity"+i, " " + formatDateOrNA(cs.getLicenseValidityDate()));
+			// Per change request V1: CSC eligibilities have no validity/expiration.
+			// Blank when no validity date entered (instead of "N/A"); PRC licenses with a date still print.
+			map.put("IV.CSE_License_Date_Of_Validity"+i, " " + getStringValue(cs.getLicenseValidityDate()));
 			i++;
 		}
 
@@ -1259,11 +1287,10 @@ public class ReportsController {
 		return map;
 	}
 
-	private Map<String, Object> populateMapReport2025_P3(List<VoluntaryWork> voluntaryList, List<LearningAndDevelopment> learningList, List<OtherInfo> otherList) throws FileNotFoundException {
+	private Map<String, Object> populateMapReport2025_P3(List<VoluntaryWork> voluntaryList, List<LearningAndDevelopment> learningList, List<OtherInfo> otherList) throws Exception {
 		Map<String, Object> map = populateMapReport3(voluntaryList, learningList, otherList);
 
-		File p3Bg = ResourceUtils.getFile("classpath:static/images/PDS2025_P3.png");
-		map.put("FormBg3", p3Bg.getAbsolutePath());
+		map.put("FormBg3", getImageAbsolutePath("static/images/PDS2025_P3.png"));
 
 		// Item 29 — voluntary-work inclusive dates re-formatted dd/MM/yyyy.
 		int i = 1;
@@ -1284,11 +1311,10 @@ public class ReportsController {
 		return map;
 	}
 
-	private Map<String, Object> populateMapReport2025_P4(OtherInfoQuestion otherInfoQuestion, List<EmpReferences> referencesList, List<GovermentIssuedId> govIdList) throws FileNotFoundException {
+	private Map<String, Object> populateMapReport2025_P4(OtherInfoQuestion otherInfoQuestion, List<EmpReferences> referencesList, List<GovermentIssuedId> govIdList) throws Exception {
 		Map<String, Object> map = populateMapReport4(otherInfoQuestion, referencesList, govIdList);
 
-		File p4Bg = ResourceUtils.getFile("classpath:static/images/PDS2025_P4.png");
-		map.put("FormBg4", p4Bg.getAbsolutePath());
+		map.put("FormBg4", getImageAbsolutePath("static/images/PDS2025_P4.png"));
 
 		return map;
 	}
@@ -1728,13 +1754,17 @@ public class ReportsController {
 	}
 	
 	private static String formatDateMonthYearOnly(LocalDate localDate) {
-//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd yyyy");		
-		
-		if(localDate != null) {			
+		if(localDate != null) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
 			return localDate.format(formatter);
 		}
-		
+		return "";
+	}
+
+	private static String formatYearOnly(LocalDate localDate) {
+		if(localDate != null) {
+			return String.valueOf(localDate.getYear());
+		}
 		return "";
 	}
 	
@@ -1890,6 +1920,17 @@ public class ReportsController {
 	private static String getDisplayValue(String val) {
 		String s = getStringValue(val);
 		return s.isBlank() ? "N/A" : s;
+	}
+
+	private static String formatBloodType(String code) {
+		if (code == null) return "";
+		switch (code) {
+			case "O1": return "O+";  case "O2": return "O-";
+			case "A1": return "A+";  case "A2": return "A-";
+			case "B1": return "B+";  case "B2": return "B-";
+			case "AB1": return "AB+"; case "AB2": return "AB-";
+			default: return code;
+		}
 	}
 
 	/**

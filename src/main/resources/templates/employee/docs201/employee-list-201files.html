@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+	<title>Human Resource Information System</title>
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<div class="row mt-3">
+					<div class="col-xl-12">
+
+						<div class="card">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">201 Files — Employee Document Management</h5>
+							</div>
+
+							<div class="card-body">
+								Select an employee below to view or manage their 201 file documents.
+							</div>
+
+							<table class="table table-bordered table-hover datatable-highlight" id="table-list">
+								<thead>
+									<tr>
+										<th style="width: 5px;">&nbsp;</th>
+										<th>Employee Name</th>
+										<th>Employee No.</th>
+										<th>Plantilla No.</th>
+										<th>Position</th>
+										<th>Division</th>
+										<th>Role</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="employee : ${employeeList}">
+										<tr>
+											<td title="View 201 Files">
+												<a th:href="@{'/201files/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}" class="list-icons-item"><i class="icon-magazine"></i></a>
+											</td>
+											<td th:text="${employee.getFullName()}">Full Name</td>
+											<td th:text="${employee.getEmpNo()}">Emp No</td>
+											<td th:text="${employee.getPlantillaNo()}">Plantilla No</td>
+											<td th:text="${employee.getPositionTitle() != null ? employee.getPositionTitle().getPositionTitleName() : ''}">Position</td>
+											<td th:text="${employee.getDivision() != null ? employee.getDivision().getDivisionName() : ''}">Division</td>
+											<td th:text="${employee.userType == 'ROLE_EMPLOYEE' ? 'EMPLOYEE' : 'ADMIN'}">Role</td>
+											<td><span class="badge badge-success" th:text="${employee.getStatus()}">Active</span></td>
+										</tr>
+									</th:block>
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+		let tableDataTable = null;
+
+		$(document).ready(function() {
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#docs201ListNav").addClass("active");
+
+			if (!tableDataTable) {
+				tableDataTable = $('#table-list').DataTable({
+					"lengthMenu": [10, 25, 50],
+					"ordering": false,
+					"retrieve": true
+				});
+			}
+		});
+
+	</script>
+</body>
+</html>

@@ -62,7 +62,9 @@ public class VoluntaryWork {
 
 	public String getInclusiveDates(){
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy");
-		return formatter.format(this.dateFrom) +" - "+formatter.format(this.dateTo);
+		String from = dateFrom != null ? formatter.format(dateFrom) : "N/A";
+		String to = dateTo != null ? formatter.format(dateTo) : (upToPresent ? "Present" : "N/A");
+		return from + " - " + to;
 	}
 	
 }

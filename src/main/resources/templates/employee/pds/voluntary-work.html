@@ -96,13 +96,8 @@
 							</div>
 
 							<div class="modal-footer">
-								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
-								<button ID="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
-							<button type="button" class="btn btn-outline-success ml-2"
-								onclick="validateAndGoNext(this.getAttribute('data-href'));"
-								th:attr="data-href=@{/employee/learning-development/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
-								Next: Learning &amp; Development &#8594;
-							</button>
+								<button type="button" class="btn bg-secondary" data-dismiss="modal">Close</button>
+								<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
 							</div>
 						</form>
 					</div>
@@ -350,15 +345,19 @@
 					
 			$("#modal_form_vertical").find("#id").val(id);
 			$("#modal_form_vertical").find("#orgName").val(orgName);
-			$("#modal_form_vertical").find("#dateFrom ").val(dateFrom );
+			$("#modal_form_vertical").find("#dateFrom").val(dateFrom);
+			if (dateFrom && dateFrom.length === 10) { var dfP = dateFrom.split('-'); $("#modal_form_vertical").find("#dateFrom_display").val(dfP[2]+'/'+dfP[1]+'/'+dfP[0]); } else { $("#modal_form_vertical").find("#dateFrom_display").val(''); }
 			$("#modal_form_vertical").find("#dateTo").val(dateTo);
-			$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent);
+			if (dateTo && dateTo.length === 10) { var dtP = dateTo.split('-'); $("#modal_form_vertical").find("#dateTo_display").val(dtP[2]+'/'+dtP[1]+'/'+dtP[0]); } else { $("#modal_form_vertical").find("#dateTo_display").val(''); }
+			$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent === 'true');
 			$("#modal_form_vertical").find("#noHours").val(noHours);
 			$("#modal_form_vertical").find("#natureOfWork").val(natureOfWork);
 			$("#modal_form_vertical").find("#address").val(address);   
 		});
 
-		
+		$('#employeeForm').submit(function() {
+			$('.date-mask-input').trigger('blur');
+		});
 
 	</script>
 

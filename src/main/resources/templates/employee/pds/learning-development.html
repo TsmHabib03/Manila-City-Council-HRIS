@@ -83,11 +83,17 @@
 										<div class="col-sm-4">
 											<label for="noHours">Number of Hours</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('noHours')}" th:errors="*{noHours}"></span>
-											<input id="noHours" name="noHours" th:field="*{noHours}" placeholder="Number of Hours" type="number" class="form-control required-field-hrisp" >
+											<input id="noHours" name="noHours" th:field="*{noHours}" placeholder="Number of Hours" type="number" class="form-control" >
+										</div>
+										<div class="col-sm-4">
+											<label for="hoursDisplay">Hours (text, e.g. "8-week online programme")</label>
+											<input id="hoursDisplay" name="hoursDisplay" th:field="*{hoursDisplay}" placeholder="Optional text override for hours" type="text" class="form-control">
+											<small class="text-muted">Overrides numeric value on the PDS if filled.</small>
 										</div>
 										<div class="col-sm-4">
 											<label for="learningType">Learning Type</label>
 											<select name="learningType" id="learningType" th:field="*{learningType}" class="form-control">
+												<option value="">-- Select / N/A --</option>
 												<option th:each="type: ${learningTypeList}" th:value="${type.typeName}" th:text="${type.typeName}"></option>
 											</select>
 										</div>
@@ -181,6 +187,7 @@
 															th:data-row-dateTo="${learning.getDateTo()}"
 															th:data-row-upToPresent="${learning.isUpToPresent()}"
 															th:data-row-noHours="${learning.getNoHours()}"
+															th:data-row-hoursDisplay="${learning.getHoursDisplay()}"
 															th:data-row-learningType="${learning.getLearningType()}"
 															th:data-row-providers="${learning.getProviders()}"
 															th:data-row-id="${learning.getId()}"
@@ -191,7 +198,7 @@
 														<td th:text="${learning.getTitleOfSeminar()}"></td>
 														<td th:text="${learning.getTrainingCourseDesc()}"></td>
 														<td th:text="${learning.getInclusiveDates()}"></td>
-														<td th:text="${learning.getNoHours()}"></td>
+														<td th:text="${learning.getHoursDisplay() != null and !#strings.isEmpty(learning.getHoursDisplay()) ? learning.getHoursDisplay() : learning.getNoHours()}"></td>
 														<td th:text="${learning.getLearningType()}"></td>
 														<td th:text="${learning.getProviders()}"></td>
 														
@@ -368,7 +375,8 @@
 			var dateFrom= $(this).attr('data-row-dateFrom');
 			var dateTo = $(this).attr('data-row-dateTo');
 			var upToPresent = $(this).attr('data-row-upToPresent');
-			var noHours = $(this).attr('data-row-noHours'); 
+			var noHours = $(this).attr('data-row-noHours');
+			var hoursDisplay = $(this).attr('data-row-hoursDisplay');
 			var learningType = $(this).attr('data-row-learningType');
 			var providers = $(this).attr('data-row-providers');
 					
@@ -376,9 +384,12 @@
 			$("#modal_form_vertical").find("#titleOfSeminar").val(titleOfSeminar);
 			$("#modal_form_vertical").find("#trainingCourseDesc").val(trainingCourseDesc);
 			$("#modal_form_vertical").find("#dateFrom").val(dateFrom);
+			if (dateFrom && dateFrom.length === 10) { var dfP = dateFrom.split('-'); $("#modal_form_vertical").find("#dateFrom_display").val(dfP[2]+'/'+dfP[1]+'/'+dfP[0]); } else { $("#modal_form_vertical").find("#dateFrom_display").val(''); }
 			$("#modal_form_vertical").find("#dateTo").val(dateTo);
-			$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent);
+			if (dateTo && dateTo.length === 10) { var dtP = dateTo.split('-'); $("#modal_form_vertical").find("#dateTo_display").val(dtP[2]+'/'+dtP[1]+'/'+dtP[0]); } else { $("#modal_form_vertical").find("#dateTo_display").val(''); }
+			$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent === 'true');
 			$("#modal_form_vertical").find("#noHours").val(noHours);
+			$("#modal_form_vertical").find("#hoursDisplay").val(hoursDisplay);
 			$("#modal_form_vertical").find("#learningType").val(learningType);
 			$("#modal_form_vertical").find("#providers").val(providers);
 		});

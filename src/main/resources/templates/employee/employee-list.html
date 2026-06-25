@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
     xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
@@ -109,12 +109,14 @@
 											<div class="col-sm-4">
 												<label for="empNo">Employee No.</label>
 												<span class="validationError text-danger" th:if="${#fields.hasErrors('empNo')}" th:errors="*{empNo}"></span>
-												<input id="empNo" name="empNo" th:field="*{empNo}" placeholder="Employee No." type="text" class="form-control required-field-hrisp" >
+												<input id="empNo" name="empNo" th:field="*{empNo}" placeholder="Employee No." type="text" class="form-control" >
 											</div>
 											<div class="col-sm-4">
 												<label for="assumptiondate">Date Assumed</label>
 												<span class="validationError text-danger" th:if="${#fields.hasErrors('assumptiondate')}" th:errors="*{assumptiondate}"></span>
-												<input type="date" class="form-control required-field-hrisp" id="assumptiondate" name="assumptiondate" th:field="*{assumptiondate}" />
+												<input type="text" class="form-control date-mask-input" id="assumptiondate_display"
+												       placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+												<input type="hidden" id="assumptiondate" name="assumptiondate" />
 											</div>											
 											<div class="col-sm-4">
 												<label for="plantillaNo">Plantilla No.</label>
@@ -139,7 +141,7 @@
 											
 											<div class="col-sm-4">
 												<label for="middleName">Middle Name</label>
-												<input id="middleName" name="middleName" th:field="*{middleName}" placeholder="Middle Name" type="text" class="form-control required-field-hrisp" >
+												<input id="middleName" name="middleName" th:field="*{middleName}" placeholder="Middle Name" type="text" class="form-control" >
 											</div>
 							            </div>
 									</div>
@@ -153,12 +155,14 @@
 											
 											<div class="col-sm-4">
 												<label for="birthdate">Birthdate</label>
-												<input type="date" class="form-control required-field-hrisp" id="birthdate" name="birthdate" th:field="*{birthdate}" />
+												<input type="text" class="form-control date-mask-input required-field-hrisp" id="birthdate_display"
+												       placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+												<input type="hidden" id="birthdate" name="birthdate" />
 											</div>
 											
 											<div class="col-sm-4">
 												<label for="birthPlace">Birth Place</label>
-												<input type="text" class="form-control required-field-hrisp" id="birthPlace" name="birthPlace" th:field="*{birthPlace}" placeholder="Birth Place"/>
+												<input type="text" class="form-control" id="birthPlace" name="birthPlace" th:field="*{birthPlace}" placeholder="Birth Place"/>
 											</div>											 
 											
 							           </div>
@@ -188,17 +192,17 @@
 										<div class="row">
 											<div class="col-sm-4">
 												<label for="gender">Gender</label>
-												<select id="gender" name="gender" class="form-control required-field-hrisp" th:field="*{gender}">
+												<select id="gender" name="gender" class="form-control" th:field="*{gender}">
 													<option value="">SELECT VALUE</option>
 													<option value="M">MALE</option>
 													<option value="F">FEMALE</option>
-													<option value="L">LGBTQ</option>
+													
 												</select>
 											</div>							                
 							                
 											<div class="col-sm-4">
 												<label for="civilStatus">Civil Status</label>
-												<select class="form-control required-field-hrisp" name="civilStatus" id="civilStatus" th:field="*{civilStatus}">
+												<select class="form-control" name="civilStatus" id="civilStatus" th:field="*{civilStatus}">
 													<option value="">SELECT VALUE</option>
 													<option value="SINGLE">SINGLE</option>
 													<option value="MARRIED">MARRIED</option>
@@ -210,7 +214,7 @@
 							                    
 											<div class="col-sm-4">
 												<label for="citizenship">Citizenship</label>
-												<select class="form-control required-field-hrisp" name="citizenship" id="citizenship" th:field="*{citizenship}">
+												<select class="form-control" name="citizenship" id="citizenship" th:field="*{citizenship}">
 													<option value="">SELECT VALUE</option>
 													<option value="FILIPINO BY BIRTH">FILIPINO BY BIRTH</option>
 													<option value="FILIPINO BY NATURALIZATION">FILIPINO BY NATURALIZATION</option>
@@ -225,7 +229,7 @@
 										<div class="row">    
 											<div class="col-sm-4">
 												<label for="positionTitle">Position Title</label>
-												<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control required-field-hrisp">
+												<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control">
 									               	<option selected value="">SELECT VALUE</option>
 									               	<option th:each="positionTitle : ${positionTitleList}" th:value="${positionTitle.id}" th:text="${positionTitle.positionTitleName}">positionTitleName</option>
 									            </select>
@@ -233,7 +237,7 @@
 											
 											<div class="col-sm-4">
 												<label for="employeeStatus">Employment Status</label>										                        
-												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control required-field-hrisp">
+												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control">
 													<option selected value="">SELECT VALUE</option>
 													<option th:each="empStatus : ${employeeStatusList}" th:value="${empStatus.id}" th:text="${empStatus.employeeStatusName}">employeeStatusName</option>
 												</select>
@@ -241,7 +245,7 @@
 															
 											<div class="col-sm-4">
 												<label for="department">Department</label>										                        
-												<select th:field="*{division.id}" id="division" class="form-control required-field-hrisp">
+												<select th:field="*{division.id}" id="division" class="form-control">
 													<option selected value="">SELECT VALUE</option>
 													<option th:each="division : ${divisionList}" th:value="${division.id}" th:text="${division.divisionName}">division</option>
 												</select>
@@ -585,6 +589,9 @@
 				</div>
 			<!-- /Vertical form modal -->
 
+			<!-- Hidden form for delete employee POST -->
+			<form id="deleteEmployeeForm" th:action="@{/deleteEmployee/0}" method="post"></form>
+
 			<!-- Content area -->
 			<div class="content pt-0">
 
@@ -641,7 +648,9 @@
 													<!--
 													<a th:href="@{'/viewServiceRecordReport/' + ${employee.id}}" class="dropdown-item" target="_blank"><i class="icon-file-pdf"></i> View Service Record Report</a>
 													-->
-													<span class="dropdown-item" th:attr="onclick='showCredentialsModal(\'' + ${employee.id} +  '\', \'' + ${employee.empHashCode} + '\');'" ><i class="icon-user-lock"></i> Update Employee Credentials</span>																											
+													<span class="dropdown-item" th:attr="onclick='showCredentialsModal(\'' + ${employee.id} +  '\', \'' + ${employee.empHashCode} + '\');'" ><i class="icon-user-lock"></i> Update Employee Credentials</span>
+												<div class="dropdown-divider"></div>
+												<span class="dropdown-item text-danger" style="cursor:pointer;" th:attr="onclick='confirmDeleteEmployee(' + ${employee.id} + ');'"><i class="icon-trash"></i> Delete Employee</span>																											
 												</div>
 											</div>
 										</div>
@@ -713,6 +722,25 @@
 			$('#modal_form_change_credential').modal('show');
 		}
 			
+		function confirmDeleteEmployee(id) {
+			swal({
+				title: 'Delete Employee',
+				text: 'Are you sure you want to permanently delete this employee and all their PDS data? This cannot be undone.',
+				icon: 'warning',
+				buttons: {
+					cancel: 'Cancel',
+					confirm: { text: 'Delete', value: true }
+				},
+				dangerMode: true,
+			}).then(function(value) {
+				if (value) {
+					var form = document.getElementById('deleteEmployeeForm');
+					form.action = contextRoot + '/deleteEmployee/' + id;
+					form.submit();
+				}
+			});
+		}
+
 		function submitChangeCredentials() {
 			var empId = $("#empId").val();
 			var empUserType = $("#empUserType").val();
@@ -796,6 +824,7 @@
 			}
 			
 			$('#employeeForm').submit(function(event) {
+		        $('.date-mask-input').trigger('blur');
 		        var emptyFields = [];
 		        $('.required-field-hrisp').each(function() {
 		            if ($(this).val().trim() === '') {
@@ -859,6 +888,30 @@
             $("#modal_form_vertical").find("#id").val("");
             $("#modal_form_vertical").find("#firstName").val("");
         });
+
+		// ── Date Mask (dd/mm/yyyy <-> yyyy-MM-dd) ────────────────────────────
+		$(document).on('input', '.date-mask-input', function() {
+			var v = $(this).val().replace(/\D/g, '').substring(0, 8);
+			if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+			if (v.length >= 6) v = v.substring(0,5) + '/' + v.substring(5);
+			$(this).val(v);
+		});
+		$(document).on('blur', '.date-mask-input', function() {
+			var display = $(this).val().trim();
+			var hiddenId = $(this).attr('id').replace('_display', '');
+			var $hidden = $('#' + hiddenId);
+			if (!display) { $hidden.val(''); return; }
+			var parts = display.split('/');
+			if (parts.length !== 3) return;
+			var dd = parts[0], mm = parts[1], yy = parts[2];
+			var year = parseInt(yy, 10);
+			if (yy.length <= 2) year += (year <= 49 ? 2000 : 1900);
+			var d = new Date(year, parseInt(mm,10)-1, parseInt(dd,10));
+			if (isNaN(d.getTime()) || d.getDate() != parseInt(dd,10) || (d.getMonth()+1) != parseInt(mm,10)) {
+				$hidden.val(''); return;
+			}
+			$hidden.val(year + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0'));
+		});
 	</script>
 </body>
 </html>

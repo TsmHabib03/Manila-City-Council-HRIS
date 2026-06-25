@@ -60,16 +60,16 @@
 															<div class="col-sm-4">
 																<label for="empNo">Employee No.</label>
 																<span class="validationError text-danger" th:if="${#fields.hasErrors('empNo')}" th:errors="*{empNo}"></span>
-																<input id="empNo" name="empNo" th:field="*{empNo}" placeholder="Employee No." type="text" class="form-control required-field-hrisp" >
+																<input id="empNo" name="empNo" th:field="*{empNo}" placeholder="Employee No." type="text" class="form-control" >
 															</div>
 															<div class="col-sm-4">
 																<label for="assumptiondate">Date Assumed</label>
 																<span class="validationError text-danger" th:if="${#fields.hasErrors('assumptiondate')}" th:errors="*{assumptiondate}"></span>
-																<input type="text" class="form-control required-field-hrisp date-mask-input"
+																<input type="text" class="form-control date-mask-input"
 															   id="assumptiondate_display"
 															   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
 															<input type="hidden" id="assumptiondate" name="assumptiondate"
-																   th:value="${#temporals.format(employee.assumptiondate,'yyyy-MM-dd')}" />
+																   th:value="${employee.assumptiondate != null ? #temporals.format(employee.assumptiondate,'yyyy-MM-dd') : ''}" />
 															<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 															</div>											
 															<div class="col-sm-4">
@@ -113,7 +113,7 @@
 															   id="birthdate_display"
 															   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
 															<input type="hidden" id="birthdate" name="birthdate"
-																   th:value="${#temporals.format(employee.birthdate,'yyyy-MM-dd')}" />
+																   th:value="${employee.birthdate != null ? #temporals.format(employee.birthdate,'yyyy-MM-dd') : ''}" />
 															<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 															</div>
 															
@@ -189,11 +189,11 @@
 														</div>
 													</div>
 													
-													<div id="countryGroup" style="display:none">
+													<div id="countryGroup">
 													<div class="form-group">
-														<div class="row">   
+														<div class="row">
 															<div class="col-sm-12">
-																<label for="birthdate">Please indicate Country</label>
+																<label for="countryOfOrigin">Citizenship / Nationality (Country)</label>
 																<select name="countryOfOrigin" id="countryOfOrigin" th:field="*{countryOfOrigin}" class="form-control" placeholder="Citizenship Country Code" >
 																	<option value="">(Choose Country)</option>
 																	<option value="Afghanistan">Afghanistan</option>
@@ -490,11 +490,6 @@
 																<label for="philhealthNo">Philhealth No.</label>
 																<input type="text" class="form-control" name="philhealthNo" id="philhealthNo" th:field="*{philhealthNo}" placeholder="Philhealth No." />
 															</div>
-															
-															<div class="col-sm-4">
-																<label for="gsisIdNo">GSIS ID No.</label>
-																<input type="text" class="form-control" name="gsisIdNo" id="gsisIdNo" th:field="*{gsisIdNo}" placeholder="GSIS ID No." />
-															</div>
 											           </div>
 													</div>
 													
@@ -664,6 +659,27 @@
 													
 												</div>
 
+												<!-- Passport Photo Upload -->
+												<div class="form-group px-3 mt-2">
+													<div class="row">
+														<div class="col-sm-12">
+															<label><strong>Passport-Sized Photo</strong> <small class="text-muted">(4.5cm &times; 3.5cm, within last 6 months, JPG/PNG, max 5MB)</small></label>
+															<div class="d-flex align-items-start mt-2">
+																<div class="mr-3">
+																	<img id="passportPhotoPreview"
+																		 th:src="|@{${employee.profilePhoto == null || employee.profilePhoto == '' ? '/images/avatar.png' : employee.profilePhoto}}|"
+																		 width="90" height="120" class="img-thumbnail" style="object-fit:cover;" alt="Passport Photo"/>
+																</div>
+																<div>
+																	<input type="file" id="passportPhotoInput" accept="image/jpeg,image/png" class="form-control mb-2" style="max-width:320px;"/>
+																	<button type="button" id="passportPhotoUploadBtn" class="btn btn-primary btn-sm">Save Photo</button>
+																	<input type="hidden" id="passportEmployeeId" th:value="${employee.id}"/>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+
 												<div class="modal-footer">
 													<button id="returnBtn" type="button" class="btn bg-violet" onclick="returnToList();" th:if="${employee.showMode != 'PROFILE'}">Return to Employee List</button>
 													<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
@@ -724,27 +740,7 @@
 	</script>
 	
 	<script th:inline="javascript">
-		// Validation helper for "Next" navigation across PDS sections
 		function validateAndGoNext(nextUrl) {
-			var missed = [];
-			$('.required-field-hrisp:visible').each(function() {
-				var v = $(this).val();
-				if (!v || v.trim() === '') {
-					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
-								|| $(this).attr('placeholder')
-								|| $(this).attr('name')
-								|| 'Unnamed field';
-					missed.push(label);
-				}
-			});
-			if (missed.length > 0) {
-				swal({
-					title: "Please fill required fields",
-					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
-					icon: "warning"
-				});
-				return;
-			}
 			window.location.href = nextUrl;
 		}
 
@@ -851,12 +847,10 @@
 				$("#sameAsResidential").trigger("change");
 			}
 
-			// Show/hide country field based on citizenship selection, and disable when hidden
+			// Citizenship / nationality country dropdown is always available (change request V1)
 			function toggleCountryField() {
-				var isDual = ($("#citizenship").val() === "DUAL CITIZENSHIP BY BIRTH"
-							|| $("#citizenship").val() === "DUAL CITIZENSHIP BY NATURALIZATION");
-				$("#countryGroup").toggle(isDual);
-				$("#countryOfOrigin").prop('disabled', !isDual);
+				$("#countryGroup").show();
+				$("#countryOfOrigin").prop('disabled', false);
 			}
 			$("#citizenship").on("change", toggleCountryField);
 			toggleCountryField();
@@ -904,59 +898,53 @@
 				}
 			});
 
-			// start update profile photo
-			const fileSelect = document.getElementById('fileSelect');
-		    const profilePhoto = document.getElementById('profilePhoto');
-			fileSelect.addEventListener('click', (e) => {
-	        	if (profilePhoto) {
-	        		profilePhoto.click();
-	        	}
-	        }, false);
-		    profilePhoto.addEventListener('change', previewImage, false);
-		    
-        	let uploadUrl = /*[[${#request.getContextPath() + '/file/upload/profilePhoto'}]]*/'';
-        	let fileUploadForm = document.getElementById('fileUploadForm');
-		    fileUploadForm.onsubmit = async (e) => {
-		    	e.preventDefault();
-		    	let fd = new FormData(fileUploadForm);
-		    	
-		    	let response = await fetch(uploadUrl, {
-		    		method: 'POST',
-		    		body: fd
-		    	});
-		    	
-		    	if(response.ok){
-		    		swal({
-						title: "Success!",
-						text: "Profile Photo successfully saved.",
-						icon: "success",
-						buttons: false,
-			            timer: 2000,
-					}).then(() => window.location.reload());
-		    	} else {
-		    		swal({
-						title: "Upload Failure!",
-						text: "Profile Photo not uploaded successfully.",
-						icon: "error",
-						buttons: false,
-			            timer: 2000,
-					});
-		    	}
-		    };
-		    
-		    function previewImage() {
-				let input = document.getElementById('profilePhoto');
-				let img = document.getElementById('photoPreview');
-				if (input.files && input.files[0]) {
-	        		var reader = new FileReader();
-	        		reader.onload = function(e) {
-	        			img.src = e.target.result;
-	        		}
-	        		reader.readAsDataURL(input.files[0]);
-	        	}
+			// Passport photo upload
+			const passportPhotoInput = document.getElementById('passportPhotoInput');
+			const passportPhotoUploadBtn = document.getElementById('passportPhotoUploadBtn');
+			const passportPhotoPreview = document.getElementById('passportPhotoPreview');
+			if (passportPhotoInput) {
+				passportPhotoInput.addEventListener('change', function() {
+					if (this.files && this.files[0]) {
+						const reader = new FileReader();
+						reader.onload = e => { passportPhotoPreview.src = e.target.result; };
+						reader.readAsDataURL(this.files[0]);
+					}
+				});
 			}
-			// end update profile photo
+			if (passportPhotoUploadBtn) {
+				passportPhotoUploadBtn.addEventListener('click', async function() {
+					const file = passportPhotoInput.files[0];
+					if (!file) { swal({title:"No photo selected",text:"Please select a photo.",icon:"warning",buttons:false,timer:2000}); return; }
+					if (file.size > 5*1024*1024) { swal({title:"File too large",text:"Max size is 5 MB.",icon:"error",buttons:false,timer:2000}); return; }
+					const fd = new FormData();
+					fd.append('profilePhoto', file);
+					fd.append('employeeId', document.getElementById('passportEmployeeId').value);
+					const url = /*[[${#request.getContextPath() + '/file/upload/profilePhoto'}]]*/'';
+					const csrfMeta = document.querySelector('meta[name="_csrf"]');
+					const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+					const hdrs = {};
+					if (csrfMeta && csrfHeaderMeta) hdrs[csrfHeaderMeta.content] = csrfMeta.content;
+					const resp = await fetch(url, {method:'POST', body:fd, headers: hdrs});
+					if (resp.ok) {
+						swal({title:"Success!",text:"Passport photo saved.",icon:"success",buttons:false,timer:2000}).then(() => window.location.reload());
+					} else {
+						swal({title:"Upload Failed",text:"Could not save photo.",icon:"error",buttons:false,timer:2000});
+					}
+				});
+			}
 	    	
+			// Initialize date display fields from stored values (yyyy-MM-dd -> dd/mm/yyyy)
+			$('.date-mask-input').each(function() {
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var hiddenVal = $('#' + hiddenId).val();
+				if (hiddenVal) {
+					var parts = hiddenVal.split('-');
+					if (parts.length === 3) {
+						$(this).val(parts[2] + '/' + parts[1] + '/' + parts[0]);
+					}
+				}
+			});
+
 	    	$('#consultation-list').DataTable({
 				"lengthMenu": [10, 25, 50],
 				"ordering": false, 
@@ -964,7 +952,8 @@
 			});
 			
 			let showMode = /*[[${employee.showMode == null ? '' : employee.showMode} ]]*/'';
-			
+			let userType = /*[[${employee.userType == null ? '' : employee.userType}]]*/'';
+
 			if(showMode === 'PROFILE'){
 				$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
 				$("#myAccountNav").addClass("nav-item-expanded nav-item-open");
@@ -973,9 +962,10 @@
 				$('#returnBtn').hide();
 				$("#showMode").val("PROFILE");
 
-				// HR-only fields: lock and remove required validation so employees can submit
-				$("#empNo, #assumptiondate, #plantillaNo").prop("readonly", true).removeClass("required-field-hrisp");
-				$("#employeeStatus").prop("disabled", true).removeClass("required-field-hrisp");
+				// Make empNo optional in PROFILE mode (backend enforces access control)
+				if(userType !== 'ROLE_ADMIN'){
+					$("#empNo").removeClass("required-field-hrisp");
+				}
 			// positionTitle and division left editable — employees may update these
 			} else {
 				$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
@@ -1029,23 +1019,8 @@
 				});
 			}
 			
-			$('#employeeForm').submit(function(event) {
-		        var emptyFields = [];
-		        $('.required-field-hrisp').each(function() {
-		            if (!$(this).val() || $(this).val().trim() === '') {
-		                emptyFields.push($(this));
-		            }
-		        });
-		        if (emptyFields.length > 0) {
-		            // Soft warning — no longer blocks submission (save-as-you-go)
-		            swal({
-						title: "Heads up!",
-						text: "Some fields are incomplete. Your progress has been saved.",
-						icon: "warning",
-						buttons: false,
-			            timer: 2500,
-					});
-		        }
+			$('#employeeForm').submit(function() {
+		        $('.date-mask-input').trigger('blur');
 		    });
 		    
 		    

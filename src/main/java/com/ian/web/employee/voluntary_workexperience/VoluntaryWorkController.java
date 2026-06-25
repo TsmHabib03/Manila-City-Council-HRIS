@@ -103,9 +103,11 @@ public class VoluntaryWorkController {
 			) {
 	    
 		if (errors.hasErrors()) {
-			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			model.addAttribute("voluntaryWorkList", voluntaryWorkRepository.findByEmployeeId(voluntaryWork.getEmployee().getId()));
-			return "employee/pds/voluntary-work";
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
+			return "redirect:/employee/voluntary-work/"
+				+ voluntaryWork.getEmployee().getId() + "/"
+				+ voluntaryWork.getShowMode() + "/"
+				+ voluntaryWork.getEmployee().getEmpHashCode();
 		}	
 		
 		// Ownership check

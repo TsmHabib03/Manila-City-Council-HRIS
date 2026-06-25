@@ -14,12 +14,16 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ian.web.employee.appointment.Appointment;
+import com.ian.web.employee.appointment.AppointmentRepository;
+import com.ian.web.employee.attachment.DocumentAttachmentRepository;
 import com.ian.web.employee.clearance.Clearance;
 import com.ian.web.employee.clearance.ClearanceRepository;
 import com.ian.web.employee.docs201.Docs201;
@@ -27,6 +31,7 @@ import com.ian.web.employee.docs201.Docs201Repository;
 import com.ian.web.employee.educationalbg.EducationalBackgroundRepository;
 import com.ian.web.employee.familybg.FamilyBg;
 import com.ian.web.employee.familybg.FamilyBgRepository;
+import com.ian.web.employee.servicerecord.ServiceRecord;
 import com.ian.web.employee.servicerecord.ServiceRecordReportRequest;
 import com.ian.web.employee.servicerecord.ServiceRecordReportRequestRepository;
 import com.ian.web.employee.servicerecord.ServiceRecordRepository;
@@ -68,7 +73,9 @@ public class RestApiController {
 	private final SchoolRepository schoolRepository;
 	private final EducationalBackgroundRepository educationalBackgroundRepository;
 	private final ServiceRecordRepository serviceRecordRepository;
-	
+	private final AppointmentRepository appointmentRepository;
+	private final DocumentAttachmentRepository documentAttachmentRepository;
+
 	private static String formatDate(LocalDate localDate) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd yyyy");
 		return localDate.format(formatter);
@@ -91,12 +98,30 @@ public class RestApiController {
 	@GetMapping("/api/doc201/{id}")
     public ResponseEntity<Docs201> get201File(@PathVariable long id) {
 		Optional<Docs201> optional = docs201Repository.findById(id);
-				
+
 		Docs201 obj = optional.orElseGet(() -> new Docs201());
-		
+
         return ResponseEntity.ok(obj);
     }
-	
+
+	@GetMapping("/api/servicerecord/{id}")
+	public ResponseEntity<ServiceRecord> getServiceRecord(@PathVariable long id) {
+		ServiceRecord obj = serviceRecordRepository.findById(id).orElseGet(() -> new ServiceRecord());
+		return ResponseEntity.ok(obj);
+	}
+
+	@GetMapping("/api/clearance/{id}")
+	public ResponseEntity<Clearance> getClearanceById(@PathVariable Long id) {
+		Clearance obj = clearanceRepository.findById(id).orElseGet(() -> new Clearance());
+		return ResponseEntity.ok(obj);
+	}
+
+	@GetMapping("/api/appointment/{id}")
+	public ResponseEntity<Appointment> getAppointment(@PathVariable long id) {
+		Appointment obj = appointmentRepository.findById(id).orElseGet(() -> new Appointment());
+		return ResponseEntity.ok(obj);
+	}
+
 	@GetMapping("/api/{employeeId}/{empHashCode}")
     public ResponseEntity<Employee> getEmployeeInfo(@PathVariable long employeeId, @PathVariable String empHashCode) {
 		Optional<Employee> optional = employeeRepository.findByIdAndEmpHashCode(employeeId, empHashCode);
@@ -122,7 +147,6 @@ public class RestApiController {
 		Map<String, Long> genderCounts = new HashMap<>();
 		genderCounts.put("MALE", 0L);
 		genderCounts.put("FEMALE", 0L);
-		genderCounts.put("LGBTQ", 0L);
 		genderCounts.put("UNSPECIFIED", 0L);
 
 		List<Object[]> result = employeeRepository.countEmployeeGender();
@@ -133,10 +157,8 @@ public class RestApiController {
 				genderCounts.put("MALE", genderCounts.get("MALE") + count);
 			} else if ("F".equalsIgnoreCase(gender)) {
 				genderCounts.put("FEMALE", genderCounts.get("FEMALE") + count);
-			} else if (gender.isEmpty()) {
-				genderCounts.put("UNSPECIFIED", genderCounts.get("UNSPECIFIED") + count);
 			} else {
-				genderCounts.put("LGBTQ", genderCounts.get("LGBTQ") + count);
+				genderCounts.put("UNSPECIFIED", genderCounts.get("UNSPECIFIED") + count);
 			}
 		}
 		
@@ -237,6 +259,14 @@ public class RestApiController {
 		return ResponseEntity.ok("Credential successfully updated.");
     }
 	
+	@DeleteMapping("/api/attachment/{id}")
+	public ResponseEntity<String> deleteAttachment(@PathVariable Long id, HttpSession session) {
+		Employee actor = (Employee) session.getAttribute("actorObj");
+		if (actor == null) return ResponseEntity.status(401).body("Session expired.");
+		documentAttachmentRepository.deleteById(id);
+		return ResponseEntity.ok("Deleted.");
+	}
+
 	@PostMapping("/saveServiceRecordRequest")
 	public Map<String, Long> saveRecord(@RequestBody Map<String, String> request) {
         String employeeId = request.get("employeeId");

@@ -41,7 +41,9 @@ public class LearningAndDevelopment {
 	private boolean upToPresent;
 
 	private Integer noHours;
-	
+
+	private String hoursDisplay;
+
 	private String learningType;
 	
 	private String providers;

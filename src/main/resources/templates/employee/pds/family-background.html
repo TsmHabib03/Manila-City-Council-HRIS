@@ -46,7 +46,14 @@
 								<input type="hidden" th:field="*{employee.empHashCode}" name="empHashCode" id="empHashCode">
 								<input type="hidden" th:field="*{showMode}" name="showMode" id="showMode" value="">
 								<div class="modal-body">
-									
+
+									<div class="form-group mb-2">
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="deceasedToggle" th:field="*{deceased}">
+											<label class="form-check-label text-danger font-weight-bold" for="deceasedToggle">DECEASED</label>
+										</div>
+									</div>
+
 									<div class="form-group">
 										<div class="row">
 											<div class="col-sm-4">
@@ -76,8 +83,8 @@
 											</div>
 															
 											<div class="col-sm-4">
-												<label for="middleName">Middle Name</label>
-												<input id="middleName" name="middleName" th:field="*{middleName}" placeholder="Middle Name" type="text" class="form-control required-field-hrisp" >
+												<label for="middleName">Middle Name <span class="text-muted">(optional)</span></label>
+												<input id="middleName" name="middleName" th:field="*{middleName}" placeholder="Middle Name" type="text" class="form-control" >
 											</div>
 										</div>
 									</div>
@@ -92,7 +99,7 @@
 												<label for="maidenName">Maiden Name</label>
 												<input type="text" class="form-control" id="maidenName" name="maidenName" th:field="*{maidenName}" placeholder="Maiden Name (before marriage)"/>
 											</div>
-											<div class="col-sm-4">
+											<div class="col-sm-4" id="birthdateGroup">
 												<label for="birthdate">Birthdate</label>
 												<input type="text" class="form-control date-mask-input"
 															   id="birthdate_display"
@@ -101,8 +108,8 @@
 																   th:value="${familyBg.birthdate != null ? #temporals.format(familyBg.birthdate,'yyyy-MM-dd') : ''}" />
 															<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 											</div>
-											
-											<div class="col-sm-2">
+
+											<div class="col-sm-2" id="ageGroup">
 												<label for="age">Age</label>
 												<input type="text" class="form-control" id="age" placeholder="Age" readonly/>
 											</div>
@@ -176,13 +183,8 @@
 								</div>
 
 								<div class="modal-footer">
-									<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
+									<button type="button" class="btn bg-secondary" data-dismiss="modal">Close</button>
 									<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
-							<button type="button" class="btn btn-outline-success ml-2"
-								onclick="validateAndGoNext(this.getAttribute('data-href'));"
-								th:attr="data-href=@{/employee/educationalbg/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
-								Next: Educational Background &#8594;
-							</button>
 								</div>
 							</form>
 						</div>
@@ -254,11 +256,15 @@
 			                                                 th:data-row-age="${familyBg.getAge()}"
 			                                                 th:data-row-id="${familyBg.getId()}"
 			                                                 th:data-row-maidenName="${familyBg.getMaidenName()}"
+			                                                 th:data-row-isDeceased="${familyBg.isDeceased()}"
 															data-toggle="modal" data-target="#modal_form_vertical"
 			                                                >View Record</button>
 														</td>														
 														
-														<td th:text="${familyBg.getFullName()}">Full Name</td>
+														<td>
+								<span th:text="${familyBg.getFullName()}">Full Name</span>
+								<span th:if="${familyBg.isDeceased()}" class="badge badge-danger ml-1">DECEASED</span>
+							</td>
 														<td th:text="${familyBg.getRelationship()}">Relationship</td>
 														<td th:text="${familyBg.getBirthdate()}">Birthday</td>
 														<td th:text="${familyBg.getAge()}">Age</td>
@@ -274,7 +280,7 @@
 									<!-- PDS Section Navigation -->
 									<div class="card mt-2">
 										<div class="card-body d-flex justify-content-between align-items-center py-2">
-											<a th:href="@{/employee/personnal-info/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}"
+											<a th:href="@{/employee/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}"
 											   class="btn btn-outline-secondary btn-sm">
 												&#8592; Previous: Personal Information
 											</a>
@@ -364,15 +370,37 @@
 
 	    $(document).ready(function() {
 
+			function applyDeceasedState(deceased) {
+				if (deceased) {
+					$('#firstName').val('N/A').prop('readonly', true).removeClass('required-field-hrisp');
+					$('#lastName').val('N/A').prop('readonly', true).removeClass('required-field-hrisp');
+					$('#middleName').val('N/A').prop('readonly', true);
+					// Birthdate remains editable so the birthday of the deceased can be recorded
+					$('#birthdate_display').prop('readonly', false);
+				} else {
+					$('#firstName').prop('readonly', false).addClass('required-field-hrisp');
+					$('#lastName').prop('readonly', false).addClass('required-field-hrisp');
+					$('#middleName').prop('readonly', false);   // middle name is optional
+					$('#birthdate_display').val('').prop('readonly', false);
+					$('#age').val('');
+				}
+			}
+
+			$('#deceasedToggle').on('change', function() {
+				applyDeceasedState($(this).is(':checked'));
+			});
+
 			$('#addButton').click(function(){
 				let empHashCode = $('#empHashCode').val();
 				let employeeId = $('#employeeId').val();
-				
+
 		        $('#employeeForm')[0].reset();
-		        
+
 		        $('#empHashCode').val(empHashCode);
 		        $('#employeeId').val(employeeId);
 		        $(".spouseField").show();
+		        $('#deceasedToggle').prop('checked', false);
+		        applyDeceasedState(false);
 		    });
 			
 			$(document).on("click", ".showDetails", function() {
@@ -393,9 +421,12 @@
 	            var gender = $(this).attr('data-row-gender');
 	            var age = $(this).attr('data-row-age');
             var maidenName = $(this).attr('data-row-maidenName');
-	                    
-	            
+            var isDeceased = $(this).attr('data-row-isDeceased') === 'true';
+
+
 	            $("#modal_form_vertical").find("#id").val(id);
+	            $('#deceasedToggle').prop('checked', isDeceased);
+	            applyDeceasedState(isDeceased);
 	            $("#modal_form_vertical").find("#relationship").val(relationship);
 	            $("#modal_form_vertical").find("#tin").val(tin);
 	            $("#modal_form_vertical").find("#occupation").val(occupation);
@@ -408,6 +439,12 @@
 	            $("#modal_form_vertical").find("#lastName").val(lastName);
 	            $("#modal_form_vertical").find("#middleName").val(middleName);
 	            $("#modal_form_vertical").find("#birthdate").val(birthdate);
+	            if (birthdate && birthdate.length === 10) {
+	                var bdP = birthdate.split('-');
+	                $("#modal_form_vertical").find("#birthdate_display").val(bdP[2]+'/'+bdP[1]+'/'+bdP[0]);
+	            } else {
+	                $("#modal_form_vertical").find("#birthdate_display").val('');
+	            }
 	            $("#modal_form_vertical").find("#suffix").val(suffix);
 	            $("#modal_form_vertical").find("#gender").val(gender);
 	            $("#modal_form_vertical").find("#age").val(age);
@@ -418,23 +455,26 @@
 					$("#maidenNameGroup").show();
 					if(!gender) { $("#gender").val("FEMALE"); }
 					$("#gender").prop("disabled", false);
-					
+					$("#birthdateGroup, #ageGroup").show();
 				} else if(relationship === 'MOTHER'){
 					if(!gender) { $("#gender").val("FEMALE"); }
 					$("#gender").prop("disabled", false);
 					$("#maidenNameGroup").show();
 					$(".spouseField").hide();
+					$("#birthdateGroup, #ageGroup").hide();   // no DOB for parents
 				} else if(relationship === 'FATHER'){
 					if(!gender) { $("#gender").val("MALE"); }
 					$("#gender").prop("disabled", false);
 					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
-				} else {					
+					$("#birthdateGroup, #ageGroup").hide();   // no DOB for parents
+				} else {
 					$("#gender").prop("disabled", false);
 					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
+					$("#birthdateGroup, #ageGroup").show();   // children keep DOB
 				}
-	            
+
 	        });
 			
 			$("#relationship").change(function() {
@@ -445,21 +485,24 @@
 					$("#maidenNameGroup").show();
 					if(!$("#gender").val()) { $("#gender").val("FEMALE"); }
 					$("#gender").prop("disabled", false);
-					
+					$("#birthdateGroup, #ageGroup").show();
 				} else if(selectedValue === 'MOTHER'){
 					if(!$("#gender").val()) { $("#gender").val("FEMALE"); }
 					$("#gender").prop("disabled", false);
 					$("#maidenNameGroup").show();
 					$(".spouseField").hide();
+					$("#birthdateGroup, #ageGroup").hide();   // no DOB for parents
 				} else if(selectedValue === 'FATHER'){
 					if(!$("#gender").val()) { $("#gender").val("MALE"); }
 					$("#gender").prop("disabled", false);
 					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
-				} else {					
+					$("#birthdateGroup, #ageGroup").hide();   // no DOB for parents
+				} else {
 					$("#gender").prop("disabled", false);
 					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
+					$("#birthdateGroup, #ageGroup").show();   // children keep DOB
 				}
 		        
 		    });
@@ -627,15 +670,16 @@
 			}
 			
 			$('#employeeForm').on('submit', function(e) {
-		        e.preventDefault();
+		        $('.date-mask-input').trigger('blur');
 		        var emptyFields = [];
-		        $('.required-field-hrisp', this).each(function() {
+		        $('.required-field-hrisp', this).filter(':visible:not(:disabled)').each(function() {
 		            if ($(this).val().trim() === '') {
 		                emptyFields.push($(this));
 		            }
 		        });
 		
 		        if (emptyFields.length > 0) {
+		            e.preventDefault();
 		            swal({
 						title: "Error!",
 						text: "Mandatory fields marked in RED are mandatory.",
@@ -648,18 +692,6 @@
 		        }
 
 		        $("#gender").prop("disabled", false);
-		        $.post($(this).attr('action'), $(this).serialize())
-		            .done(function() {
-		                $('#modal_form_vertical').modal('hide');
-		                window.location.reload();
-		            })
-		            .fail(function(xhr) {
-		                swal({
-		                    title: "Error!",
-		                    text: "Save failed: " + xhr.status,
-		                    icon: "error"
-		                });
-		            });
 		    });
 		    
 		    
