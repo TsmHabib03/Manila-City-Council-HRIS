@@ -464,17 +464,7 @@
 											                    
 															<div class="col-sm-4">
 																<label for="bloodType">Blood Type</label>
-																<select id="bloodType" name="bloodType" class="form-control" th:field="*{bloodType}">
-																	<option value="">SELECT VALUE</option>
-																	<option value="O1">O+</option>
-																	<option value="O2">O-</option>
-																	<option value="A1">A+</option>
-																	<option value="A2">A-</option>
-																	<option value="B1">B+</option>
-																	<option value="B2">B-</option>
-																	<option value="AB1">AB+</option>
-																	<option value="AB2">AB-</option>
-																</select>
+																<input type="text" id="bloodType" name="bloodType" class="form-control" th:field="*{bloodType}" placeholder="e.g. O+ or N/A" maxlength="10" autocomplete="off"/>
 															</div>
 											           </div>
 													</div>

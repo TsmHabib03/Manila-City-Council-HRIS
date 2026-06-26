@@ -120,7 +120,7 @@ public class ReportsController {
 		List<FamilyBg> fbList = familyBgRepository.findByEmployeeId(employeeId);
 		List<EducationalBackground> eduList = educationalBackgroundRepository.findByEmployeeId(employeeId);
 		List<CivilServiceEligibility> csList = civilServiceEligibilityRepository.findByEmployeeId(employeeId);
-		List<WorkExperience> workExList = workExperienceRepository.findByEmployeeId(employeeId);
+		List<WorkExperience> workExList = workExperienceRepository.findByEmployeeIdOrderByDateFromDesc(employeeId);
 		List<VoluntaryWork> voluntaryList = voluntaryWorkRepository.findByEmployeeId(employeeId);
 		List<LearningAndDevelopment> learningList = learningAndDevelopmentRepository.findByEmployeeId(employeeId);
 		List<OtherInfo> otherInfoList = otherInfoRepository.findByEmployeeId(employeeId);		
@@ -254,7 +254,6 @@ public class ReportsController {
 		Map<String, Object> map = populateMapReport1(employee, fbList, eduList);
 		
 		String bgImg2 = getImageAbsolutePath("static/images/PDS2.png");
-		map.put("V.CSE_Career_Service_RA_1080_1", "test");
 		map.put("FormBg2", bgImg2);
 		
 		map.put("PDS1", pds1Report);

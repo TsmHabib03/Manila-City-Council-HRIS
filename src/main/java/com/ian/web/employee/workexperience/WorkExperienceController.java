@@ -73,7 +73,7 @@ public class WorkExperienceController {
 			
 			model.addAttribute("employee", employee);
 			
-			List<WorkExperience> workExperienceList = workExperienceRepository.findByEmployeeId(employeeId);
+			List<WorkExperience> workExperienceList = workExperienceRepository.findByEmployeeIdOrderByDateFromDesc(employeeId);
 			model.addAttribute("workExperienceList", workExperienceList);
 			
 			WorkExperience workExperience = new WorkExperience();

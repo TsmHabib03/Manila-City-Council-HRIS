@@ -75,7 +75,7 @@
 										</div>
 										<div class="col-sm-12 mt-2 align-items-center">
 											<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" placeholder="N/A" type="checkbox"> 
-											<label for="dateTo">isPresent</label>
+											<label for="upToPresent">Active</label>
 										</div>
 									</div>
 
@@ -154,6 +154,7 @@
 											<div class="header-elements">
 												<div class="list-icons">				                				
 									           		<button id="addButton" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+						           		<button id="clearAllLdButton" type="button" class="btn btn-danger ml-2" th:if="${not #lists.isEmpty(learningDevelopmentList)}">Clear All Records</button>
 									           	</div>
 											</div>
 										</div>
@@ -162,7 +163,11 @@
 											List of All Learning and Development. Type to search desired learning and development.
 										</div>
 					
-										<table class="table table-bordered table-hover datatable-highlight">
+										<form id="clearAllLdForm" method="post" th:action="@{/deleteAllLearningDevelopment/{id}(id=${employee.id})}">
+							<input type="hidden" name="empHashCode" th:value="${employee.empHashCode}">
+							<input type="hidden" name="showMode" th:value="${employee.showMode}">
+						</form>
+						<table class="table table-bordered table-hover datatable-highlight">
 											<thead>
 												<tr>
 													<th width="150px;">&nbsp;</th>
@@ -287,6 +292,19 @@
 		}
 	
 	    $(document).ready(function() {
+			// ── Clear All Learning & Development (CR-005) ──────────────────────
+			$('#clearAllLdButton').click(function(){
+				swal({
+					title: "Clear ALL records?",
+					text: "This permanently removes every learning & development record for this employee.",
+					icon: "warning",
+					buttons: ["Cancel", "Yes, clear all"],
+					dangerMode: true
+				}).then(function(confirmed){
+					if (confirmed) { $('#clearAllLdForm').submit(); }
+				});
+			});
+
 	    	
 	    	$('#consultation-list').DataTable({
 				"lengthMenu": [10, 25, 50],

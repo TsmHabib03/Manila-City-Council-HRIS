@@ -15,6 +15,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
@@ -130,6 +131,30 @@ public class LearningAndDevelopmentController {
 
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Updated."));
 		return "redirect:/employee/learning-development/"+learningAndDevelopment.getEmployee().getId()+"/"+showMode+"/"+learningAndDevelopment.getEmployee().getEmpHashCode();
+	}
+
+	@PostMapping("/deleteAllLearningDevelopment/{employeeId}")
+	@Transactional
+	public String deleteAllLearningDevelopment(
+			@PathVariable long employeeId,
+			@RequestParam(required = false) String showMode,
+			@RequestParam String empHashCode,
+			final RedirectAttributes redirect,
+			HttpServletRequest request) {
+
+		// Ownership check
+		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
+		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());
+		boolean isOwnRecord = actorObj != null && actorObj.getId() == employeeId;
+		if (!isAdmin && !isOwnRecord) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/dashboard";
+		}
+
+		learningAndDevelopmentRepository.deleteAll(learningAndDevelopmentRepository.findByEmployeeId(employeeId));
+
+		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "All learning & development records removed."));
+		return "redirect:/employee/learning-development/" + employeeId + "/" + (showMode == null ? "" : showMode) + "/" + empHashCode;
 	}
 
 

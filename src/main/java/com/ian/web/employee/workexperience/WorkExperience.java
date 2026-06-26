@@ -12,7 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.ian.web.employee.Employee;
 import lombok.AllArgsConstructor;
@@ -40,7 +39,6 @@ public class WorkExperience {
 
 	private boolean partTime;
 
-	@NotBlank
     private String positionTitle;
 	private String department;
 	private String officeName;

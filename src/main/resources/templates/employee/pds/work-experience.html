@@ -63,10 +63,10 @@
 										<div class="col-sm-4">
 											<label>&nbsp;</label><br>
 											<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" type="checkbox">
-											<label for="upToPresent">isPresent</label>
+											<label for="upToPresent">Active</label>
 											&nbsp;&nbsp;
 											<input th:field="*{partTime}" id="partTime" name="partTime" type="checkbox">
-											<label for="partTime">Part-Time</label>
+											<label for="partTime">Inactive</label>
 										</div>
 									</div>
 
@@ -74,17 +74,17 @@
 										<div class="col-sm-4">
 											<label for="positionTitle">Position Title</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('positionTitle')}" th:errors="*{positionTitle}"></span>
-											<input id="positionTitle" name="positionTitle" th:field="*{positionTitle}" placeholder="Position Title" type="text" class="form-control required-field-hrisp" >
+											<input id="positionTitle" name="positionTitle" th:field="*{positionTitle}" placeholder="Position Title" type="text" class="form-control" >
 										</div>
 										<div class="col-sm-4">
 											<label for="department">Department</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></span>
-											<input id="department" name="department" th:field="*{department}" placeholder="Department" type="text" class="form-control required-field-hrisp" >
+											<input id="department" name="department" th:field="*{department}" placeholder="Department" type="text" class="form-control" >
 										</div>
 										<div class="col-sm-4">
 											<label for="officeName">Office Name</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('officeName')}" th:errors="*{officeName}"></span>
-											<input id="officeName" name="officeName" th:field="*{officeName}" placeholder="Office Name" type="text" class="form-control required-field-hrisp" >
+											<input id="officeName" name="officeName" th:field="*{officeName}" placeholder="Office Name" type="text" class="form-control" >
 										</div>		
 									</div>
 
@@ -92,29 +92,29 @@
 										<div class="col-sm-4">
 											<label for="immediateSupervisor">Immediate Supervisor</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('immediateSupervisor')}" th:errors="*{immediateSupervisor}"></span>
-											<input id="immediateSupervisor" name="immediateSupervisor" th:field="*{immediateSupervisor}" placeholder="Immediate Supervisor" type="text" class="form-control required-field-hrisp" >
+											<input id="immediateSupervisor" name="immediateSupervisor" th:field="*{immediateSupervisor}" placeholder="Immediate Supervisor" type="text" class="form-control" >
 										</div>
 										<div class="col-sm-8">
 											<label for="jobDescription">Job Description</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('jobDescription')}" th:errors="*{jobDescription}"></span>
-											<input id="jobDescription" name="jobDescription" th:field="*{jobDescription}" placeholder="Job Description" type="text" class="form-control required-field-hrisp" >
+											<input id="jobDescription" name="jobDescription" th:field="*{jobDescription}" placeholder="Job Description" type="text" class="form-control" >
 										</div>
 									</div>
 									<div class="row mt-3">
 										<div class="col-sm-4">
 											<label for="salary">Salary</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></span>
-											<input id="salary" name="salary" th:field="*{salary}" placeholder="Salary" type="number" class="form-control required-field-hrisp" >
+											<input id="salary" name="salary" th:field="*{salary}" placeholder="Salary" type="number" class="form-control" >
 										</div>
 										<div class="col-sm-4">
 											<label for="salaryGrade">Salary Grade</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('salaryGrade')}" th:errors="*{salaryGrade}"></span>
-											<input id="salaryGrade" name="salaryGrade" th:field="*{salaryGrade}" placeholder="Salary Grade" type="number" class="form-control required-field-hrisp" >
+											<input id="salaryGrade" name="salaryGrade" th:field="*{salaryGrade}" placeholder="Salary Grade" type="number" class="form-control" >
 										</div>
 										<div class="col-sm-4">
 											<label for="stepNo">Step Number</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('stepNo')}" th:errors="*{stepNo}"></span>
-											<input id="stepNo" name="stepNo" th:field="*{stepNo}" placeholder="Step No." type="number" class="form-control required-field-hrisp" >
+											<input id="stepNo" name="stepNo" th:field="*{stepNo}" placeholder="Step No." type="number" class="form-control" >
 										</div>
 									</div>
 									<div class="row  mt-3">
@@ -194,7 +194,7 @@
 										</div>
 					
 										<div class="card-body">
-											List of All Work Experience. Type to search desired information.
+											<span class="text-danger">List of all Work Experience (Present to Past Order)</span>. Type to search desired information.
 										</div>
 					
 										<table class="table table-bordered table-hover datatable-highlight">
