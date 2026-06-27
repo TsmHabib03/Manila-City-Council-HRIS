@@ -189,22 +189,20 @@ public class ReportsController {
 		System.out.println("Number of pages in report 4: " + jasperPrint4.getPages().size());
 
 		
-		List<JRPrintPage> pages2 = jasperPrint2.getPages();
-        for (JRPrintPage page : pages2) {
-            jasperPrint1.addPage(page);
-        }
-        
-        List<JRPrintPage> pages3 = jasperPrint3.getPages();
-        for (JRPrintPage page : pages3) {
-            jasperPrint1.addPage(page);
-        }
-        
-        List<JRPrintPage> pages4 = jasperPrint4.getPages();
-        for (JRPrintPage page : pages4) {
-            jasperPrint1.addPage(page);
-        }
-
-        JasperExportManager.exportReportToPdfStream(jasperPrint1, response.getOutputStream());
+		// Pages P1-P4 are rebuilt from the official ANNEX H-1 geometry and each now
+        // carries its own natural height (no vertical warp). A single-size
+        // JasperPrint.addPage() merge would force every page to page 1's height and
+        // clip the taller pages, so export the four prints together to keep each
+        // page at its own size.
+        java.util.List<JasperPrint> pdsPrints = java.util.Arrays.asList(
+                jasperPrint1, jasperPrint2, jasperPrint3, jasperPrint4);
+        net.sf.jasperreports.engine.export.JRPdfExporter pdsExporter =
+                new net.sf.jasperreports.engine.export.JRPdfExporter();
+        pdsExporter.setExporterInput(
+                net.sf.jasperreports.export.SimpleExporterInput.getInstance(pdsPrints));
+        pdsExporter.setExporterOutput(
+                new net.sf.jasperreports.export.SimpleOutputStreamExporterOutput(response.getOutputStream()));
+        pdsExporter.exportReport();
 
 	}
 	
@@ -311,15 +309,15 @@ public class ReportsController {
 		map.put("I.PI_Place_Of_Birth", "  " + emp.getBirthPlace());
 		
 		if("M".equalsIgnoreCase(emp.getGender())) {
-			map.put("I.PI_Sex_M", " X");
+			map.put("I.PI_Sex_M", "X");
 			map.put("I.PI_Sex_F", "");
 		} else {
 			map.put("I.PI_Sex_M", "");
-			map.put("I.PI_Sex_F", " X");
+			map.put("I.PI_Sex_F", "X");
 		}
 		
 		if("SINGLE".equalsIgnoreCase(emp.getCivilStatus())) {
-			map.put("I.PI_Civil_Status_Single", " X");
+			map.put("I.PI_Civil_Status_Single", "X");
 			map.put("I.PI_Civil_Status_Widowed", "");
 			map.put("I.PI_Civil_Status_Others", "");
 			map.put("I.PI_Civil_Status_Others_Text", "");
@@ -330,11 +328,11 @@ public class ReportsController {
 			map.put("I.PI_Civil_Status_Widowed", "");
 			map.put("I.PI_Civil_Status_Others", "");
 			map.put("I.PI_Civil_Status_Others_Text", "");
-			map.put("I.PI_Civil_Status_Married", " X");
+			map.put("I.PI_Civil_Status_Married", "X");
 			map.put("I.PI_Civil_Status_Separated", "");
 		} else if("WIDOWED".equalsIgnoreCase(emp.getCivilStatus())) {
 			map.put("I.PI_Civil_Status_Single", "");
-			map.put("I.PI_Civil_Status_Widowed", " X");
+			map.put("I.PI_Civil_Status_Widowed", "X");
 			map.put("I.PI_Civil_Status_Others", "");
 			map.put("I.PI_Civil_Status_Others_Text", "");
 			map.put("I.PI_Civil_Status_Married", "");
@@ -345,11 +343,11 @@ public class ReportsController {
 			map.put("I.PI_Civil_Status_Others", "");
 			map.put("I.PI_Civil_Status_Others_Text", "");
 			map.put("I.PI_Civil_Status_Married", "");
-			map.put("I.PI_Civil_Status_Separated", " X");
+			map.put("I.PI_Civil_Status_Separated", "X");
 		} else {
 			map.put("I.PI_Civil_Status_Single", "");
 			map.put("I.PI_Civil_Status_Widowed", "");
-			map.put("I.PI_Civil_Status_Others", " X");
+			map.put("I.PI_Civil_Status_Others", "X");
 			map.put("I.PI_Civil_Status_Others_Text", ""); //TODO fix this
 			map.put("I.PI_Civil_Status_Married", "");
 			map.put("I.PI_Civil_Status_Separated", "");
@@ -392,22 +390,22 @@ public class ReportsController {
 		if("FILIPINO BY BIRTH".equalsIgnoreCase(citizenship)
 				|| "FILIPINO".equalsIgnoreCase(citizenship)
 				|| "FILIPINO BY NATURALIZATION".equalsIgnoreCase(citizenship)) {
-			map.put("I.PI_Citizenship_Filipino", " X");
+			map.put("I.PI_Citizenship_Filipino", "X");
 			map.put("I.PI_Citizenship_Dual", "");
 			map.put("I.PI_Citizenship_By_birth", "");
 			map.put("I.PI_Citizenship_By_naturalization", "");
 			map.put("I.PI_Citizenship_Indicate_Country", "");
 		} else if("DUAL CITIZENSHIP BY BIRTH".equalsIgnoreCase(citizenship)) {
 			map.put("I.PI_Citizenship_Filipino", "");
-			map.put("I.PI_Citizenship_Dual", " X");
-			map.put("I.PI_Citizenship_By_birth", " X");
+			map.put("I.PI_Citizenship_Dual", "X");
+			map.put("I.PI_Citizenship_By_birth", "X");
 			map.put("I.PI_Citizenship_By_naturalization", "");
 			map.put("I.PI_Citizenship_Indicate_Country", "  " + getCountryName(emp.getCountryOfOrigin()));
 		} else if("DUAL CITIZENSHIP BY NATURALIZATION".equalsIgnoreCase(citizenship)) {
 			map.put("I.PI_Citizenship_Filipino", "");
-			map.put("I.PI_Citizenship_Dual", " X");
+			map.put("I.PI_Citizenship_Dual", "X");
 			map.put("I.PI_Citizenship_By_birth", "");
-			map.put("I.PI_Citizenship_By_naturalization", " X");
+			map.put("I.PI_Citizenship_By_naturalization", "X");
 			map.put("I.PI_Citizenship_Indicate_Country", "  " + getCountryName(emp.getCountryOfOrigin()));
 		} else {
 			map.put("I.PI_Citizenship_Filipino", "");
@@ -463,7 +461,9 @@ public class ReportsController {
 				}
 			} else if("MOTHER".equalsIgnoreCase(fb.getRelationship())) {
 				motherPopulated = true;
-				map.put("II.FBG_Mother_Maidenname", "  " + getStringValue(fb.getMaidenName()));
+				String maidenName = getStringValue(fb.getMaidenName());
+				if ("N/A".equalsIgnoreCase(maidenName.trim())) maidenName = "";
+				map.put("II.FBG_Mother_Maidenname", maidenName.isEmpty() ? "" : "  " + maidenName);
 				if(fb.isDeceased() && getStringValue(fb.getLastName()).isBlank() && getStringValue(fb.getFirstName()).isBlank()) {
 					map.put("II.FBG_Mother_Surname", "  DECEASED");
 					map.put("II.FBG_Mother_Firstname", "");
@@ -820,7 +820,7 @@ public class ReportsController {
 		int ctrForLd = 1;
 		for(LearningAndDevelopment ld : learningList) {
 			String ldTitle = getStringValue(ld.getTitleOfSeminar());
-			if (ldTitle.length() > 110) ldTitle = ldTitle.substring(0, 107) + "...";
+			if (ldTitle.length() > 57) ldTitle = ldTitle.substring(0, 54) + "...";
 			map.put("VII.LAD_Training_Programs"+ctrForLd, " " + ldTitle);
 			map.put("VII.LAD_Inclusive_Dates_Of_Attendance_From"+ctrForLd, " " + formatDateMonthYearOnly(ld.getDateFrom()) );
 			map.put("VII.LAD_Inclusive_Dates_Of_Attendance_To"+ctrForLd, " " + formatDateMonthYearOnly(ld.getDateTo()) );
@@ -829,7 +829,9 @@ public class ReportsController {
 				: (ld.getNoHours() != null ? ld.getNoHours().toString() : "");
 			map.put("VII.LAD_Number_Of_Hours"+ctrForLd, " " + ldHours);
 			map.put("VII.LAD_Type_Of_LD"+ctrForLd, " " + getStringValue(ld.getLearningType()) );
-			map.put("VII.Conducted_Sponsored_By"+ctrForLd, " " + getStringValue(ld.getProviders()) );
+			String ldProvider = getStringValue(ld.getProviders());
+			if (ldProvider.length() > 35) ldProvider = ldProvider.substring(0, 32) + "...";
+			map.put("VII.Conducted_Sponsored_By"+ctrForLd, " " + ldProvider);
 			ctrForLd++;
 		}
 		
@@ -1203,11 +1205,11 @@ public class ReportsController {
 
 		// Item 5 — Sex at Birth (2025 wording). Emit alongside legacy I.PI_Sex_M/F keys.
 		if("M".equalsIgnoreCase(emp.getGender())) {
-			map.put("I.PI_Sex_At_Birth_M", " X");
+			map.put("I.PI_Sex_At_Birth_M", "X");
 			map.put("I.PI_Sex_At_Birth_F", "");
 		} else {
 			map.put("I.PI_Sex_At_Birth_M", "");
-			map.put("I.PI_Sex_At_Birth_F", " X");
+			map.put("I.PI_Sex_At_Birth_F", "X");
 		}
 
 		// Items 10 and 13 — UMID and PhilSys (new in 2025).
