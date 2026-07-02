@@ -115,6 +115,11 @@ public class WorkExperienceController {
 			return "redirect:/dashboard";
 		}
 
+		// Active (up to present) work has no end date, regardless of what the form submitted
+		if (workExperience.isUpToPresent()) {
+			workExperience.setDateTo(null);
+		}
+
 		String showMode = workExperience.getShowMode();
 		workExperience = workExperienceRepository.save(workExperience);
 

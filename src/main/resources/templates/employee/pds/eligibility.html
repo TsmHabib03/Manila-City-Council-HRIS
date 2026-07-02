@@ -313,11 +313,11 @@
 				if(isNa) {
 					$('.eligibility-conditional-required').removeClass('required-field-hrisp');
 					$('#eligibility-detail-rows').hide();
-					$('#rating').removeClass('required-field-hrisp').val('N/A');
+					// Rating stays editable; it is just no longer mandatory in N/A mode
+					$('#rating').removeClass('required-field-hrisp');
 				} else {
 					$('.eligibility-conditional-required').addClass('required-field-hrisp');
 					$('#eligibility-detail-rows').show();
-					if($('#rating').val() === 'N/A') { $('#rating').val(''); }
 				}
 			}
 

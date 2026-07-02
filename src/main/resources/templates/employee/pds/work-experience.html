@@ -130,6 +130,9 @@
 												<option value="NO-EMP-STATUS">NO-EMP-STATUS</option>
 												<option value="ELECTIVE">ELECTIVE</option>
 												<option value="JOB ORDER">JOB ORDER</option>
+												<option value="CONTRACT OF SERVICE">CONTRACT OF SERVICE</option>
+												<option value="CONSULTANT">CONSULTANT</option>
+												<option value="COTERMINOUS">COTERMINOUS</option>
 											</select>
 										</div>
 										<div class="col-sm-6">
@@ -325,16 +328,32 @@
 		}
 	
 	$(document).ready(function() {
-			
+
+			// Active (up to present) work has no end date: lock and clear Date To
+			function applyActiveState(isActive) {
+				if (isActive) {
+					$('#dateTo_display').val('').prop('readonly', true);
+					$('#dateTo').val('');
+					$('#dateTo_display').nextAll('.date-error').first().hide();
+				} else {
+					$('#dateTo_display').prop('readonly', false);
+				}
+			}
+
+			$('#upToPresent').on('change', function() {
+				applyActiveState($(this).is(':checked'));
+			});
+
 			$('#addButton').click(function(){
 				let empHashCode = $('#empHashCode').val();
 				let employeeId = $('#employeeId').val();
-				
+
 		        $('#employeeForm')[0].reset();
-		        
+
 		        $('#empHashCode').val(empHashCode);
 		        $('#employeeId').val(employeeId);
 		        $(".spouseField").show();
+		        applyActiveState(false);
 		    });
 			
 			$(document).on("click", ".showDetails", function() {
@@ -373,8 +392,9 @@
 	            $("#modal_form_vertical").find("#stepNo").val(stepNo);
 	            $("#modal_form_vertical").find("#appointmentStatus").val(appointmentStatus);
 	            $("#modal_form_vertical").find("#govtOffice").val(govtOffice);
-	            $("#modal_form_vertical").find("#remarks").val(remarks);	            
-	            
+	            $("#modal_form_vertical").find("#remarks").val(remarks);
+	            applyActiveState(upToPresent === 'true');
+
 	        });
 					
 

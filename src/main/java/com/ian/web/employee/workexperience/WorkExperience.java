@@ -61,7 +61,16 @@ public class WorkExperience {
 	private String showMode;
 
 	public String getInclusiveDates(){
-		return this.dateFrom +" - "+this.dateTo;
+		String from = (this.dateFrom != null) ? String.valueOf(this.dateFrom.getYear()) : "N/A";
+		String to;
+		if(this.upToPresent) {
+			to = "Present";
+		} else if(this.dateTo != null) {
+			to = String.valueOf(this.dateTo.getYear());
+		} else {
+			to = "N/A";
+		}
+		return from + " - " + to;
 	}
 	
 	public String getFormattedSalary(){

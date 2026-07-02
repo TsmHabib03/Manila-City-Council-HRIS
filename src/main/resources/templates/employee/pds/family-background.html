@@ -372,9 +372,10 @@
 
 			function applyDeceasedState(deceased) {
 				if (deceased) {
-					$('#firstName').val('N/A').prop('readonly', true).removeClass('required-field-hrisp');
-					$('#lastName').val('N/A').prop('readonly', true).removeClass('required-field-hrisp');
-					$('#middleName').val('N/A').prop('readonly', true);
+					// Names stay editable; they are just no longer mandatory for a deceased relative
+					$('#firstName').prop('readonly', false).removeClass('required-field-hrisp');
+					$('#lastName').prop('readonly', false).removeClass('required-field-hrisp');
+					$('#middleName').prop('readonly', false);
 					// Birthdate remains editable so the birthday of the deceased can be recorded
 					$('#birthdate_display').prop('readonly', false);
 				} else {
