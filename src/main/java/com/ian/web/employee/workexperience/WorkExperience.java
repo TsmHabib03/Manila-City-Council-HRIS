@@ -74,6 +74,9 @@ public class WorkExperience {
 	}
 	
 	public String getFormattedSalary(){
+		if (this.salary == null) {
+			return "N/A";
+		}
 		DecimalFormat decimalFormat = new DecimalFormat("#,###,###.00");
 		return decimalFormat.format(this.salary);
 	}

@@ -89,7 +89,7 @@
 										<div class="col-sm-4">
 											<label for="address">Address</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></span>
-											<input id="address" name="address" th:field="*{address}" placeholder="Address" type="text" class="form-control required-field-hrisp" >
+											<input id="address" name="address" th:field="*{address}" placeholder="Address" type="text" class="form-control" >
 										</div>
 									</div>
 								</div>
@@ -258,6 +258,17 @@
 			window.location.href = nextUrl;
 		}
 
+		// Active (up to present) work has no end date: lock and clear Date To
+		function applyActiveState(isActive) {
+			if (isActive) {
+				$('#dateTo_display').val('').prop('readonly', true);
+				$('#dateTo').val('');
+				$('#dateTo_display').nextAll('.date-error').first().hide();
+			} else {
+				$('#dateTo_display').prop('readonly', false);
+			}
+		}
+
 	    $(document).ready(function() {
 			// ── Clear All Voluntary Work (CR-005) ──────────────────────────────
 			$('#clearAllVwButton').click(function(){
@@ -270,6 +281,14 @@
 				}).then(function(confirmed){
 					if (confirmed) { $('#clearAllVwForm').submit(); }
 				});
+			});
+
+			$('#upToPresent').on('change', function() {
+				applyActiveState($(this).is(':checked'));
+			});
+
+			$('#addButton').click(function(){
+				applyActiveState(false);
 			});
 
 			// ── Date Mask (dd/mm/yyyy ↔ yyyy-MM-dd) ──────────────────────────────
@@ -370,7 +389,8 @@
 			$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent === 'true');
 			$("#modal_form_vertical").find("#noHours").val(noHours);
 			$("#modal_form_vertical").find("#natureOfWork").val(natureOfWork);
-			$("#modal_form_vertical").find("#address").val(address);   
+			$("#modal_form_vertical").find("#address").val(address);
+			applyActiveState(upToPresent === 'true');
 		});
 
 		$('#employeeForm').submit(function() {

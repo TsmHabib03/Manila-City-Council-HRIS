@@ -6,7 +6,6 @@ import java.time.Period;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,10 +20,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class Person extends Auditable {
 	
-	@NotBlank(message = " is mandatory.")
     private String firstName;
-	
-	@NotBlank(message = " is mandatory.")
+
     private String lastName;
 	
 	private String middleName;

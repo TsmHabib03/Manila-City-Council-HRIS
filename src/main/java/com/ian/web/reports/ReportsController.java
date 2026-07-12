@@ -140,20 +140,29 @@ public class ReportsController {
 		reportList.add(x);
 		
 		JRBeanCollectionDataSource beanColDataSource = new JRBeanCollectionDataSource(reportList);
-		
-		response.setContentType("application/pdf");
 
-		InputStream reportStream = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P1.jasper");
-		Map<String, Object> map = populateMapReport2025_P1(employee, fbList, eduList);
-		
-		InputStream reportStream2 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P2.jasper");
-		Map<String, Object> map2 = populateMapReport2025_P2(csList, workExList);
-		
-		InputStream reportStream3 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P3.jasper");
-		Map<String, Object> map3 = populateMapReport2025_P3(voluntaryList, learningList, otherInfoList);
-		
-		InputStream reportStream4 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2025_P4.jasper");
-		Map<String, Object> map4 = populateMapReport2025_P4(otherObj, refList, govList);
+		response.setContentType("application/pdf");
+		// This PDF is regenerated fresh from live data on every request (and contains
+		// personal employee data) -- never let a browser or CDN cache a stale copy at
+		// this stable per-employee URL.
+		response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+		response.setHeader("Pragma", "no-cache");
+		response.setHeader("Expires", "0");
+		// Without a filename hint the browser saves this inline PDF under the bare URL
+		// path segment (e.g. "643.htm"); keep inline preview but name saves properly.
+		response.setHeader("Content-Disposition", "inline; filename=\"PDS-" + employeeId + ".pdf\"");
+
+		InputStream reportStream = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2026_P1.jasper");
+		Map<String, Object> map = populateMapReport2026_P1(employee, fbList, eduList);
+
+		InputStream reportStream2 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2026_P2.jasper");
+		Map<String, Object> map2 = populateMapReport2026_P2(csList, workExList);
+
+		InputStream reportStream3 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2026_P3.jasper");
+		Map<String, Object> map3 = populateMapReport2026_P3(voluntaryList, learningList, otherInfoList);
+
+		InputStream reportStream4 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2026_P4.jasper");
+		Map<String, Object> map4 = populateMapReport2026_P4(otherObj, refList, govList);
 
 		// Add employee photo to P4 if available
 		InputStream photoStream = null;
@@ -301,12 +310,12 @@ public class ReportsController {
 		map.put("FormBg", bgImg);
 		
 		map.put("CS_ID_no.", "");
-		map.put("I.PI_Surname", "  " + emp.getLastName());
-		map.put("I.PI_Firstname", "  " + emp.getFirstName());
-		map.put("I.PI_NameExtension", "  " + emp.getSuffix());
-		map.put("I.PI_Middlename", "  " + emp.getMiddleName());
+		map.put("I.PI_Surname", "  " + getStringValue(emp.getLastName()));
+		map.put("I.PI_Firstname", "  " + getStringValue(emp.getFirstName()));
+		map.put("I.PI_NameExtension", "  " + getStringValue(emp.getSuffix()));
+		map.put("I.PI_Middlename", "  " + getStringValue(emp.getMiddleName()));
 		map.put("I.PI_Date_Of_Birth", "  " + formatDate(emp.getBirthdate()));
-		map.put("I.PI_Place_Of_Birth", "  " + emp.getBirthPlace());
+		map.put("I.PI_Place_Of_Birth", "  " + getStringValue(emp.getBirthPlace()));
 		
 		if("M".equalsIgnoreCase(emp.getGender())) {
 			map.put("I.PI_Sex_M", "X");
@@ -1318,6 +1327,43 @@ public class ReportsController {
 		map.put("FormBg4", getImageAbsolutePath("static/images/PDS2025_P4.png"));
 
 		return map;
+	}
+
+	// ── CSC Form No. 212 (Revised 2026) — Long Bond, wider Work Experience/L&D tables ──
+	// Reuses the same base extraction + date-reformatting overlay as the 2025 methods above
+	// (the 2026 templates declare the same parameter names for every field the 2025 form has).
+
+	private Map<String, Object> populateMapReport2026_P1(Employee emp, List<FamilyBg> fbList, List<EducationalBackground> eduList) throws Exception {
+		return populateMapReport2025_P1(emp, fbList, eduList);
+	}
+
+	private Map<String, Object> populateMapReport2026_P2(List<CivilServiceEligibility> csList, List<WorkExperience> workExList) throws Exception {
+		Map<String, Object> map = populateMapReport2025_P2(csList, workExList);
+
+		// Item 28 — "SALARY/JOB/PAY GRADE (if applicable) & STEP INCREMENT (Format: 00-0)" is a
+		// single combined column on the 2026 form. salaryGrade/stepNo are primitive ints
+		// (default 0 when never entered), so overwrite the base map's "0"-leaking value with a
+		// blank-when-unset, "00-0"-formatted one instead.
+		int k = 1;
+		for (WorkExperience we : workExList) {
+			int grade = we.getSalaryGrade();
+			int step = we.getStepNo();
+			String combined = grade > 0
+					? String.format("%02d", grade) + (step > 0 ? "-" + step : "")
+					: "";
+			map.put("V.WE_Salary_Job_PayGrade" + k, " " + combined);
+			k++;
+		}
+
+		return map;
+	}
+
+	private Map<String, Object> populateMapReport2026_P3(List<VoluntaryWork> voluntaryList, List<LearningAndDevelopment> learningList, List<OtherInfo> otherList) throws Exception {
+		return populateMapReport2025_P3(voluntaryList, learningList, otherList);
+	}
+
+	private Map<String, Object> populateMapReport2026_P4(OtherInfoQuestion otherInfoQuestion, List<EmpReferences> referencesList, List<GovermentIssuedId> govIdList) throws Exception {
+		return populateMapReport2025_P4(otherInfoQuestion, referencesList, govIdList);
 	}
 
 	// CivilServiceEligibility stores the exam date as three separate fields

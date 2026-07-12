@@ -237,7 +237,7 @@
 		function deleteAttachment(id) {
 			if (!confirm('Remove this attachment?')) return;
 			fetch(contextRoot + '/api/attachment/' + id, { method: 'DELETE' })
-				.then(r => r.ok ? location.reload() : alert('Delete failed.'));
+				.then(r => r.ok ? (notifySuccess('Attachment deleted.'), setTimeout(() => location.reload(), 1000)) : notifyError('Delete failed. Please try again.'));
 		}
 
 		$(document).ready(function() {

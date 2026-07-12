@@ -2,6 +2,7 @@ package com.ian.web.systemsettings.employee_status;
 
 import java.util.Objects;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
@@ -14,14 +15,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
+import com.ian.web.employee.EmployeeRepository;
+import com.ian.web.employee.servicerecord.ServiceRecordRepository;
+import com.ian.web.systemsettings.common.SettingsDeleteUtil;
 
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
 public class EmployeeStatusController {
-    
+
     private final EmployeeStatusRepository employeeStatusRepository;
+    private final EmployeeRepository employeeRepository;
+    private final ServiceRecordRepository serviceRecordRepository;
 
     @GetMapping("/employee-status")
     public String getData(Model model) {
@@ -65,6 +71,28 @@ public class EmployeeStatusController {
 		employeeStatusRepository.save(employeeStatus);
 		redirect.addFlashAttribute("uxmessage", new UXMessage("SUCCESS", "Record successfully update."));
 		return "redirect:/employee-status";
+	}
+
+	@PostMapping("/delete-employee-status/{id}")
+	public String deleteEmployeeStatus(@PathVariable Long id, HttpServletRequest request, RedirectAttributes redirect) {
+		if (!isAdmin(request)) {
+			redirect.addFlashAttribute("uxmessage", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/employee-status";
+		}
+		if (employeeRepository.existsByEmployeeStatusId(id) || serviceRecordRepository.existsByEmployeeStatusId(id)) {
+			redirect.addFlashAttribute("uxmessage", new UXMessage("ERROR",
+				"Cannot delete this Employee Status. It is still assigned to one or more employees or service records."));
+			return "redirect:/employee-status";
+		}
+		redirect.addFlashAttribute("uxmessage",
+			SettingsDeleteUtil.tryDelete(() -> employeeStatusRepository.deleteById(id), "Employee Status"));
+		return "redirect:/employee-status";
+	}
+
+	private boolean isAdmin(HttpServletRequest request) {
+		Object actorObj = request.getSession().getAttribute("actorObj");
+		return actorObj instanceof com.ian.web.employee.Employee
+			&& "ROLE_ADMIN".equals(((com.ian.web.employee.Employee) actorObj).getUserType());
 	}
 
 }

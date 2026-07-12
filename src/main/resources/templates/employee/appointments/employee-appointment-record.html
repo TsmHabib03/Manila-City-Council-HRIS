@@ -73,8 +73,8 @@
 								<div class="form-group">
 									<div class="row">
 										<div class="col-sm-6">
-											<label for="positionTitle">Position Title <span class="text-danger">*</span></label>
-											<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control required-field-hrisp">
+											<label for="positionTitle">Position Title</label>
+											<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control">
 												<option selected value="">SELECT VALUE</option>
 												<option th:each="pt : ${positionTitleList}" th:value="${pt.id}" th:text="${pt.positionTitleName}">positionTitleName</option>
 											</select>
@@ -94,15 +94,18 @@
 									<div class="row">
 										<div class="col-sm-6">
 											<label for="statusOfAppointment">Status of Appointment <span class="text-danger">*</span></label>
-											<input id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" placeholder="Status of Appointment" type="text" class="form-control required-field-hrisp">
+											<select id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" class="form-control required-field-hrisp">
+												<option value="">SELECT VALUE</option>
+												<option th:each="s : ${appointmentStatusList}" th:value="${s.appointmentStatusName}" th:text="${s.appointmentStatusName}"></option>
+											</select>
 										</div>
 										<div class="col-sm-3">
 											<label for="statusOfSepeparation">Status of Separation</label>
 											<input id="statusOfSepeparation" name="statusOfSepeparation" th:field="*{statusOfSepeparation}" placeholder="Status of Separation" type="text" class="form-control">
 										</div>
 										<div class="col-sm-3">
-											<label for="salary">Salary <span class="text-danger">*</span></label>
-											<input id="salary" name="salary" th:field="*{salary}" placeholder="Salary" type="number" step="0.01" class="form-control required-field-hrisp">
+											<label for="salary">Salary</label>
+											<input id="salary" name="salary" th:field="*{salary}" placeholder="Salary" type="number" step="0.01" class="form-control">
 										</div>
 									</div>
 								</div>
@@ -119,7 +122,10 @@
 										</div>
 										<div class="col-sm-4">
 											<label for="officeAssignment">Office Assignment</label>
-											<input id="officeAssignment" name="officeAssignment" th:field="*{officeAssignment}" placeholder="Office Assignment" type="text" class="form-control">
+											<select id="officeAssignment" name="officeAssignment" th:field="*{officeAssignment}" class="form-control">
+												<option value="">SELECT VALUE</option>
+												<option th:each="o : ${officeList}" th:value="${o.officeName}" th:text="${o.officeName}"></option>
+											</select>
 										</div>
 									</div>
 								</div>
@@ -245,7 +251,7 @@
 											<td th:text="${appt.positionTitle != null ? appt.positionTitle.positionTitleName : ''}">positionTitle</td>
 											<td th:text="${appt.statusOfAppointment}">statusOfAppointment</td>
 											<td th:text="${appt.salary}">salary</td>
-											<td th:text="${appt.salaryGrade}">salaryGrade</td>
+											<td th:text="${appt.salaryGradeDisplay}">salaryGrade</td>
 											<td th:text="${appt.signingDate}">signingDate</td>
 											<td th:text="${appt.entranceDate}">entranceDate</td>
 										<td>
@@ -291,7 +297,7 @@
 		function deleteAttachment(id) {
 			if (!confirm('Remove this attachment?')) return;
 			fetch(contextRoot + '/api/attachment/' + id, { method: 'DELETE' })
-				.then(r => r.ok ? location.reload() : alert('Delete failed.'));
+				.then(r => r.ok ? (notifySuccess('Attachment deleted.'), setTimeout(() => location.reload(), 1000)) : notifyError('Delete failed. Please try again.'));
 		}
 
 		$(document).ready(function() {

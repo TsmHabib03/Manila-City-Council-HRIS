@@ -2,6 +2,7 @@ package com.ian.web.systemsettings.profession;
 
 import java.util.Objects;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
+import com.ian.web.systemsettings.common.SettingsDeleteUtil;
 import com.ian.web.systemsettings.degree_courses.DegreeCourses;
 
 import lombok.RequiredArgsConstructor;
@@ -65,5 +67,22 @@ public class ProfessionController {
 		professionRepository.save(profession);
 		redirect.addFlashAttribute("uxmessage", new UXMessage("SUCCESS", "Record successfully update."));
 		return "redirect:/professions";
+	}
+
+	@PostMapping("/delete-profession/{id}")
+	public String deleteProfession(@PathVariable Long id, HttpServletRequest request, RedirectAttributes redirect) {
+		if (!isAdmin(request)) {
+			redirect.addFlashAttribute("uxmessage", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/professions";
+		}
+		redirect.addFlashAttribute("uxmessage",
+			SettingsDeleteUtil.tryDelete(() -> professionRepository.deleteById(id), "Profession"));
+		return "redirect:/professions";
+	}
+
+	private boolean isAdmin(HttpServletRequest request) {
+		Object actorObj = request.getSession().getAttribute("actorObj");
+		return actorObj instanceof com.ian.web.employee.Employee
+			&& "ROLE_ADMIN".equals(((com.ian.web.employee.Employee) actorObj).getUserType());
 	}
 }

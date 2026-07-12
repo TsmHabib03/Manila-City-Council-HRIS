@@ -50,8 +50,8 @@ public class Appointment {
 	private String vice;
 	private String statusOfSepeparation;
 	private String statusOfAppointment;
-	private int salaryGrade;
-	private int stepInc;
+	private Integer salaryGrade;
+	private Integer stepInc;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate entranceDate;
@@ -63,5 +63,13 @@ public class Appointment {
 	private String district;
 	private String experience;
 	private String training;
+
+	public String getSalaryGradeDisplay() {
+		return salaryGrade == null ? "N/A" : String.valueOf(salaryGrade);
+	}
+
+	public String getStepIncDisplay() {
+		return stepInc == null ? "N/A" : String.valueOf(stepInc);
+	}
 
 }

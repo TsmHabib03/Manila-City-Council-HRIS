@@ -290,7 +290,18 @@
 			}
 			window.location.href = nextUrl;
 		}
-	
+
+		// Active (up to present) training has no end date: lock and clear Date To
+		function applyActiveState(isActive) {
+			if (isActive) {
+				$('#dateTo_display').val('').prop('readonly', true);
+				$('#dateTo').val('');
+				$('#dateTo_display').nextAll('.date-error').first().hide();
+			} else {
+				$('#dateTo_display').prop('readonly', false);
+			}
+		}
+
 	    $(document).ready(function() {
 			// ── Clear All Learning & Development (CR-005) ──────────────────────
 			$('#clearAllLdButton').click(function(){
@@ -305,7 +316,15 @@
 				});
 			});
 
-	    	
+			$('#upToPresent').on('change', function() {
+				applyActiveState($(this).is(':checked'));
+			});
+
+			$('#addButton').click(function(){
+				applyActiveState(false);
+			});
+
+
 	    	$('#consultation-list').DataTable({
 				"lengthMenu": [10, 25, 50],
 				"ordering": false, 
@@ -410,6 +429,7 @@
 			$("#modal_form_vertical").find("#hoursDisplay").val(hoursDisplay);
 			$("#modal_form_vertical").find("#learningType").val(learningType);
 			$("#modal_form_vertical").find("#providers").val(providers);
+			applyActiveState(upToPresent === 'true');
 		});
 
 		

@@ -112,10 +112,10 @@ public class LearningAndDevelopmentController {
 			) {
 	    	    
 		if (errors.hasErrors()) {
-			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			model.addAttribute("learningDevelopmentList", learningAndDevelopmentRepository.findByEmployeeId(learningAndDevelopment.getEmployee().getId()));
-			return "employee/pds/learning-development";
-		} 		
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
+			return "redirect:/employee/learning-development/" + learningAndDevelopment.getEmployee().getId()
+				+ "/" + learningAndDevelopment.getShowMode() + "/" + learningAndDevelopment.getEmployee().getEmpHashCode();
+		}
 		
 		// Ownership check
 		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
@@ -124,6 +124,11 @@ public class LearningAndDevelopmentController {
 		if (!isAdmin && !isOwnRecord) {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
 			return "redirect:/dashboard";
+		}
+
+		// Active (up to present) work has no end date, regardless of what the form submitted
+		if (learningAndDevelopment.isUpToPresent()) {
+			learningAndDevelopment.setDateTo(null);
 		}
 
 		String showMode = learningAndDevelopment.getShowMode();

@@ -1,16 +1,19 @@
 package com.ian.web.systemsettings.division;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.ian.web.common.model.UXMessage;
 import com.ian.web.employee.Employee;
 import com.ian.web.employee.EmployeeRepository;
+import com.ian.web.systemsettings.common.SettingsDeleteUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,6 +52,28 @@ public class DivisionController {
 		
 		redirect.addFlashAttribute("uxmessage", new UXMessage("SUCCESS", "Record successfully saved."));
 		return "redirect:/divisions";
+	}
+
+	@PostMapping("/delete-division/{id}")
+	public String deleteDivision(@PathVariable Long id, HttpServletRequest request, RedirectAttributes redirect) {
+		if (!isAdmin(request)) {
+			redirect.addFlashAttribute("uxmessage", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/divisions";
+		}
+		if (employeeRepository.existsByDivisionId(id)) {
+			redirect.addFlashAttribute("uxmessage", new UXMessage("ERROR",
+				"Cannot delete this Division. It is still assigned to one or more employees."));
+			return "redirect:/divisions";
+		}
+		redirect.addFlashAttribute("uxmessage",
+			SettingsDeleteUtil.tryDelete(() -> divisionRepository.deleteById(id), "Division"));
+		return "redirect:/divisions";
+	}
+
+	private boolean isAdmin(HttpServletRequest request) {
+		Object actorObj = request.getSession().getAttribute("actorObj");
+		return actorObj instanceof com.ian.web.employee.Employee
+			&& "ROLE_ADMIN".equals(((com.ian.web.employee.Employee) actorObj).getUserType());
 	}
 
 }

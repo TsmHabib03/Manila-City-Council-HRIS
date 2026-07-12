@@ -31,6 +31,7 @@ import com.ian.web.employee.otherinfoquestion.OtherInfoQuestionRepository;
 import com.ian.web.employee.references.EmpReferencesRepository;
 import com.ian.web.employee.voluntary_workexperience.VoluntaryWorkRepository;
 import com.ian.web.employee.workexperience.WorkExperienceRepository;
+import com.ian.web.systemsettings.civil_status.CivilStatusRepository;
 import com.ian.web.systemsettings.division.DivisionRepository;
 import com.ian.web.systemsettings.employee_status.EmployeeStatusRepository;
 import com.ian.web.systemsettings.position_title.PositionTitleRepository;
@@ -51,6 +52,7 @@ public class EmployeeController {
 	private final PositionTitleRepository positionTitleRepository;
 	private final EmployeeStatusRepository employeeStatusRepository;
 	private final DivisionRepository divisionRepository;
+	private final CivilStatusRepository civilStatusRepository;
 	
 	private final FamilyBgRepository familyBgRepository;
 	private final EducationalBackgroundRepository educationalBackgroundRepository;
@@ -83,6 +85,7 @@ public class EmployeeController {
 		model.addAttribute("employeeStatusList", employeeStatusRepository.findAll());
 		model.addAttribute("divisionList", divisionRepository.findAll());
 		model.addAttribute("positionTitleList", positionTitleRepository.findAll());
+		model.addAttribute("civilStatusList", civilStatusRepository.findAll());
 		model.addAttribute("employee", new Employee());
 		return "employee/employee-list";
 	}
@@ -115,7 +118,8 @@ public class EmployeeController {
 		model.addAttribute("employeeStatusList", employeeStatusRepository.findAll());
 		model.addAttribute("divisionList", divisionRepository.findAll());
 		model.addAttribute("positionTitleList", positionTitleRepository.findAll());
-		
+		model.addAttribute("civilStatusList", civilStatusRepository.findAll());
+
 		PdsCountDto pdsDtoCount = new PdsCountDto();
 		pdsDtoCount.setFamilyBgCount(familyBgRepository.findByEmployeeId(employeeId).size());
 		pdsDtoCount.setEducationalBgCount(educationalBackgroundRepository.findByEmployeeId(employeeId).size());

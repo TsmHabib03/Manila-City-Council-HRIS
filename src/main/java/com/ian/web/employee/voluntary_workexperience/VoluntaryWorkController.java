@@ -31,6 +31,7 @@ import com.ian.web.employee.references.EmpReferencesRepository;
 import com.ian.web.employee.workexperience.WorkExperienceRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @Controller
 @RequiredArgsConstructor
@@ -120,6 +121,12 @@ public class VoluntaryWorkController {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
 			return "redirect:/dashboard";
 		}
+
+		// Active (up to present) work has no end date, regardless of what the form submitted
+		if (voluntaryWork.isUpToPresent()) {
+			voluntaryWork.setDateTo(null);
+		}
+		voluntaryWork.setAddress(StringUtils.defaultIfBlank(voluntaryWork.getAddress(), "N/A"));
 
 		String showMode = voluntaryWork.getShowMode();
 		voluntaryWork = voluntaryWorkRepository.save(voluntaryWork);

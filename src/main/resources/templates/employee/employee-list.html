@@ -130,13 +130,13 @@
 											<div class="col-sm-4">
 												<label for="firstName">First Name</label>
 												<span class="validationError text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
-												<input id="firstName" name="firstName" th:field="*{firstName}" placeholder="First Name" type="text" class="form-control required-field-hrisp" >
-											</div>							                
-							                
+												<input id="firstName" name="firstName" th:field="*{firstName}" placeholder="First Name" type="text" class="form-control" >
+											</div>
+
 											<div class="col-sm-4">
 												<label for="lastName">Last Name</label>
 												<span class="validationError text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
-												<input id="lastName" name="lastName" th:field="*{lastName}" placeholder="Last Name" type="text" class="form-control required-field-hrisp" >
+												<input id="lastName" name="lastName" th:field="*{lastName}" placeholder="Last Name" type="text" class="form-control" >
 											</div>
 											
 											<div class="col-sm-4">
@@ -204,11 +204,7 @@
 												<label for="civilStatus">Civil Status</label>
 												<select class="form-control" name="civilStatus" id="civilStatus" th:field="*{civilStatus}">
 													<option value="">SELECT VALUE</option>
-													<option value="SINGLE">SINGLE</option>
-													<option value="MARRIED">MARRIED</option>
-													<option value="WIDOWED">WIDOWED</option>
-													<option value="SEPARATED">SEPARATED</option>
-													<option value="OTHERS">OTHERS</option>
+													<option th:each="cs : ${civilStatusList}" th:value="${cs.civilStatusName}" th:text="${cs.civilStatusName}"></option>
 												</select>
 											</div>
 							                    

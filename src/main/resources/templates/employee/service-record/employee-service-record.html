@@ -210,7 +210,10 @@
 										<div class="row">   
 											<div class="col-sm-6">
 												<label for="statusOfAppointment">Nature of Appointment / Mode of Accession</label>
-												<input id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" placeholder="Status of Appointment" type="text" class="form-control" >
+												<select id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" class="form-control">
+													<option value="">SELECT VALUE</option>
+													<option th:each="s : ${appointmentStatusList}" th:value="${s.appointmentStatusName}" th:text="${s.appointmentStatusName}"></option>
+												</select>
 											</div>	
 											<div class="col-sm-3">
 												<label for="salaryGrade">Salary Grade</label>
@@ -512,7 +515,7 @@
 		function deleteAttachment(id) {
 			if (!confirm('Remove this attachment?')) return;
 			fetch(contextRoot + '/api/attachment/' + id, { method: 'DELETE' })
-				.then(r => r.ok ? location.reload() : alert('Delete failed.'));
+				.then(r => r.ok ? (notifySuccess('Attachment deleted.'), setTimeout(() => location.reload(), 1000)) : notifyError('Delete failed. Please try again.'));
 		}
 
 		function displayServiceRecord() {

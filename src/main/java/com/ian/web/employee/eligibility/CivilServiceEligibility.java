@@ -56,6 +56,13 @@ public class CivilServiceEligibility {
 	
 	@Transient
 	public String getExamDate(){
-        return examMonth+" "+examYear;
+        boolean hasMonth = examMonth != null && !examMonth.isBlank();
+        boolean hasYear = examYear > 0;
+        if (!hasMonth && !hasYear) {
+            return "";
+        }
+        String month = hasMonth ? examMonth : "";
+        String year = hasYear ? String.valueOf(examYear) : "";
+        return (month + " " + year).trim();
 	}
 }

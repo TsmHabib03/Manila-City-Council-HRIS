@@ -86,8 +86,11 @@
 											<div class="col-sm-4">
 												<label for="unitsEarned">Units Earned</label>
 												<input type="text" class="form-control" id="unitsEarned" name="unitsEarned" th:field="*{unitsEarned}" placeholder="Units Earned"/>
-											</div>															
-											
+											</div>
+											<div class="col-sm-12 mt-2 align-items-center">
+												<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" type="checkbox">
+												<label for="upToPresent">Active</label>
+											</div>
 										</div>
 									</div>
 													
@@ -194,6 +197,7 @@
 			                                                 th:data-row-academicHonorsText="${educationalBg.getAcademicHonorsText()}"
 			                                                 th:data-row-startDate="${educationalBg.getStartDate()}"
 			                                                 th:data-row-endDate="${educationalBg.getEndDate()}"
+			                                                 th:data-row-upToPresent="${educationalBg.isUpToPresent()}"
 			                                                 th:data-row-unitsEarned="${educationalBg.getUnitsEarned()}"
 			                                                 th:data-row-yearGraduated="${educationalBg.getYearGraduated()}"
 			                                                 th:data-row-remarks="${educationalBg.getRemarks()}"
@@ -308,33 +312,49 @@
 	<script th:inline="javascript">		
 	
 	    $(document).ready(function() {
-			
+
+			// Active (up to present) education has no end date: lock and clear End Period
+			function applyActiveState(isActive) {
+				if (isActive) {
+					$('#endDate_display').val('').prop('readonly', true);
+					$('#endDate').val('');
+				} else {
+					$('#endDate_display').prop('readonly', false);
+				}
+			}
+
+			$('#upToPresent').on('change', function() {
+				applyActiveState($(this).is(':checked'));
+			});
+
 			$('#addButton').click(function(){
 				let empHashCode = $('#empHashCode').val();
 				let employeeId = $('#employeeId').val();
-				
+
 		        $('#employeeForm')[0].reset();
-		        
+
 		        $('#empHashCode').val(empHashCode);
 		        $('#employeeId').val(employeeId);
 		        $(".spouseField").show();
+		        applyActiveState(false);
 		    });
-			
+
 			$(document).on("click", ".showDetails", function() {
-				
+
 	            var id = $(this).attr('data-row-id');
-	            var degreeLevel = $(this).attr('data-row-degreeLevel'); 
+	            var degreeLevel = $(this).attr('data-row-degreeLevel');
 	            var scholarship = $(this).attr('data-row-scholarship');
 	            var academicHonorsText = $(this).attr('data-row-academicHonorsText');
 	            var startDate = $(this).attr('data-row-startDate');
 	            var endDate = $(this).attr('data-row-endDate');
+	            var upToPresent = $(this).attr('data-row-upToPresent');
 	            var unitsEarned = $(this).attr('data-row-unitsEarned');
 	            var yearGraduated = $(this).attr('data-row-yearGraduated');
 	            var remarks = $(this).attr('data-row-remarks');
             var schoolCustomName = $(this).attr('data-row-schoolCustomName');
             var degreeCourseCustomName = $(this).attr('data-row-degreeCourseCustomName');
-	                    
-	            
+
+
 	            $("#modal_form_vertical").find("#id").val(id);
 	            $("#modal_form_vertical").find("#degreeLevel").val(degreeLevel);
 	            $("#modal_form_vertical").find("#scholarship").val(scholarship);
@@ -343,11 +363,13 @@
 	            $("#modal_form_vertical").find("#endDate").val(endDate);
 	            $("#startDate_display").val(startDate ? startDate.substring(0, 4) : '');
 	            $("#endDate_display").val(endDate ? endDate.substring(0, 4) : '');
+	            $("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent === 'true');
 	            $("#modal_form_vertical").find("#unitsEarned").val(unitsEarned);
 	            $("#modal_form_vertical").find("#yearGraduated").val(yearGraduated);
 	            $("#modal_form_vertical").find("#remarks").val(remarks);
             $("#modal_form_vertical").find("#schoolCustomName").val(schoolCustomName);
             $("#modal_form_vertical").find("#degreeCourseCustomName").val(degreeCourseCustomName);
+            applyActiveState(upToPresent === 'true');
 
 	        });
 

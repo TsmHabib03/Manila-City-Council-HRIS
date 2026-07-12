@@ -132,7 +132,14 @@
     
     <script th:src="@{/js/philippines.js}"></script>
 
-
+    <script th:inline="javascript">
+        function notifySuccess(message) {
+            swal({ title: "Success!", text: message, icon: "success", buttons: false, timer: 2000 });
+        }
+        function notifyError(message) {
+            swal({ title: "Error!", text: message, icon: "error", buttons: false, timer: 2000 });
+        }
+    </script>
 
 
 
@@ -181,6 +188,15 @@
 	<script th:src="@{/global_assets/js/plugins/visualization/echarts/echarts.min.js}"></script>
 
     <script th:src="@{/js/philippines.js}"></script>
+
+    <script th:inline="javascript">
+        function notifySuccess(message) {
+            swal({ title: "Success!", text: message, icon: "success", buttons: false, timer: 2000 });
+        }
+        function notifyError(message) {
+            swal({ title: "Error!", text: message, icon: "error", buttons: false, timer: 2000 });
+        }
+    </script>
 </th:block>
 
 
@@ -612,7 +628,11 @@
 								<!-- <li class="nav-item"><a th:href="@{/levels}" class="nav-link" id="levelNav"><i class="icon-office"></i>Level</a></li>
 								<li class="nav-item"><a th:href="@{/salary-grades}" class="nav-link" id="salaryGradeNav"><i class="icon-office"></i>Salary Grade</a></li> -->
 								<li class="nav-item"><a th:href="@{/position-titles}" class="nav-link" id="positionTitleNav"><i class="icon-office"></i>Position Title</a></li>
-								<li class="nav-item"><a th:href="@{/service-record-signatory}" class="nav-link" id="srSignatoryNav"><i class="icon-stamp"></i>Service Record Signatory</a></li>	
+								<li class="nav-item"><a th:href="@{/civil-statuses}" class="nav-link" id="civilStatusNav"><i class="icon-users4"></i>Civil Status</a></li>
+								<li class="nav-item"><a th:href="@{/departments}" class="nav-link" id="departmentNav"><i class="icon-office"></i>Department</a></li>
+								<li class="nav-item"><a th:href="@{/offices}" class="nav-link" id="officeNav"><i class="icon-office"></i>Office</a></li>
+								<li class="nav-item"><a th:href="@{/appointment-statuses}" class="nav-link" id="appointmentStatusNav"><i class="icon-stamp"></i>Appointment Status</a></li>
+								<li class="nav-item"><a th:href="@{/service-record-signatory}" class="nav-link" id="srSignatoryNav"><i class="icon-stamp"></i>Service Record Signatory</a></li>
 								<li class="nav-item"><a th:href="@{/clearance-approver-settings}" class="nav-link" id="clearanceApproversNav"><i class="icon-stamp"></i>Clearance Approvers</a></li>
 								
 							</ul>

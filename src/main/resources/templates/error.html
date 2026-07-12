@@ -5,9 +5,9 @@
         <meta charset="utf-8" />
         
     </head>
-    <body th:with="httpStatus=${T(org.springframework.http.HttpStatus).valueOf(#response.status)}">
-        <h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|">404</h1>
-        <p th:text="${errorMessage}">Error java.lang.NullPointerException</p>
+    <body>
+        <h1>Something went wrong</h1>
+        <p>Please try again, or contact support if the problem continues.</p>
         <a href="index.html" th:href="@{/dashboard}">Back to Home Page</a>
     </body>
 </html>

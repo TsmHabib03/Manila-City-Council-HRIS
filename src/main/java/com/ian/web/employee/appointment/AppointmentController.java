@@ -28,11 +28,14 @@ import com.ian.web.employee.attachment.DocumentAttachment;
 import com.ian.web.employee.attachment.DocumentAttachmentRepository;
 import com.ian.web.fileupload.FileDTO;
 import com.ian.web.fileupload.StorageService;
+import com.ian.web.systemsettings.appointment_status.AppointmentStatusRepository;
 import com.ian.web.systemsettings.division.DivisionRepository;
 import com.ian.web.systemsettings.employee_status.EmployeeStatusRepository;
+import com.ian.web.systemsettings.office.OfficeRepository;
 import com.ian.web.systemsettings.position_title.PositionTitleRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @Controller
 @RequiredArgsConstructor
@@ -47,6 +50,8 @@ public class AppointmentController {
 	private final PositionTitleRepository positionTitleRepository;
 	private final EmployeeStatusRepository employeeStatusRepository;
 	private final DivisionRepository divisionRepository;
+	private final OfficeRepository officeRepository;
+	private final AppointmentStatusRepository appointmentStatusRepository;
 	private final StorageService storageService;
 	private final DocumentAttachmentRepository documentAttachmentRepository;
 
@@ -74,6 +79,11 @@ public class AppointmentController {
 			final RedirectAttributes redirect,
 			HttpServletRequest request,
 			@RequestParam(value = "attachedFiles", required = false) MultipartFile[] attachedFiles) {
+
+		if (appointment.getPositionTitle() != null && appointment.getPositionTitle().getId() == null) {
+			appointment.setPositionTitle(null);
+		}
+		appointment.setOfficeAssignment(StringUtils.defaultIfBlank(appointment.getOfficeAssignment(), "N/A"));
 
 		Appointment saved = appointmentRepository.save(appointment);
 
@@ -114,6 +124,8 @@ public class AppointmentController {
 		model.addAttribute("showMode", showMode);
 		model.addAttribute("employeeStatusList", employeeStatusRepository.findAll());
 		model.addAttribute("positionTitleList", positionTitleRepository.findAllByOrderByPositionTitleNameAsc());
+		model.addAttribute("officeList", officeRepository.findAll());
+		model.addAttribute("appointmentStatusList", appointmentStatusRepository.findAll());
 
 		List<Appointment> appointmentList = appointmentRepository.findByEmployeeId(employeeId);
 		model.addAttribute("appointmentRecordList", appointmentList);

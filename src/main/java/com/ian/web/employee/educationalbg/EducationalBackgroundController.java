@@ -160,10 +160,10 @@ public class EducationalBackgroundController {
 			) {
 	    	    
 		if (errors.hasErrors()) {
-			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			model.addAttribute("educationalBgList", educationalBackgroundRepository.findByEmployeeId(educBackground.getEmployee().getId()));
-			return "employee/pds/educational-background";
-		}				
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
+			return "redirect:/employee/educationalbg/" + educBackground.getEmployee().getId()
+				+ "/" + educBackground.getShowMode() + "/" + educBackground.getEmployee().getEmpHashCode();
+		}
 		
 		if(educBackground.getDegreeCourse() == null) {
 			educBackground.setDegreeCourse(null);
@@ -194,6 +194,11 @@ public class EducationalBackgroundController {
 		if (!isAdmin && !isOwnRecord) {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
 			return "redirect:/dashboard";
+		}
+
+		// Active (up to present) education has no end date, regardless of what the form submitted
+		if (educBackground.isUpToPresent()) {
+			educBackground.setEndDate(null);
 		}
 
 		String showMode = educBackground.getShowMode();

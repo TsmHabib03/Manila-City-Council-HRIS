@@ -74,6 +74,9 @@
 			</div>
 			<!-- /Vertical form modal -->
 
+			<!-- Hidden form for delete academic honors POST -->
+			<form id="deleteAcademicHonorsForm" th:action="@{/delete-academic-honors/0}" method="post"></form>
+
 			<!-- Content area -->
 			<div class="content pt-0">
 
@@ -108,13 +111,14 @@
 													th:data-row-academicHonorsName="${academicHonors.academicHonorsName}"													
 													th:data-row-id="${academicHonors.id}"
 													data-toggle="modal" data-target="#modal_form_vertical">View Record</button>
+												<button type="button" class="btn btn-danger" th:attr="onclick='confirmDeleteAcademicHonors(' + ${academicHonors.id} + ');'">Delete</button>
 											</td>
 										</tr>
-									</th:block>							
+									</th:block>
 								</tbody>
 							</table>
 						</div>
-						<!-- /basic datatable -->					
+						<!-- /basic datatable -->
 					</div>
 				</div>
 				<!-- /dashboard content -->
@@ -124,7 +128,7 @@
 
 			<!-- Footer -->
 			<div th:replace="fragments/common::footer"></div>
-			<!-- /Footer -->    
+			<!-- /Footer -->
 
 		</div>
 		<!-- /main content -->
@@ -133,11 +137,13 @@
 	<!-- /page content -->
 
 	<script th:inline="javascript">
-	
+
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+
 		$(document).ready(function() {
 			//$(".nav-link").removeClass("active");
 			//$("#academicHonorsNav").addClass("active");
-			
+
 			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
 			$("#systemSettingsNav").addClass("nav-item-expanded nav-item-open");
 			$("#academicHonorsNav").addClass("active");
@@ -148,24 +154,12 @@
 			
 			if(msgCode === 'ERROR'){
 				$('#modal_form_vertical').modal('show');
-				swal({
-					title: "Error!",
-					text: msgDesc,
-					icon: "error",
-					buttons: false,
-		            timer: 2000,
-				});
+				notifyError(msgDesc);
 			} else if(msgCode === 'SUCCESS'){
-				swal({
-					title: "Success!",
-					text: msgDesc,
-					icon: "success",
-					buttons: false,
-		            timer: 2000,
-				});
+				notifySuccess(msgDesc);
 			}
-			
-			
+
+
 		});
 		
 		$('#table-list').DataTable({
@@ -181,6 +175,25 @@
 			$("#modal_form_vertical").find("#id").val(id);
 			$("#modal_form_vertical").find("#academicHonorsName").val(academicHonorsName);
 		});
+
+		function confirmDeleteAcademicHonors(id) {
+			swal({
+				title: 'Delete Academic Honors',
+				text: 'Are you sure you want to delete this record? This cannot be undone.',
+				icon: 'warning',
+				buttons: {
+					cancel: 'Cancel',
+					confirm: { text: 'Delete', value: true }
+				},
+				dangerMode: true,
+			}).then(function(value) {
+				if (value) {
+					var form = document.getElementById('deleteAcademicHonorsForm');
+					form.action = contextRoot + '/delete-academic-honors/' + id;
+					form.submit();
+				}
+			});
+		}
 	</script>
 </body>
 </html>

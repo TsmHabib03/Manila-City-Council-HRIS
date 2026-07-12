@@ -16,5 +16,10 @@ public interface EducationalBackgroundRepository extends JpaRepository<Education
     
 	Optional<EducationalBackground> findByEmployeeAndDegreeCourse(Employee employee, DegreeCourses degreeCourse);
     List<EducationalBackground> findByEmployeeId(long employeeId);
+    boolean existsByAcademicHonorsId(Long academicHonorsId);
+    boolean existsByDegreeCourseId(Long degreeCourseId);
+    boolean existsByDegreeLevelId(Long degreeLevelId);
+    boolean existsByScholarshipId(Long scholarshipId);
+    boolean existsBySchoolId(Long schoolId);
 //    EducationalBackground findByEmployeeIdAndRelationship(long employeeId, String relationship);
 }

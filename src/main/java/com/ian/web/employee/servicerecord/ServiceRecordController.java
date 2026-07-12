@@ -30,6 +30,7 @@ import com.ian.web.employee.attachment.DocumentAttachment;
 import com.ian.web.employee.attachment.DocumentAttachmentRepository;
 import com.ian.web.fileupload.FileDTO;
 import com.ian.web.fileupload.StorageService;
+import com.ian.web.systemsettings.appointment_status.AppointmentStatusRepository;
 import com.ian.web.systemsettings.employee_status.EmployeeStatusRepository;
 import com.ian.web.systemsettings.position_title.PositionTitleRepository;
 
@@ -47,6 +48,7 @@ public class ServiceRecordController {
 	private final ServiceRecordRepository serviceRecordRepository;
 	private final EmployeeStatusRepository employeeStatusRepository;
 	private final PositionTitleRepository positionTitleRepository;
+	private final AppointmentStatusRepository appointmentStatusRepository;
 	private final StorageService storageService;
 	private final DocumentAttachmentRepository documentAttachmentRepository;
 
@@ -69,6 +71,7 @@ public class ServiceRecordController {
 		model.addAttribute("serviceRecord", serviceRecord);
 		model.addAttribute("employeeStatusList", employeeStatusRepository.findAll());
 		model.addAttribute("positionTitleList", positionTitleRepository.findAllByOrderByPositionTitleNameAsc());
+		model.addAttribute("appointmentStatusList", appointmentStatusRepository.findAll());
 
 		List<ServiceRecord> serviceRecordList = serviceRecordRepository.findByEmployeeIdOrderByDateFromDesc(employeeId);
 		adjustDates(serviceRecordList);
@@ -118,14 +121,13 @@ public class ServiceRecordController {
 			@RequestParam(value = "attachedFiles", required = false) MultipartFile[] attachedFiles) {
 
 		if (errors.hasErrors()) {
-			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			List<ServiceRecord> list = serviceRecordRepository.findByEmployeeIdOrderByDateFromDesc(serviceRecord.getEmployee().getId());
-			model.addAttribute("serviceRecordList", list);
-			model.addAttribute("attachmentListMap", buildAttachmentMap(list));
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
 			if (request.getServletPath().equalsIgnoreCase("/addMyServiceRecord")) {
-				return "employee/service-record/my-service-record";
+				return "redirect:/my-service-record/" + serviceRecord.getEmployee().getId()
+						+ "/" + serviceRecord.getEmployee().getEmpHashCode();
 			}
-			return "employee/service-record/employee-service-record";
+			return "redirect:/employee-service-record/" + serviceRecord.getEmployee().getId()
+					+ "/" + serviceRecord.getEmployee().getEmpHashCode();
 		}
 
 		serviceRecord = serviceRecordRepository.save(serviceRecord);

@@ -97,10 +97,15 @@ public class EducationalBackground {
 	}
 
 	public String getDateToString(){
-		if(startDate != null && endDate != null) {
-			return startDate.getMonth()+" "+startDate.getYear()+" - "+endDate.getMonth()+" "+endDate.getYear();
+		String from = (startDate != null) ? String.valueOf(startDate.getYear()) : "N/A";
+		String to;
+		if (upToPresent) {
+			to = "Present";
+		} else if (endDate != null) {
+			to = String.valueOf(endDate.getYear());
 		} else {
-			return "";
-		}		
+			to = "N/A";
+		}
+		return from + " - " + to;
 	}
 }
