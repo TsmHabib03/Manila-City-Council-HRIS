@@ -544,6 +544,10 @@
 									th:href="@{'/my-appointments/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
 									class="nav-link" id="myAppointmentsNav"><i class="icon-user-tie"></i> My Appointments</a>
 								</li>
+								<li class="nav-item"><a
+									th:href="@{'/my-leaves/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
+									class="nav-link" id="myLeavesNav"><i class="icon-calendar3"></i> My Leave Record</a>
+								</li>
 								<li class="nav-item"><a 									
 									th:href="@{'/my201files/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
 									class="nav-link" id="my201FileNav"><i class="icon-user-tie"></i> My 201 Files</a>
@@ -561,6 +565,7 @@
 								<li class="nav-item"><a th:href="@{/employee-reports}" class="nav-link" id="clearanceListNav"><i class="icon-paste2"></i> Reports</a></li>
 								-->
 								<li class="nav-item"><a th:href="@{/appointments}" class="nav-link" id="appointmentsListNav"><i class="icon-user-tie"></i> Appointments</a></li>
+							<li class="nav-item"><a th:href="@{/leaves}" class="nav-link" id="leavesListNav"><i class="icon-calendar3"></i> Leave Management</a></li>
 								<li class="nav-item"><a th:href="@{/201files}" class="nav-link" id="docs201ListNav"><i class="icon-magazine"></i> 201 Files</a></li>
 								<li class="nav-item nav-item-submenu" id="employeeReportsNav" style="display:none">
 									<a href="#" class="nav-link"><i class="icon-vcard"></i> Reports</a>
@@ -625,6 +630,8 @@
 								<li class="nav-item"><a th:href="@{/employee-status}" class="nav-link" id="employeeStatusNav"><i class="icon-office"></i>Employee Status</a></li>
 								<li class="nav-item"><a th:href="@{/eligibility}" class="nav-link" id="eligibilityNav"><i class="icon-wall"></i> Eligibility</a></li>
 								<li class="nav-item"><a th:href="@{/learning-type}" class="nav-link" id="learningDevelopmentNav"><i class="icon-wall"></i>Learning Type</a></li>
+								<li class="nav-item"><a th:href="@{/leave-types}" class="nav-link" id="leaveTypeNav"><i class="icon-calendar52"></i>Leave Types</a></li>
+								<li class="nav-item"><a th:href="@{/holidays}" class="nav-link" id="holidayNav"><i class="icon-calendar3"></i>Holidays</a></li>
 								<!-- <li class="nav-item"><a th:href="@{/levels}" class="nav-link" id="levelNav"><i class="icon-office"></i>Level</a></li>
 								<li class="nav-item"><a th:href="@{/salary-grades}" class="nav-link" id="salaryGradeNav"><i class="icon-office"></i>Salary Grade</a></li> -->
 								<li class="nav-item"><a th:href="@{/position-titles}" class="nav-link" id="positionTitleNav"><i class="icon-office"></i>Position Title</a></li>

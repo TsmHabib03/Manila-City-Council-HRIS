@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CS Form No. 6 (Revised 2020), Manila City Council. Exact vector rebuild of the
+     official fillable PDF (US Letter 612x792); coordinates extracted from the source
+     PDF. Only the city seal (cc-logo.jpg) is an image; everything else is vector. -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="CS-Form-6-Leave" pageWidth="612" pageHeight="792" columnWidth="612"
+              leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+
+	<style name="Base" isDefault="true" fontName="Arial" fontSize="7.56"/>
+
+	<parameter name="OFFICE_DEPARTMENT" class="java.lang.String"/>
+	<parameter name="LAST_NAME" class="java.lang.String"/>
+	<parameter name="FIRST_NAME" class="java.lang.String"/>
+	<parameter name="MIDDLE_NAME" class="java.lang.String"/>
+	<parameter name="DATE_OF_FILING" class="java.lang.String"/>
+	<parameter name="POSITION" class="java.lang.String"/>
+	<parameter name="SALARY" class="java.lang.String"/>
+	<parameter name="LEAVE_TYPE" class="java.lang.String"/>
+	<parameter name="LEAVE_TYPE_OTHERS" class="java.lang.String"/>
+	<parameter name="DETAIL_OPTION" class="java.lang.String"/>
+	<parameter name="DETAIL_TEXT" class="java.lang.String"/>
+	<parameter name="WORKING_DAYS" class="java.lang.String"/>
+	<parameter name="INCLUSIVE_DATES" class="java.lang.String"/>
+	<parameter name="COMMUTATION" class="java.lang.String"/>
+	<parameter name="CERT_AS_OF" class="java.lang.String"/>
+	<parameter name="CERT_VL_EARNED" class="java.lang.String"/>
+	<parameter name="CERT_VL_LESS" class="java.lang.String"/>
+	<parameter name="CERT_VL_BALANCE" class="java.lang.String"/>
+	<parameter name="CERT_SL_EARNED" class="java.lang.String"/>
+	<parameter name="CERT_SL_LESS" class="java.lang.String"/>
+	<parameter name="CERT_SL_BALANCE" class="java.lang.String"/>
+	<parameter name="RECOMMENDATION" class="java.lang.String"/>
+	<parameter name="RECOMMENDATION_REASON" class="java.lang.String"/>
+	<parameter name="APPROVED_DAYS_WITH_PAY" class="java.lang.String"/>
+	<parameter name="APPROVED_DAYS_WITHOUT_PAY" class="java.lang.String"/>
+	<parameter name="APPROVED_OTHERS" class="java.lang.String"/>
+	<parameter name="DISAPPROVAL_REASON" class="java.lang.String"/>
+	<parameter name="CERT_OFFICER_NAME" class="java.lang.String"/>
+	<parameter name="CERT_OFFICER_TITLE" class="java.lang.String"/>
+	<parameter name="RECOMMENDER_NAME" class="java.lang.String"/>
+	<parameter name="RECOMMENDER_TITLE" class="java.lang.String"/>
+	<parameter name="APPROVER_NAME" class="java.lang.String"/>
+	<parameter name="APPROVER_TITLE" class="java.lang.String"/>
+
+	<title>
+		<band height="792" splitType="Stretch">
+			<staticText><reportElement x="67" y="20" width="100" height="10"/><textElement><font fontName="Calibri" size="6.72" isBold="true" isItalic="true"/></textElement><text><![CDATA[Civil Service Form No. 6]]></text></staticText>
+			<staticText><reportElement x="67" y="28" width="100" height="10"/><textElement><font fontName="Calibri" size="6.72" isBold="true" isItalic="true"/></textElement><text><![CDATA[Revised 2020]]></text></staticText>
+			<image scaleImage="RetainShape"><reportElement x="119" y="40" width="77" height="47"/><imageExpression><![CDATA["jasper/reports/cc-logo.jpg"]]></imageExpression></image>
+			<staticText><reportElement x="251" y="48" width="97" height="9"/><textElement><font fontName="Arial" size="7.56" isBold="true"/></textElement><text><![CDATA[Republic of the Philippines]]></text></staticText>
+			<staticText><reportElement x="259" y="57" width="80" height="9"/><textElement><font fontName="Arial" size="7.56" isBold="true" isItalic="true"/></textElement><text><![CDATA[City Council of Manila]]></text></staticText>
+			<staticText><reportElement x="271" y="67" width="57" height="9"/><textElement><font fontName="Arial" size="7.56" isBold="true" isItalic="true"/></textElement><text><![CDATA[Manila City Hall]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="432" y="52" width="68" height="18" forecolor="#BCBCBC"/><graphicElement><pen lineWidth="0.56"/></graphicElement></rectangle>
+			<staticText><reportElement x="438" y="58" width="56" height="8"/><textElement><font fontName="Arial Narrow" size="6.05"/></textElement><text><![CDATA[Stamp of Date of Receipt]]></text></staticText>
+			<staticText><reportElement x="186" y="92" width="240" height="17"/><textElement textAlignment="Center"><font fontName="Arial" size="13.56" isBold="true"/></textElement><text><![CDATA[APPLICATION FOR LEAVE]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="65" y="117" width="468" height="647"/><graphicElement><pen lineWidth="0.75"/></graphicElement></rectangle>
+			<staticText><reportElement x="67" y="120" width="96" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[1.   OFFICE/DEPARTMENT]]></text></staticText>
+			<staticText><reportElement x="232" y="120" width="251" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[2.  NAME :            (Last)                               (First)                         (Middle)]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="68" y="131" width="158" height="12"/><textElement textAlignment="Center"><font fontName="Arial" size="8"/></textElement><textFieldExpression><![CDATA[$P{OFFICE_DEPARTMENT}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="255" y="131" width="100" height="12"/><textElement textAlignment="Center"><font fontName="Arial" size="8"/></textElement><textFieldExpression><![CDATA[$P{LAST_NAME}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="346" y="131" width="92" height="12"/><textElement textAlignment="Center"><font fontName="Arial" size="8"/></textElement><textFieldExpression><![CDATA[$P{FIRST_NAME}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="434" y="131" width="72" height="12"/><textElement textAlignment="Center"><font fontName="Arial" size="8"/></textElement><textFieldExpression><![CDATA[$P{MIDDLE_NAME}]]></textFieldExpression></textField>
+			<line><reportElement x="66" y="148" width="467" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="67" y="158" width="460" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[3.   DATE OF FILING  ______________             4.   POSITION  _____________________________     5.  SALARY  _______________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="143" y="156" width="59" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{DATE_OF_FILING}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="285" y="156" width="122" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{POSITION}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="463" y="156" width="63" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{SALARY}]]></textFieldExpression></textField>
+			<line><reportElement x="66" y="173" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="66" y="174" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="239" y="176" width="130" height="11"/><textElement><font fontName="Arial" size="9" isBold="true"/></textElement><text><![CDATA[6.  DETAILS OF APPLICATION]]></text></staticText>
+			<line><reportElement x="66" y="189" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="66" y="190" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line direction="TopDown"><reportElement x="321" y="191" width="1" height="324"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="67" y="195" width="147" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[6.A  TYPE OF LEAVE TO BE AVAILED OF]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="212" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="211" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Vacation Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="211" width="55" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Vacation Leave]]></text></staticText>
+			<staticText><reportElement x="138" y="212" width="172" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[ (Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="226" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="225" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Mandatory/Forced Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="225" width="86" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Mandatory/Forced Leave]]></text></staticText>
+			<staticText><reportElement x="170" y="226" width="140" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="240" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="239" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Sick Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="239" width="42" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Sick Leave ]]></text></staticText>
+			<staticText><reportElement x="125" y="240" width="185" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[ (Sec. 43, Rule XVI, Omnibus Rules Implementing E.O. No. 292)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="254" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="253" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Maternity Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="253" width="58" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Maternity Leave ]]></text></staticText>
+			<staticText><reportElement x="142" y="254" width="168" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(R.A. No. 11210 / IRR issued by CSC, DOLE and SSS)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="267" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="266" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Paternity Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="266" width="57" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Paternity Leave ]]></text></staticText>
+			<staticText><reportElement x="140" y="268" width="170" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(R.A. No. 8187 / CSC MC No. 71, s. 1998, as amended)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="281" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="280" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Special Privilege Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="280" width="83" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Special Privilege Leave]]></text></staticText>
+			<staticText><reportElement x="166" y="281" width="144" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="295" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="294" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Solo Parent Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="294" width="66" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Solo Parent Leave]]></text></staticText>
+			<staticText><reportElement x="149" y="295" width="161" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(RA No. 8972 / CSC MC No. 8, s. 2004)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="309" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="308" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Study Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="308" width="46" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Study Leave ]]></text></staticText>
+			<staticText><reportElement x="130" y="309" width="180" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="323" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="322" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("10-Day VAWC Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="322" width="76" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[10-Day VAWC Leave ]]></text></staticText>
+			<staticText><reportElement x="160" y="323" width="150" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(RA No. 9262 / CSC MC No. 15, s. 2005)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="336" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="335" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Rehabilitation Privilege") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="335" width="81" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Rehabilitation Privilege ]]></text></staticText>
+			<staticText><reportElement x="165" y="337" width="145" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="350" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="349" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Special Leave Benefits for Women") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="349" width="121" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Special Leave Benefits for Women ]]></text></staticText>
+			<staticText><reportElement x="204" y="350" width="106" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(RA No. 9710 / CSC MC No. 25, s. 2010)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="364" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="363" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Special Emergency (Calamity) Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="363" width="129" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Special Emergency (Calamity) Leave ]]></text></staticText>
+			<staticText><reportElement x="212" y="364" width="98" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(CSC MC No. 2, s. 2012, as amended)]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="73" y="378" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="72" y="377" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Adoption Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="377" width="56" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Adoption Leave]]></text></staticText>
+			<staticText><reportElement x="139" y="378" width="171" height="8"/><textElement><font fontName="Arial Narrow" size="6"/></textElement><text><![CDATA[(R.A. No. 8552)]]></text></staticText>
+			<staticText><reportElement x="75" y="405" width="30" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[Others: ]]></text></staticText>
+			<staticText><reportElement x="75" y="418" width="156" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[_____________________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="75" y="417" width="155" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Others") ? $P{LEAVE_TYPE_OTHERS} : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="323" y="195" width="90" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[6.B  DETAILS OF LEAVE ]]></text></staticText>
+			<staticText><reportElement x="333" y="211" width="150" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[In case of Vacation/Special Privilege Leave:]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="226" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="225" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Within the Philippines") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="225" width="185" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Within the Philippines __________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="419" y="224" width="109" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Within the Philippines") ? $P{DETAIL_TEXT} : ""]]></textFieldExpression></textField>
+			<rectangle><reportElement mode="Transparent" x="334" y="240" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="239" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Abroad") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="239" width="182" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Abroad (Specify) _____________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="402" y="238" width="122" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Abroad") ? $P{DETAIL_TEXT} : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="333" y="252" width="76" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[In case of Sick Leave:]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="267" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="266" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("In Hospital") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="266" width="184" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[In Hospital (Specify Illness) _____________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="438" y="265" width="88" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("In Hospital") ? $P{DETAIL_TEXT} : ""]]></textFieldExpression></textField>
+			<rectangle><reportElement mode="Transparent" x="334" y="281" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="280" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Out Patient") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="280" width="184" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Out Patient (Specify Illness)  ____________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="442" y="279" width="84" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Out Patient") ? $P{DETAIL_TEXT} : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="333" y="294" width="190" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[_____________________________________________]]></text></staticText>
+			<staticText><reportElement x="333" y="308" width="155" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[In case of Special Leave Benefits for Women:]]></text></staticText>
+			<staticText><reportElement x="333" y="321" width="191" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[(Specify Illness) ________________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="389" y="320" width="134" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Special Leave Benefits for Women - Illness") ? $P{DETAIL_TEXT} : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="333" y="335" width="190" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[_____________________________________________]]></text></staticText>
+			<staticText><reportElement x="333" y="349" width="82" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[In case of Study Leave:]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="364" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="363" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Completion of Master's Degree") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="363" width="106" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Completion of Master's Degree]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="378" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="377" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("BAR/Board Examination Review") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="377" width="110" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[BAR/Board Examination Review]]></text></staticText>
+			<staticText><reportElement x="333" y="391" width="52" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[Other purpose:]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="388" y="390" width="137" height="10"/><textElement textAlignment="Left"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{DETAIL_OPTION}.equals("Other purpose") ? $P{DETAIL_TEXT} : ""]]></textFieldExpression></textField>
+			<rectangle><reportElement mode="Transparent" x="334" y="406" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="405" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Monetization of Leave Credits") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="405" width="102" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Monetization of Leave Credits]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="420" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="419" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{LEAVE_TYPE}.equals("Terminal Leave") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="419" width="56" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Terminal Leave ]]></text></staticText>
+			<line><reportElement x="66" y="432" width="467" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="67" y="436" width="176" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[6.C  NUMBER OF WORKING DAYS APPLIED FOR]]></text></staticText>
+			<staticText><reportElement x="83" y="450" width="169" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[________________________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="83" y="449" width="168" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{WORKING_DAYS}]]></textFieldExpression></textField>
+			<staticText><reportElement x="88" y="464" width="68" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[INCLUSIVE DATES]]></text></staticText>
+			<staticText><reportElement x="83" y="478" width="169" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[________________________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="83" y="476" width="168" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{INCLUSIVE_DATES}]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="492" width="95" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[IMMEDIATE SUPERVISOR]]></text></staticText>
+			<staticText><reportElement x="323" y="436" width="76" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[6.D  COMMUTATION ]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="451" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="450" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{COMMUTATION}.equals("Not Requested") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="450" width="51" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Not Requested]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="465" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="464" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{COMMUTATION}.equals("Requested") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="464" width="37" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Requested]]></text></staticText>
+			<line><reportElement x="342" y="487" width="191" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="388" y="502" width="80" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[(Signature of Applicant)]]></text></staticText>
+			<line><reportElement x="66" y="515" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="66" y="516" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="212" y="519" width="183" height="11"/><textElement><font fontName="Arial" size="9" isBold="true"/></textElement><text><![CDATA[7.  DETAILS OF ACTION ON APPLICATION]]></text></staticText>
+			<line><reportElement x="66" y="531" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="66" y="533" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line direction="TopDown"><reportElement x="321" y="533" width="1" height="127"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="67" y="538" width="148" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[7.A  CERTIFICATION OF LEAVE CREDITS]]></text></staticText>
+			<staticText><reportElement x="135" y="551" width="117" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[As of _______________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="155" y="550" width="96" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{CERT_AS_OF}]]></textFieldExpression></textField>
+			<line direction="TopDown"><reportElement x="83" y="564" width="1" height="41"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line direction="TopDown"><reportElement x="158" y="564" width="1" height="41"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line direction="TopDown"><reportElement x="230" y="564" width="1" height="41"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line direction="TopDown"><reportElement x="302" y="564" width="1" height="41"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="83" y="564" width="220" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="83" y="574" width="220" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="83" y="584" width="220" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="83" y="594" width="220" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="83" y="604" width="220" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="169" y="565" width="53" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Vacation Leave]]></text></staticText>
+			<staticText><reportElement x="248" y="565" width="38" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[Sick Leave]]></text></staticText>
+			<staticText><reportElement x="99" y="575" width="44" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[Total Earned]]></text></staticText>
+			<staticText><reportElement x="86" y="585" width="69" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[Less this application]]></text></staticText>
+			<staticText><reportElement x="107" y="595" width="28" height="9"/><textElement><font fontName="Arial" size="7.56" isItalic="true"/></textElement><text><![CDATA[Balance]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="159" y="575" width="70" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.2"/></textElement><textFieldExpression><![CDATA[$P{CERT_VL_EARNED}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="231" y="575" width="70" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.2"/></textElement><textFieldExpression><![CDATA[$P{CERT_SL_EARNED}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="159" y="585" width="70" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.2"/></textElement><textFieldExpression><![CDATA[$P{CERT_VL_LESS}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="231" y="585" width="70" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.2"/></textElement><textFieldExpression><![CDATA[$P{CERT_SL_LESS}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="159" y="595" width="70" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.2"/></textElement><textFieldExpression><![CDATA[$P{CERT_VL_BALANCE}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="231" y="595" width="70" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.2"/></textElement><textFieldExpression><![CDATA[$P{CERT_SL_BALANCE}]]></textFieldExpression></textField>
+			<line><reportElement x="84" y="628" width="219" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<textField isBlankWhenNull="true"><reportElement x="84" y="629" width="219" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.56"/></textElement><textFieldExpression><![CDATA[$P{CERT_OFFICER_NAME}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="67" y="638" width="253" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.56"/></textElement><textFieldExpression><![CDATA[$P{CERT_OFFICER_TITLE}]]></textFieldExpression></textField>
+			<staticText><reportElement x="323" y="538" width="90" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[7.B  RECOMMENDATION]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="552" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="551" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{RECOMMENDATION}.equals("For approval") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="551" width="43" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[For approval]]></text></staticText>
+			<rectangle><reportElement mode="Transparent" x="334" y="566" width="6" height="6"/><graphicElement><pen lineWidth="0.6"/></graphicElement></rectangle>
+			<textField isBlankWhenNull="true"><reportElement x="333" y="565" width="8" height="8"/><textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="Arial" size="6" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{RECOMMENDATION}.equals("For disapproval") ? "X" : ""]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="565" width="179" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[For disapproval due to ________________________]]></text></staticText>
+			<staticText><reportElement x="344" y="575" width="181" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[___________________________________________]]></text></staticText>
+			<staticText><reportElement x="344" y="585" width="181" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[___________________________________________]]></text></staticText>
+			<staticText><reportElement x="344" y="595" width="181" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[___________________________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="345" y="575" width="179" height="30"/><textElement textAlignment="Left"><font fontName="Arial" size="7.5"/><paragraph lineSpacing="Fixed" lineSpacingSize="10"/></textElement><textFieldExpression><![CDATA[$P{RECOMMENDATION}.equals("For disapproval") ? $P{RECOMMENDATION_REASON} : ""]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="344" y="615" width="181" height="11"/><textElement textAlignment="Center"><font fontName="Calibri" size="8.28"/></textElement><textFieldExpression><![CDATA[$P{RECOMMENDER_NAME}]]></textFieldExpression></textField>
+			<staticText><reportElement x="344" y="619" width="181" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[___________________________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="344" y="629" width="181" height="19"/><textElement textAlignment="Center"><font fontName="Arial" size="7.56"/></textElement><textFieldExpression><![CDATA[$P{RECOMMENDER_TITLE}]]></textFieldExpression></textField>
+			<line><reportElement x="66" y="660" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<line><reportElement x="66" y="661" width="466" height="1"/><graphicElement><pen lineWidth="0.75"/></graphicElement></line>
+			<staticText><reportElement x="67" y="666" width="95" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[7.C  APPROVED FOR:]]></text></staticText>
+			<staticText><reportElement x="85" y="676" width="78" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[_______ days with pay]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="85" y="675" width="29" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{APPROVED_DAYS_WITH_PAY}]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="686" width="88" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[_______ days without pay]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="85" y="685" width="29" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{APPROVED_DAYS_WITHOUT_PAY}]]></textFieldExpression></textField>
+			<staticText><reportElement x="85" y="696" width="85" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[_______ others (Specify)]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="85" y="695" width="29" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{APPROVED_OTHERS}]]></textFieldExpression></textField>
+			<staticText><reportElement x="323" y="666" width="106" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[7.D   DISAPPROVED DUE TO:]]></text></staticText>
+			<staticText><reportElement x="344" y="675" width="178" height="10"/><textElement><font fontName="Arial" size="8.28"/></textElement><text><![CDATA[_______________________________________]]></text></staticText>
+			<staticText><reportElement x="344" y="686" width="181" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[___________________________________________]]></text></staticText>
+			<staticText><reportElement x="344" y="696" width="181" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[___________________________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="345" y="676" width="177" height="30"/><textElement textAlignment="Left"><font fontName="Arial" size="7.5"/><paragraph lineSpacing="Fixed" lineSpacingSize="10"/></textElement><textFieldExpression><![CDATA[$P{DISAPPROVAL_REASON}]]></textFieldExpression></textField>
+			<textField isBlankWhenNull="true"><reportElement x="203" y="720" width="187" height="11"/><textElement textAlignment="Center"><font fontName="Calibri" size="8.3" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{APPROVER_NAME}]]></textFieldExpression></textField>
+			<staticText><reportElement x="226" y="725" width="147" height="9"/><textElement><font fontName="Arial" size="7.56" isBold="true"/></textElement><text><![CDATA[___________________________________]]></text></staticText>
+			<textField isBlankWhenNull="true"><reportElement x="203" y="735" width="187" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.56" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{APPROVER_TITLE}]]></textFieldExpression></textField>
+		</band>
+	</title>
+</jasperReport>

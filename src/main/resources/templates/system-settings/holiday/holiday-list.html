@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+	<title>Human Resource Information System</title>
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4>
+							<span class="font-weight-semibold">Holidays</span>
+							<small class="d-block">National and Manila local holidays used by leave processing</small>
+						</h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>
+				</div>
+			</div>
+			<!-- /page header -->
+
+			<!-- Add/Edit modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Holiday Details</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form th:action="@{/save-holiday}" method="post" class="form-horizontal" th:object="${holiday}">
+							<input type="hidden" th:field="*{id}" id="id"/>
+							<div class="modal-body">
+								<div class="form-group row">
+									<label class="col-form-label col-sm-4" for="holidayName">Holiday Name</label>
+									<div class="col-sm-8">
+										<span class="validationError text-danger" th:if="${#fields.hasErrors('holidayName')}" th:errors="*{holidayName}"></span>
+										<input type="text" id="holidayName" th:field="*{holidayName}" placeholder="e.g. Araw ng Maynila" class="form-control">
+									</div>
+								</div>
+								<div class="form-group row">
+									<label class="col-form-label col-sm-4" for="holidayDate">Date</label>
+									<div class="col-sm-8">
+										<span class="validationError text-danger" th:if="${#fields.hasErrors('holidayDate')}" th:errors="*{holidayDate}"></span>
+										<input type="date" id="holidayDate" name="holidayDate" th:value="*{holidayDate}" class="form-control">
+									</div>
+								</div>
+								<div class="form-group row">
+									<label class="col-form-label col-sm-4" for="holidayType">Type</label>
+									<div class="col-sm-8">
+										<span class="validationError text-danger" th:if="${#fields.hasErrors('holidayType')}" th:errors="*{holidayType}"></span>
+										<select id="holidayType" th:field="*{holidayType}" class="form-control">
+											<option value="">SELECT VALUE</option>
+											<option th:each="htype : ${holidayTypeList}" th:value="${htype}" th:text="${htype}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group row mb-0">
+									<label class="col-form-label col-sm-4" for="remarks">Remarks <small class="text-muted d-block">optional</small></label>
+									<div class="col-sm-8">
+										<input type="text" id="remarks" th:field="*{remarks}" placeholder="e.g. Movable date" class="form-control">
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btnClose btn btn-link" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /modal -->
+
+			<!-- Hidden form for delete POST -->
+			<form id="deleteHolidayForm" th:action="@{/delete-holiday/0}" method="post"></form>
+
+			<!-- Content area -->
+			<div class="content pt-0">
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">Holiday List</h5>
+								<div class="header-elements">
+									<div class="list-icons">
+										<button id="addHolidayBtn" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Holiday</button>
+									</div>
+								</div>
+							</div>
+
+							<table class="table table-basic table-hover" id="table-list">
+								<thead>
+									<tr>
+										<th>Date</th>
+										<th>Holiday</th>
+										<th>Type</th>
+										<th>Remarks</th>
+										<th class="text-center">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="hday : ${listOfHoliday}">
+										<tr>
+											<td style="white-space:nowrap;" th:text="${#temporals.format(hday.getHolidayDate(), 'MMM d, yyyy (EEE)')}"></td>
+											<td th:text="${hday.getHolidayName()}"></td>
+											<td>
+												<span th:classappend="${hday.getHolidayType() == 'Regular Holiday' ? 'badge badge-primary'
+													: (hday.getHolidayType() == 'Local Holiday (Manila)' ? 'badge badge-warning' : 'badge badge-info')}"
+													th:text="${hday.getHolidayType()}"></span>
+											</td>
+											<td class="text-muted" th:text="${hday.getRemarks()}"></td>
+											<td class="text-center" width="220px;">
+												<button type="button" class="showDetails btn btn-primary btn-sm"
+													th:data-row-id="${hday.getId()}"
+													th:data-row-holidayName="${hday.getHolidayName()}"
+													th:data-row-holidayDate="${hday.getHolidayDate()}"
+													th:data-row-holidayType="${hday.getHolidayType()}"
+													th:data-row-remarks="${hday.getRemarks()}"
+													data-toggle="modal" data-target="#modal_form_vertical">Edit</button>
+												<button type="button" class="btn btn-danger btn-sm ml-1" th:attr="onclick='confirmDeleteHoliday(' + ${hday.getId()} + ');'">
+													<i class="icon-trash"></i> Delete
+												</button>
+											</td>
+										</tr>
+									</th:block>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+
+		$(document).ready(function() {
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#systemSettingsNav").addClass("nav-item-expanded nav-item-open");
+			$("#holidayNav").addClass("active");
+
+			let msgCode = /*[[${uxmessage == null ? '' : uxmessage.code} ]]*/'';
+			let msgDesc = /*[[${uxmessage == null ? '' : uxmessage.message}]]*/'';
+
+			if(msgCode === 'ERROR'){
+				notifyError(msgDesc);
+			} else if (msgCode === 'SUCCESS') {
+				notifySuccess(msgDesc);
+			}
+
+			$('#addHolidayBtn').on('click', function() {
+				$("#modal_form_vertical").find("#id").val('');
+				$("#modal_form_vertical").find("#holidayName").val('');
+				$("#modal_form_vertical").find("#holidayDate").val('');
+				$("#modal_form_vertical").find("#holidayType").val('');
+				$("#modal_form_vertical").find("#remarks").val('');
+			});
+		});
+
+		$('#table-list').DataTable({
+				"lengthMenu": [25, 50, 100],
+				"ordering": false,
+		});
+
+		$(document).on("click", ".showDetails", function() {
+			var btn = $(this);
+			$("#modal_form_vertical").find("#id").val(btn.attr('data-row-id'));
+			$("#modal_form_vertical").find("#holidayName").val(btn.attr('data-row-holidayName'));
+			$("#modal_form_vertical").find("#holidayDate").val(btn.attr('data-row-holidayDate'));
+			$("#modal_form_vertical").find("#holidayType").val(btn.attr('data-row-holidayType'));
+			$("#modal_form_vertical").find("#remarks").val(btn.attr('data-row-remarks'));
+		});
+
+		function confirmDeleteHoliday(id) {
+			swal({
+				title: 'Delete Holiday',
+				text: 'Are you sure you want to delete this holiday? This cannot be undone.',
+				icon: 'warning',
+				buttons: { cancel: 'Cancel', confirm: { text: 'Delete', value: true } },
+				dangerMode: true,
+			}).then(function(value) {
+				if (value) {
+					var form = document.getElementById('deleteHolidayForm');
+					form.action = contextRoot + '/delete-holiday/' + id;
+					form.submit();
+				}
+			});
+		}
+
+	</script>
+</body>
+</html>

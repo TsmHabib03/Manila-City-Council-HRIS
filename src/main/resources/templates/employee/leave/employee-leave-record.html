@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+	<title>Human Resource Information System</title>
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-header-content header-elements-md-inline">
+					<div class="page-title d-flex">
+						<h4>
+							<span class="font-weight-semibold" th:text="${showMode == 'EMPLOYEE' ? 'My Leave Record' : 'Leave Record'}">Leave Record</span>
+							<small class="d-block" th:text="${employee.getFullName()}">Employee Name</small>
+						</h4>
+						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
+					</div>
+					<div class="header-elements">
+						<span class="badge badge-primary mr-1" th:text="'VL Balance: ' + ${vlBalance}">VL</span>
+						<span class="badge badge-info" th:text="'SL Balance: ' + ${slBalance}">SL</span>
+					</div>
+				</div>
+			</div>
+			<!-- /page header -->
+
+			<!-- Add/Edit Leave Application Modal -->
+			<div id="modal_leave_application" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Application for Leave (CS Form No. 6)</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form id="leaveApplicationForm" th:action="@{/addLeaveApplication}" method="post" class="form-horizontal" th:object="${leaveApplication}">
+							<input type="hidden" th:field="*{id}" id="la_id">
+							<input type="hidden" th:field="*{employee.id}" id="la_employeeId">
+							<input type="hidden" th:field="*{employee.empHashCode}" id="la_empHashCode">
+							<div class="modal-body">
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="la_officeDepartment">Office/Department</label>
+											<input id="la_officeDepartment" th:field="*{officeDepartment}" type="text" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="la_dateOfFiling">Date of Filing <span class="text-danger">*</span></label>
+											<input id="la_dateOfFiling" name="dateOfFiling" th:value="*{dateOfFiling}" type="date" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="la_position">Position</label>
+											<input id="la_position" th:field="*{position}" type="text" class="form-control">
+										</div>
+										<div class="col-sm-2">
+											<label for="la_salary">Salary</label>
+											<input id="la_salary" th:field="*{salary}" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="la_leaveType">6.A Type of Leave <span class="text-danger">*</span></label>
+											<select id="la_leaveType" th:field="*{leaveType}" class="form-control required-field-hrisp">
+												<option value="">SELECT VALUE</option>
+												<option th:each="ltype : ${leaveTypeList}" th:value="${ltype}" th:text="${ltype}"></option>
+											</select>
+										</div>
+										<div class="col-sm-4">
+											<label for="la_leaveTypeOthers">Others (specify)</label>
+											<input id="la_leaveTypeOthers" th:field="*{leaveTypeOthers}" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="la_commutation">6.D Commutation</label>
+											<select id="la_commutation" th:field="*{commutation}" class="form-control">
+												<option value="">SELECT VALUE</option>
+												<option value="Not Requested">Not Requested</option>
+												<option value="Requested">Requested</option>
+											</select>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="la_leaveDetailOption">6.B Details of Leave</label>
+											<select id="la_leaveDetailOption" th:field="*{leaveDetailOption}" class="form-control">
+												<option value="">SELECT VALUE</option>
+												<option th:each="opt : ${leaveDetailOptionList}" th:value="${opt}" th:text="${opt}"></option>
+											</select>
+										</div>
+										<div class="col-sm-8">
+											<label for="la_leaveDetailText">Specify (location / illness / purpose)</label>
+											<input id="la_leaveDetailText" th:field="*{leaveDetailText}" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-3">
+											<label for="la_workingDays">6.C Working Days <span class="text-danger">*</span></label>
+											<input id="la_workingDays" th:field="*{workingDays}" type="number" step="0.001" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="la_dateFrom">From <span class="text-danger">*</span></label>
+											<input id="la_dateFrom" name="dateFrom" th:value="*{dateFrom}" type="date" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="la_dateTo">To</label>
+											<input id="la_dateTo" name="dateTo" th:value="*{dateTo}" type="date" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="la_inclusiveDates">Inclusive Dates (as printed)</label>
+											<input id="la_inclusiveDates" th:field="*{inclusiveDates}" type="text" placeholder="e.g. 12/26/25, 1/2/26" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<hr>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-3">
+											<label for="la_status">Status <span class="text-danger">*</span></label>
+											<select id="la_status" th:field="*{status}" class="form-control required-field-hrisp">
+												<option th:each="s : ${statusList}" th:value="${s}" th:text="${s}"></option>
+											</select>
+										</div>
+										<div class="col-sm-3">
+											<label for="la_recommendation">7.B Recommendation</label>
+											<select id="la_recommendation" th:field="*{recommendation}" class="form-control">
+												<option value="">SELECT VALUE</option>
+												<option value="For approval">For approval</option>
+												<option value="For disapproval">For disapproval</option>
+											</select>
+										</div>
+										<div class="col-sm-6">
+											<label for="la_recommendationReason">Disapproval Recommendation Reason</label>
+											<input id="la_recommendationReason" th:field="*{recommendationReason}" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-3">
+											<label for="la_approvedDaysWithPay">7.C Days with Pay</label>
+											<input id="la_approvedDaysWithPay" th:field="*{approvedDaysWithPay}" type="number" step="0.001" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="la_approvedDaysWithoutPay">Days without Pay</label>
+											<input id="la_approvedDaysWithoutPay" th:field="*{approvedDaysWithoutPay}" type="number" step="0.001" class="form-control">
+										</div>
+										<div class="col-sm-6">
+											<label for="la_approvedOthers">Others (specify)</label>
+											<input id="la_approvedOthers" th:field="*{approvedOthers}" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-6">
+											<label for="la_disapprovalReason">7.D Disapproved Due To</label>
+											<input id="la_disapprovalReason" th:field="*{disapprovalReason}" type="text" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label class="d-block">&nbsp;</label>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" th:field="*{disapprovedExigency}" id="la_disapprovedExigency" class="form-check-input">
+													Exigency of the service (no deduction)
+												</label>
+											</div>
+										</div>
+										<div class="col-sm-3">
+											<label for="la_remarks">Remarks</label>
+											<input id="la_remarks" th:field="*{remarks}" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<a data-toggle="collapse" href="#signatoriesSection" class="text-primary">
+										<i class="icon-pencil7"></i> Signatories (change only when officials change)
+									</a>
+									<div class="collapse mt-2" id="signatoriesSection">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="la_certOfficerName">7.A Certifying Officer</label>
+												<input id="la_certOfficerName" th:field="*{certOfficerName}" type="text" class="form-control">
+											</div>
+											<div class="col-sm-6">
+												<label for="la_certOfficerTitle">Title</label>
+												<input id="la_certOfficerTitle" th:field="*{certOfficerTitle}" type="text" class="form-control">
+											</div>
+										</div>
+										<div class="row mt-2">
+											<div class="col-sm-6">
+												<label for="la_recommenderName">7.B Recommending Officer</label>
+												<input id="la_recommenderName" th:field="*{recommenderName}" type="text" class="form-control">
+											</div>
+											<div class="col-sm-6">
+												<label for="la_recommenderTitle">Title</label>
+												<input id="la_recommenderTitle" th:field="*{recommenderTitle}" type="text" class="form-control">
+											</div>
+										</div>
+										<div class="row mt-2">
+											<div class="col-sm-6">
+												<label for="la_approverName">7.C/7.D Approving Authority</label>
+												<input id="la_approverName" th:field="*{approverName}" type="text" class="form-control">
+											</div>
+											<div class="col-sm-6">
+												<label for="la_approverTitle">Title</label>
+												<input id="la_approverTitle" th:field="*{approverTitle}" type="text" class="form-control">
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="alert alert-info mb-0">
+									Leave credit certification (7.A) is computed automatically from the leave card when you save.
+									Approving this application posts the deduction to the leave card
+									(Vacation/Forced Leave deducts VL, Sick Leave deducts SL; other types are recorded without deduction).
+								</div>
+
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button th:if="${showMode != 'EMPLOYEE'}" type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Add/Edit Leave Application Modal -->
+
+			<!-- Add/Edit Leave Card Entry Modal -->
+			<div id="modal_card_entry" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-teal">
+							<h5 class="modal-title">Leave Card Entry</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form id="leaveCardEntryForm" th:action="@{/addLeaveCardEntry}" method="post" class="form-horizontal" th:object="${leaveCardEntry}">
+							<input type="hidden" th:field="*{id}" id="ce_id">
+							<input type="hidden" th:field="*{employee.id}" id="ce_employeeId">
+							<input type="hidden" th:field="*{employee.empHashCode}" id="ce_empHashCode">
+							<div class="modal-body">
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-3">
+											<label for="ce_entryType">Entry Type <span class="text-danger">*</span></label>
+											<select id="ce_entryType" th:field="*{entryType}" class="form-control required-field-hrisp">
+												<option value="">SELECT VALUE</option>
+												<option th:each="t : ${entryTypeList}" th:value="${t}" th:text="${t}"></option>
+											</select>
+										</div>
+										<div class="col-sm-3">
+											<label for="ce_entryDate">Entry Date <span class="text-danger">*</span></label>
+											<input id="ce_entryDate" name="entryDate" th:value="*{entryDate}" type="date" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="ce_period">Period (e.g. 12/25)</label>
+											<input id="ce_period" th:field="*{period}" type="text" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="ce_particulars">Particulars</label>
+											<input id="ce_particulars" th:field="*{particulars}" type="text" placeholder="e.g. (1-0-0) V" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-3">
+											<label for="ce_vlEarned">VL Earned</label>
+											<input id="ce_vlEarned" th:field="*{vlEarned}" type="number" step="0.001" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="ce_vlDeducted">VL Absence/UT w/ pay</label>
+											<input id="ce_vlDeducted" th:field="*{vlDeducted}" type="number" step="0.001" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="ce_slEarned">SL Earned</label>
+											<input id="ce_slEarned" th:field="*{slEarned}" type="number" step="0.001" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="ce_slDeducted">SL Absence/UT w/ pay</label>
+											<input id="ce_slDeducted" th:field="*{slDeducted}" type="number" step="0.001" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="ce_remarks">Remarks (dates of leave)</label>
+											<input id="ce_remarks" th:field="*{remarks}" type="text" placeholder="e.g. 12/26/25, 1/2/26" class="form-control">
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button th:if="${showMode != 'EMPLOYEE'}" type="submit" class="btn bg-teal">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Add/Edit Leave Card Entry Modal -->
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<!-- Leave Applications -->
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title" th:text="${showMode == 'EMPLOYEE' ? 'My Leave Applications' : 'Leave Applications (CS Form No. 6)'}">Leave Applications</h5>
+								<div class="header-elements">
+									<div class="list-icons">
+										<th:block th:if="${showMode != 'EMPLOYEE'}">
+											<button id="addNewApplicationBtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_leave_application">File Leave Application</button>
+											<a th:href="@{/leaves}" class="btn bg-green ml-1">Back to Employee List</a>
+										</th:block>
+									</div>
+								</div>
+							</div>
+
+							<table class="table table-basic table-hover" id="table-applications">
+								<thead>
+									<tr>
+										<th width="250px;">&nbsp;</th>
+										<th>Date of Filing</th>
+										<th>Type of Leave</th>
+										<th>Working Days</th>
+										<th>Inclusive Dates</th>
+										<th>Status</th>
+										<th>VL Bal. after</th>
+										<th>SL Bal. after</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="app : ${leaveApplicationList}">
+										<tr>
+											<td class="text-center">
+												<button type="button" class="showApplicationDetails btn btn-primary btn-sm"
+													th:data-row-id="${app.getId()}"
+													th:data-row-officeDepartment="${app.officeDepartment}"
+													th:data-row-dateOfFiling="${app.dateOfFiling}"
+													th:data-row-position="${app.position}"
+													th:data-row-salary="${app.salary}"
+													th:data-row-leaveType="${app.leaveType}"
+													th:data-row-leaveTypeOthers="${app.leaveTypeOthers}"
+													th:data-row-leaveDetailOption="${app.leaveDetailOption}"
+													th:data-row-leaveDetailText="${app.leaveDetailText}"
+													th:data-row-workingDays="${app.workingDays}"
+													th:data-row-dateFrom="${app.dateFrom}"
+													th:data-row-dateTo="${app.dateTo}"
+													th:data-row-inclusiveDates="${app.inclusiveDates}"
+													th:data-row-commutation="${app.commutation}"
+													th:data-row-status="${app.status}"
+													th:data-row-recommendation="${app.recommendation}"
+													th:data-row-recommendationReason="${app.recommendationReason}"
+													th:data-row-approvedDaysWithPay="${app.approvedDaysWithPay}"
+													th:data-row-approvedDaysWithoutPay="${app.approvedDaysWithoutPay}"
+													th:data-row-approvedOthers="${app.approvedOthers}"
+													th:data-row-disapprovalReason="${app.disapprovalReason}"
+													th:data-row-disapprovedExigency="${app.disapprovedExigency}"
+													th:data-row-certOfficerName="${app.certOfficerName}"
+													th:data-row-certOfficerTitle="${app.certOfficerTitle}"
+													th:data-row-recommenderName="${app.recommenderName}"
+													th:data-row-recommenderTitle="${app.recommenderTitle}"
+													th:data-row-approverName="${app.approverName}"
+													th:data-row-approverTitle="${app.approverTitle}"
+													th:data-row-remarks="${app.remarks}"
+													data-toggle="modal" data-target="#modal_leave_application">
+													<span th:text="${showMode == 'EMPLOYEE' ? 'View' : 'View / Edit'}">View / Edit</span>
+												</button>
+												<a th:href="@{'/leaveForm6Pdf/' + ${app.getId()}}" target="_blank"
+													class="btn bg-indigo btn-sm" title="Print CS Form No. 6">Form 6 PDF</a>
+												<th:block th:if="${showMode != 'EMPLOYEE'}">
+													<a th:href="@{'/deleteLeaveApplication/' + ${app.getId()}}"
+														class="btn btn-danger btn-sm"
+														onclick="return confirm('Delete this leave application? Any linked leave card entry will also be removed.')">Delete</a>
+												</th:block>
+											</td>
+											<td th:text="${app.dateOfFiling}">dateOfFiling</td>
+											<td>
+												<span th:text="${app.leaveType}">leaveType</span>
+												<small class="d-block text-muted" th:if="${app.leaveDetailText != null and !app.leaveDetailText.isEmpty()}" th:text="${app.leaveDetailText}"></small>
+											</td>
+											<td th:text="${app.workingDays}">workingDays</td>
+											<td th:text="${app.getInclusiveDatesDisplay()}">inclusiveDates</td>
+											<td>
+												<span th:classappend="${app.status == 'APPROVED' ? 'badge badge-success'
+													: (app.status == 'DISAPPROVED' ? 'badge badge-danger'
+													: (app.status == 'RETURNED' ? 'badge badge-warning'
+													: (app.status == 'FILED' ? 'badge badge-info' : 'badge badge-secondary')))}"
+													th:text="${app.status}">status</span>
+											</td>
+											<td th:text="${app.certVlBalance}">vl</td>
+											<td th:text="${app.certSlBalance}">sl</td>
+										</tr>
+									</th:block>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- /Leave Applications -->
+
+				<!-- Leave Card -->
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card p-3">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title" th:text="${showMode == 'EMPLOYEE' ? 'My Leave Card' : 'Employee''s Leave Card'}">Employee's Leave Card</h5>
+								<div class="header-elements">
+									<div class="list-icons">
+										<form th:if="${showMode != 'EMPLOYEE'}" th:action="@{'/postLeaveAccrual/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}"
+											method="post" class="d-inline-block mr-2">
+											<div class="input-group input-group-sm d-inline-flex" style="width: auto;">
+												<input type="month" name="accrualMonth" class="form-control form-control-sm" required>
+												<div class="input-group-append">
+													<button type="submit" class="btn btn-outline-primary btn-sm"
+														title="Adds 1.25 VL and 1.25 SL for the selected month">Post Monthly Accrual</button>
+												</div>
+											</div>
+										</form>
+										<button th:if="${showMode != 'EMPLOYEE'}" id="addNewEntryBtn" type="button" class="btn bg-teal btn-sm" data-toggle="modal" data-target="#modal_card_entry">Add Entry</button>
+										<a th:href="@{'/leaveCardPdf/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}" target="_blank"
+											class="btn bg-indigo btn-sm ml-1">Leave Card PDF</a>
+									</div>
+								</div>
+							</div>
+
+							<div class="table-responsive">
+								<table class="table table-bordered table-sm" id="table-card">
+									<thead>
+										<tr>
+											<th rowspan="2" style="width:110px;">&nbsp;</th>
+											<th rowspan="2">Period</th>
+											<th rowspan="2">Particulars</th>
+											<th colspan="3" class="text-center">Vacation Leave</th>
+											<th colspan="3" class="text-center">Sick Leave</th>
+											<th rowspan="2">Remarks<br><small>(date/s of leave)</small></th>
+										</tr>
+										<tr>
+											<th class="text-right">Earned</th>
+											<th class="text-right">Abs./UT w/ pay</th>
+											<th class="text-right">Balance</th>
+											<th class="text-right">Earned</th>
+											<th class="text-right">Abs./UT w/ pay</th>
+											<th class="text-right">Balance</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:if="${#lists.isEmpty(leaveCardEntryList)}">
+											<td colspan="10" class="text-center text-muted py-3">
+												No leave card entries yet. Post a monthly accrual to start the ledger.
+											</td>
+										</tr>
+										<th:block th:each="entry : ${leaveCardEntryList}">
+											<tr>
+												<td class="text-center">
+													<th:block th:if="${showMode != 'EMPLOYEE'}">
+														<button type="button" class="showEntryDetails btn btn-outline-primary btn-sm"
+															th:disabled="${entry.leaveApplication != null}"
+															th:title="${entry.leaveApplication != null ? 'Linked to a leave application - edit the application instead' : 'Edit entry'}"
+															th:data-row-id="${entry.getId()}"
+															th:data-row-entryType="${entry.entryType}"
+															th:data-row-entryDate="${entry.entryDate}"
+															th:data-row-period="${entry.period}"
+															th:data-row-particulars="${entry.particulars}"
+															th:data-row-vlEarned="${entry.vlEarned}"
+															th:data-row-vlDeducted="${entry.vlDeducted}"
+															th:data-row-slEarned="${entry.slEarned}"
+															th:data-row-slDeducted="${entry.slDeducted}"
+															th:data-row-remarks="${entry.remarks}"
+															data-toggle="modal" data-target="#modal_card_entry">
+															<i class="icon-pencil7"></i>
+														</button>
+														<a th:if="${entry.leaveApplication == null}"
+															th:href="@{'/deleteLeaveCardEntry/' + ${entry.getId()}}"
+															class="btn btn-outline-danger btn-sm"
+															onclick="return confirm('Delete this leave card entry?')"><i class="icon-trash"></i></a>
+													</th:block>
+												</td>
+												<td th:text="${entry.period}">period</td>
+												<td th:text="${entry.particulars}">particulars</td>
+												<td class="text-right" th:text="${entry.vlEarned}">vlE</td>
+												<td class="text-right" th:text="${entry.vlDeducted}">vlD</td>
+												<td class="text-right font-weight-semibold" th:text="${entry.vlBalance}">vlB</td>
+												<td class="text-right" th:text="${entry.slEarned}">slE</td>
+												<td class="text-right" th:text="${entry.slDeducted}">slD</td>
+												<td class="text-right font-weight-semibold" th:text="${entry.slBalance}">slB</td>
+												<td th:text="${entry.remarks}">remarks</td>
+											</tr>
+										</th:block>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /Leave Card -->
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/'';
+		let applicationsDataTable = null;
+
+		$(document).ready(function() {
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			let showMode = /*[[${showMode == null ? '' : showMode}]]*/'';
+			if (showMode === 'EMPLOYEE') {
+				$("#myAccountNav").addClass("nav-item-expanded nav-item-open");
+				$("#myLeavesNav").addClass("active");
+			} else {
+				$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+				$("#leavesListNav").addClass("active");
+			}
+
+			let msgCode = /*[[${msg == null ? '' : msg.code}]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+
+			if (msgCode === 'ERROR') {
+				swal({ title: "Error!", text: msgDesc, icon: "error", buttons: false, timer: 3000 });
+			} else if (msgCode === 'EDIT-SUCCESS' || msgCode === 'SUCCESS') {
+				swal({ title: "Success!", text: msgDesc, icon: "success", buttons: false, timer: 2000 });
+			}
+
+			if (!applicationsDataTable) {
+				applicationsDataTable = $('#table-applications').DataTable({
+					"lengthMenu": [10, 25, 50],
+					"ordering": false,
+					"retrieve": true,
+					"language": {
+						"emptyTable": showMode === 'EMPLOYEE'
+							? "No leave applications on record yet."
+							: "No leave applications yet. Click 'File Leave Application' to file the first one.",
+						"zeroRecords": "No applications match your search."
+					}
+				});
+			}
+
+			$('#addNewApplicationBtn').on('click', function() {
+				$('#leaveApplicationForm')[0].reset();
+				$('#la_id').val('0');
+				$('#leaveApplicationForm').attr('action', contextRoot + '/addLeaveApplication');
+			});
+
+			$('#addNewEntryBtn').on('click', function() {
+				$('#leaveCardEntryForm')[0].reset();
+				$('#ce_id').val('0');
+				$('#leaveCardEntryForm').attr('action', contextRoot + '/addLeaveCardEntry');
+			});
+
+			$('#leaveApplicationForm, #leaveCardEntryForm').submit(function(event) {
+				if (showMode === 'EMPLOYEE') {
+					event.preventDefault();
+					$(this).closest('.modal').modal('hide');
+					return;
+				}
+				var emptyFields = [];
+				$(this).find('.required-field-hrisp').each(function() {
+					if ($(this).val() === null || $(this).val().trim() === '') {
+						emptyFields.push($(this));
+					}
+				});
+				if (emptyFields.length > 0) {
+					event.preventDefault();
+					swal({ title: "Error!", text: "Fields marked in RED are mandatory.", icon: "error", buttons: false, timer: 2000 });
+				}
+			});
+		});
+
+		$(document).on("click", ".showApplicationDetails", function() {
+			var btn = $(this);
+			var modal = $("#modal_leave_application");
+			modal.find("#la_id").val(btn.attr('data-row-id'));
+			modal.find("#la_officeDepartment").val(btn.attr('data-row-officeDepartment'));
+			modal.find("#la_dateOfFiling").val(btn.attr('data-row-dateOfFiling'));
+			modal.find("#la_position").val(btn.attr('data-row-position'));
+			modal.find("#la_salary").val(btn.attr('data-row-salary'));
+			modal.find("#la_leaveType").val(btn.attr('data-row-leaveType'));
+			modal.find("#la_leaveTypeOthers").val(btn.attr('data-row-leaveTypeOthers'));
+			modal.find("#la_leaveDetailOption").val(btn.attr('data-row-leaveDetailOption'));
+			modal.find("#la_leaveDetailText").val(btn.attr('data-row-leaveDetailText'));
+			modal.find("#la_workingDays").val(btn.attr('data-row-workingDays'));
+			modal.find("#la_dateFrom").val(btn.attr('data-row-dateFrom'));
+			modal.find("#la_dateTo").val(btn.attr('data-row-dateTo'));
+			modal.find("#la_inclusiveDates").val(btn.attr('data-row-inclusiveDates'));
+			modal.find("#la_commutation").val(btn.attr('data-row-commutation'));
+			modal.find("#la_status").val(btn.attr('data-row-status'));
+			modal.find("#la_recommendation").val(btn.attr('data-row-recommendation'));
+			modal.find("#la_recommendationReason").val(btn.attr('data-row-recommendationReason'));
+			modal.find("#la_approvedDaysWithPay").val(btn.attr('data-row-approvedDaysWithPay'));
+			modal.find("#la_approvedDaysWithoutPay").val(btn.attr('data-row-approvedDaysWithoutPay'));
+			modal.find("#la_approvedOthers").val(btn.attr('data-row-approvedOthers'));
+			modal.find("#la_disapprovalReason").val(btn.attr('data-row-disapprovalReason'));
+			modal.find("#la_disapprovedExigency").prop('checked', btn.attr('data-row-disapprovedExigency') === 'true');
+			modal.find("#la_certOfficerName").val(btn.attr('data-row-certOfficerName'));
+			modal.find("#la_certOfficerTitle").val(btn.attr('data-row-certOfficerTitle'));
+			modal.find("#la_recommenderName").val(btn.attr('data-row-recommenderName'));
+			modal.find("#la_recommenderTitle").val(btn.attr('data-row-recommenderTitle'));
+			modal.find("#la_approverName").val(btn.attr('data-row-approverName'));
+			modal.find("#la_approverTitle").val(btn.attr('data-row-approverTitle'));
+			modal.find("#la_remarks").val(btn.attr('data-row-remarks'));
+
+			$('#leaveApplicationForm').attr('action', contextRoot + '/updateLeaveApplication');
+			if (/*[[${showMode == 'EMPLOYEE'}]]*/false) {
+				$('#leaveApplicationForm').find('input, select, textarea').not('#la_employeeId, #la_empHashCode, #la_id').prop('disabled', true);
+			}
+		});
+
+		$(document).on("click", ".showEntryDetails", function() {
+			var btn = $(this);
+			var modal = $("#modal_card_entry");
+			modal.find("#ce_id").val(btn.attr('data-row-id'));
+			modal.find("#ce_entryType").val(btn.attr('data-row-entryType'));
+			modal.find("#ce_entryDate").val(btn.attr('data-row-entryDate'));
+			modal.find("#ce_period").val(btn.attr('data-row-period'));
+			modal.find("#ce_particulars").val(btn.attr('data-row-particulars'));
+			modal.find("#ce_vlEarned").val(btn.attr('data-row-vlEarned'));
+			modal.find("#ce_vlDeducted").val(btn.attr('data-row-vlDeducted'));
+			modal.find("#ce_slEarned").val(btn.attr('data-row-slEarned'));
+			modal.find("#ce_slDeducted").val(btn.attr('data-row-slDeducted'));
+			modal.find("#ce_remarks").val(btn.attr('data-row-remarks'));
+			$('#leaveCardEntryForm').attr('action', contextRoot + '/updateLeaveCardEntry');
+		});
+
+	</script>
+</body>
+</html>

@@ -4,6 +4,9 @@
 # Ignore all build directories
 target/
 
+# Local-only Spring Boot config overrides (contains local DB password)
+config/
+
 # Ignore IntelliJ IDEA project files
 .idea/
 
