@@ -17,31 +17,31 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@NoArgsConstructor 
+@NoArgsConstructor
 @AllArgsConstructor
 public class Clearance {
-	
+
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-		
-    private String addressTo;	
+
+    private String addressTo;
     private String purpose;
     private String otherPurpose;
     private String status;
-    
+
     private String approvedBy;
-    
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate transDate;
-    
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate effectiveDate;
-    
+
     @ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "employee_id")
 	Employee employee;
-    
+
     @Transient
 	private String showMode;
 

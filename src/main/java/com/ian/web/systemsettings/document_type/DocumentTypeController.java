@@ -2,6 +2,7 @@ package com.ian.web.systemsettings.document_type;
 
 import java.util.Objects;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
@@ -14,14 +15,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
+import com.ian.web.employee.docs201.Docs201Repository;
+import com.ian.web.systemsettings.common.SettingsDeleteUtil;
 
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
 public class DocumentTypeController {
-    
+
     private final DocumentTypeRepository documentTypeRepository;
+    private final Docs201Repository docs201Repository;
 
     @GetMapping("/document-types")
 	public String listAll(Model model) {
@@ -61,6 +65,28 @@ public class DocumentTypeController {
 		documentTypeRepository.save(documentType);
 		redirect.addFlashAttribute("uxmessage", new UXMessage("SUCCESS", "Record successfully update."));
 		return "redirect:/document-types";
+	}
+
+	@PostMapping("/delete-document-type/{id}")
+	public String deleteDocumentType(@PathVariable Long id, HttpServletRequest request, RedirectAttributes redirect) {
+		if (!isAdmin(request)) {
+			redirect.addFlashAttribute("uxmessage", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/document-types";
+		}
+		if (docs201Repository.existsByDocumentTypeId(id)) {
+			redirect.addFlashAttribute("uxmessage", new UXMessage("ERROR",
+				"Cannot delete this Document Type. It is still assigned to one or more 201 documents."));
+			return "redirect:/document-types";
+		}
+		redirect.addFlashAttribute("uxmessage",
+			SettingsDeleteUtil.tryDelete(() -> documentTypeRepository.deleteById(id), "Document Type"));
+		return "redirect:/document-types";
+	}
+
+	private boolean isAdmin(HttpServletRequest request) {
+		Object actorObj = request.getSession().getAttribute("actorObj");
+		return actorObj instanceof com.ian.web.employee.Employee
+			&& "ROLE_ADMIN".equals(((com.ian.web.employee.Employee) actorObj).getUserType());
 	}
 
 }

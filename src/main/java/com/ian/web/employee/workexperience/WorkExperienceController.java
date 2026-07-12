@@ -27,6 +27,8 @@ import com.ian.web.employee.otherinfo.OtherInfoRepository;
 import com.ian.web.employee.otherinfoquestion.OtherInfoQuestionRepository;
 import com.ian.web.employee.references.EmpReferencesRepository;
 import com.ian.web.employee.voluntary_workexperience.VoluntaryWorkRepository;
+import com.ian.web.systemsettings.appointment_status.AppointmentStatusRepository;
+import com.ian.web.systemsettings.office.OfficeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,6 +48,8 @@ public class WorkExperienceController {
 	private final OtherInfoQuestionRepository otherInfoQuestionRepository;
 	private final EmpReferencesRepository empReferencesRepository;
 	private final GovermentIssuedIdRepository govermentIssuedIdRepository;
+	private final OfficeRepository officeRepository;
+	private final AppointmentStatusRepository appointmentStatusRepository;
 
 	@GetMapping("/employee/work-experience/{employeeId}/{showMode}/{empHashCode}")
     //@GetMapping({"/profile/work-experience/{employeeId}/{empHashCode}", "/employee/work-experience/{employeeId}/{empHashCode}"})
@@ -73,8 +77,10 @@ public class WorkExperienceController {
 			
 			model.addAttribute("employee", employee);
 			
-			List<WorkExperience> workExperienceList = workExperienceRepository.findByEmployeeId(employeeId);
+			List<WorkExperience> workExperienceList = workExperienceRepository.findByEmployeeIdOrderByDateFromDesc(employeeId);
 			model.addAttribute("workExperienceList", workExperienceList);
+			model.addAttribute("officeList", officeRepository.findAll());
+			model.addAttribute("appointmentStatusList", appointmentStatusRepository.findAll());
 			
 			WorkExperience workExperience = new WorkExperience();
 			workExperience.setEmployee(employee);
@@ -101,10 +107,10 @@ public class WorkExperienceController {
 			) {
 	    	    
 		if (errors.hasErrors()) {
-			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			model.addAttribute("workExperienceList", workExperienceRepository.findByEmployeeId(workExperience.getEmployee().getId()));
-			return "employee/pds/work-experience";
-		} 
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
+			return "redirect:/employee/work-experience/" + workExperience.getEmployee().getId()
+				+ "/" + workExperience.getShowMode() + "/" + workExperience.getEmployee().getEmpHashCode();
+		}
         	
 		// Ownership check
 		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
@@ -113,6 +119,11 @@ public class WorkExperienceController {
 		if (!isAdmin && !isOwnRecord) {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
 			return "redirect:/dashboard";
+		}
+
+		// Active (up to present) work has no end date, regardless of what the form submitted
+		if (workExperience.isUpToPresent()) {
+			workExperience.setDateTo(null);
 		}
 
 		String showMode = workExperience.getShowMode();

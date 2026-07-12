@@ -21,6 +21,10 @@ public interface EmployeeRepository  extends JpaRepository<Employee, Long> {
 	List<Employee> findByEmpNoOrPlantillaNo(String empNo, String plantillaNo);
     long countByEmployeeStatusIsNull();
     long countByDivisionIsNull();
+    boolean existsByDistrictId(Long districtId);
+    boolean existsByDivisionId(Long divisionId);
+    boolean existsByEmployeeStatusId(Long employeeStatusId);
+    boolean existsByPositionTitleId(Long positionTitleId);
 
 	List<Employee> findByFirstNameAndLastNameAndBirthdate(String firstName, String lastName, LocalDate birthDate);
 	

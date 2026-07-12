@@ -2,6 +2,7 @@ package com.ian.web.systemsettings.salary_grades;
 
 import java.util.Objects;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
+import com.ian.web.systemsettings.common.SettingsDeleteUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,7 +50,8 @@ public class SalaryGradeController {
 			SalaryGrade salaryGradeModel = salaryGradeRepository.findById(salaryGrade.getId()).get();
 			salaryGrade.setActive(salaryGradeModel.isActive());
 		}
-        salaryGrade.setSalaryGradeGroup(salaryGrade.getSalaryGradeGroup().toUpperCase());
+        salaryGrade.setSalaryGradeGroup(salaryGrade.getSalaryGradeGroup() == null
+				? null : salaryGrade.getSalaryGradeGroup().toUpperCase());
 		salaryGrade.setSalaryGradeNumber((Integer) salaryGrade.getSalaryGradeNumber());
 		salaryGradeRepository.save(salaryGrade);
 		
@@ -66,5 +69,22 @@ public class SalaryGradeController {
 		redirect.addFlashAttribute("uxmessage", new UXMessage("SUCCESS", "Record successfully update."));
 		return "redirect:/salary-grades";
 	}
-    
+
+	@PostMapping("/delete-salary-grade/{id}")
+	public String deleteSalaryGrade(@PathVariable Long id, HttpServletRequest request, RedirectAttributes redirect) {
+		if (!isAdmin(request)) {
+			redirect.addFlashAttribute("uxmessage", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/salary-grades";
+		}
+		redirect.addFlashAttribute("uxmessage",
+			SettingsDeleteUtil.tryDelete(() -> salaryGradeRepository.deleteById(id), "Salary Grade"));
+		return "redirect:/salary-grades";
+	}
+
+	private boolean isAdmin(HttpServletRequest request) {
+		Object actorObj = request.getSession().getAttribute("actorObj");
+		return actorObj instanceof com.ian.web.employee.Employee
+			&& "ROLE_ADMIN".equals(((com.ian.web.employee.Employee) actorObj).getUserType());
+	}
+
 }

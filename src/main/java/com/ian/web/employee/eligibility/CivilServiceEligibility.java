@@ -1,8 +1,5 @@
 package com.ian.web.employee.eligibility;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -13,7 +10,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ian.web.employee.Employee;
@@ -43,10 +39,8 @@ public class CivilServiceEligibility {
 	private String placeOfExam;
 	
 	private String licenseNo;
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate licenseValidityDate;
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate licenseReleaseDate;
+	private String licenseValidityDate;
+	private String licenseReleaseDate;
 	
 	private String attachmentUrl;
 	
@@ -62,6 +56,13 @@ public class CivilServiceEligibility {
 	
 	@Transient
 	public String getExamDate(){
-        return examMonth+" "+examYear;
+        boolean hasMonth = examMonth != null && !examMonth.isBlank();
+        boolean hasYear = examYear > 0;
+        if (!hasMonth && !hasYear) {
+            return "";
+        }
+        String month = hasMonth ? examMonth : "";
+        String year = hasYear ? String.valueOf(examYear) : "";
+        return (month + " " + year).trim();
 	}
 }

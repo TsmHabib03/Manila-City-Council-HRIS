@@ -51,17 +51,27 @@
 										<div class="col-sm-4">
 											<label for="dateFrom">Date From</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('dateFrom')}" th:errors="*{dateFrom}"></span>
-											<input id="dateFrom" name="dateFrom" th:field="*{dateFrom}" type="date" class="form-control required-field-hrisp" >
+											<input type="text" class="form-control date-mask-input"
+															   id="dateFrom_display"
+															   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+															<input type="hidden" id="dateFrom" name="dateFrom"
+																   th:value="${voluntaryWork.dateFrom != null ? #temporals.format(voluntaryWork.dateFrom,'yyyy-MM-dd') : ''}" />
+															<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>	
 										<div class="col-sm-4">
 											<label for="dateTo">Date To</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('dateTo')}" th:errors="*{dateTo}"></span>
-											<input id="dateTo" name="dateTo" th:field="*{dateTo}" type="date" class="form-control required-field-hrisp" >
+											<input type="text" class="form-control date-mask-input"
+															   id="dateTo_display"
+															   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+															<input type="hidden" id="dateTo" name="dateTo"
+																   th:value="${voluntaryWork.dateTo != null ? #temporals.format(voluntaryWork.dateTo,'yyyy-MM-dd') : ''}" />
+															<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>	
 										<div class="col-sm-4 mt-2">
 											<label for="rating">&nbsp;</label><br>
-											<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" placeholder="N/A" type="checkbox"> 
-											<label for="dateTo">isPresent</label>
+											<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" type="checkbox">
+											<label for="dateTo">Active</label>
 										</div>
 									</div>
 
@@ -79,15 +89,15 @@
 										<div class="col-sm-4">
 											<label for="address">Address</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></span>
-											<input id="address" name="address" th:field="*{address}" placeholder="Address" type="text" class="form-control required-field-hrisp" >
+											<input id="address" name="address" th:field="*{address}" placeholder="Address" type="text" class="form-control" >
 										</div>
 									</div>
 								</div>
 							</div>
 
 							<div class="modal-footer">
-								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
-								<button ID="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
+								<button type="button" class="btn bg-secondary" data-dismiss="modal">Close</button>
+								<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
 							</div>
 						</form>
 					</div>
@@ -117,6 +127,7 @@
 											<div class="header-elements">
 												<div class="list-icons">				                				
 									           		<button id="addButton" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+						           		<button id="clearAllVwButton" type="button" class="btn btn-danger ml-2" th:if="${not #lists.isEmpty(voluntaryWorkList)}">Clear All Records</button>
 									           	</div>
 											</div>
 										</div>
@@ -125,7 +136,11 @@
 											List of All Voluntary Work. Type to search desired voluntary work.
 										</div>
 					
-										<table class="table table-bordered table-hover datatable-highlight">
+										<form id="clearAllVwForm" method="post" th:action="@{/deleteAllVoluntaryWork/{id}(id=${employee.id})}">
+							<input type="hidden" name="empHashCode" th:value="${employee.empHashCode}">
+							<input type="hidden" name="showMode" th:value="${employee.showMode}">
+						</form>
+						<table class="table table-bordered table-hover datatable-highlight">
 											<thead>
 												<tr>
 													<th width="150px;">&nbsp;</th>
@@ -167,9 +182,23 @@
 											</tbody>
 										</table>
 									</div>
-									
-									
-											
+
+									<!-- PDS Section Navigation -->
+									<div class="card mt-2">
+										<div class="card-body d-flex justify-content-between align-items-center py-2">
+											<a th:href="@{/employee/work-experience/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}"
+											   class="btn btn-outline-secondary btn-sm">
+												&#8592; Previous: Work Experience
+											</a>
+											<button type="button" class="btn btn-success btn-sm"
+												onclick="validateAndGoNext(this.getAttribute('data-href'));"
+												th:attr="data-href=@{/employee/learning-development/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+												Next: Learning and Development &#8594;
+											</button>
+										</div>
+									</div>
+									<!-- /PDS Section Navigation -->
+
 								</div>
 							</div>
 							<!-- /dashboard content -->
@@ -204,10 +233,98 @@
 	<div th:replace="fragments/common::footer"></div>
 	<!-- /Main sidebar -->
 	
-	<script th:inline="javascript">		
-	
+	<script th:inline="javascript">
+		// Validation helper for "Next" navigation across PDS sections
+		function validateAndGoNext(nextUrl) {
+			var missed = [];
+			$('.required-field-hrisp:visible').each(function() {
+				var v = $(this).val();
+				if (!v || v.trim() === '') {
+					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
+								|| $(this).attr('placeholder')
+								|| $(this).attr('name')
+								|| 'Unnamed field';
+					missed.push(label);
+				}
+			});
+			if (missed.length > 0) {
+				swal({
+					title: "Please fill required fields",
+					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
+					icon: "warning"
+				});
+				return;
+			}
+			window.location.href = nextUrl;
+		}
+
+		// Active (up to present) work has no end date: lock and clear Date To
+		function applyActiveState(isActive) {
+			if (isActive) {
+				$('#dateTo_display').val('').prop('readonly', true);
+				$('#dateTo').val('');
+				$('#dateTo_display').nextAll('.date-error').first().hide();
+			} else {
+				$('#dateTo_display').prop('readonly', false);
+			}
+		}
+
 	    $(document).ready(function() {
-	    	
+			// ── Clear All Voluntary Work (CR-005) ──────────────────────────────
+			$('#clearAllVwButton').click(function(){
+				swal({
+					title: "Clear ALL records?",
+					text: "This permanently removes every voluntary work record for this employee.",
+					icon: "warning",
+					buttons: ["Cancel", "Yes, clear all"],
+					dangerMode: true
+				}).then(function(confirmed){
+					if (confirmed) { $('#clearAllVwForm').submit(); }
+				});
+			});
+
+			$('#upToPresent').on('change', function() {
+				applyActiveState($(this).is(':checked'));
+			});
+
+			$('#addButton').click(function(){
+				applyActiveState(false);
+			});
+
+			// ── Date Mask (dd/mm/yyyy ↔ yyyy-MM-dd) ──────────────────────────────
+			$(document).on('input', '.date-mask-input', function() {
+				var v = $(this).val().replace(/\D/g, '').substring(0, 8);
+				if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+				if (v.length >= 6) v = v.substring(0,5) + '/' + v.substring(5);
+				$(this).val(v);
+			});
+			$(document).on('blur', '.date-mask-input', function() {
+				var display = $(this).val().trim();
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var $hidden = $('#' + hiddenId);
+				var $err = $(this).nextAll('.date-error').first();
+				if (!display) { $hidden.val(''); $err.hide(); return; }
+				var parts = display.split('/');
+				if (parts.length !== 3) { $err.show(); return; }
+				var dd = parts[0], mm = parts[1], yy = parts[2];
+				var year = parseInt(yy, 10);
+				if (yy.length <= 2) year += (year <= 49 ? 2000 : 1900);
+				var d = new Date(year, parseInt(mm,10)-1, parseInt(dd,10));
+				if (isNaN(d.getTime()) || d.getDate() != parseInt(dd,10) || (d.getMonth()+1) != parseInt(mm,10)) {
+					$err.show(); $hidden.val(''); return;
+				}
+				$err.hide();
+				$hidden.val(year + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0'));
+			});
+			$('.date-mask-input').each(function() {
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var iso = $('#' + hiddenId).val();
+				if (iso && iso.length === 10) {
+					var parts = iso.split('-');
+					$(this).val(parts[2] + '/' + parts[1] + '/' + parts[0]);
+				}
+			});
+
 	    	$('#consultation-list').DataTable({
 				"lengthMenu": [10, 25, 50],
 				"ordering": false, 
@@ -265,15 +382,20 @@
 					
 			$("#modal_form_vertical").find("#id").val(id);
 			$("#modal_form_vertical").find("#orgName").val(orgName);
-			$("#modal_form_vertical").find("#dateFrom ").val(dateFrom );
+			$("#modal_form_vertical").find("#dateFrom").val(dateFrom);
+			if (dateFrom && dateFrom.length === 10) { var dfP = dateFrom.split('-'); $("#modal_form_vertical").find("#dateFrom_display").val(dfP[2]+'/'+dfP[1]+'/'+dfP[0]); } else { $("#modal_form_vertical").find("#dateFrom_display").val(''); }
 			$("#modal_form_vertical").find("#dateTo").val(dateTo);
-			$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent);
+			if (dateTo && dateTo.length === 10) { var dtP = dateTo.split('-'); $("#modal_form_vertical").find("#dateTo_display").val(dtP[2]+'/'+dtP[1]+'/'+dtP[0]); } else { $("#modal_form_vertical").find("#dateTo_display").val(''); }
+			$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent === 'true');
 			$("#modal_form_vertical").find("#noHours").val(noHours);
 			$("#modal_form_vertical").find("#natureOfWork").val(natureOfWork);
-			$("#modal_form_vertical").find("#address").val(address);   
+			$("#modal_form_vertical").find("#address").val(address);
+			applyActiveState(upToPresent === 'true');
 		});
 
-		
+		$('#employeeForm').submit(function() {
+			$('.date-mask-input').trigger('blur');
+		});
 
 	</script>
 

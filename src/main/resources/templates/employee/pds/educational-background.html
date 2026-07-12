@@ -57,19 +57,13 @@
 										   		</select>
 											</div>
 											<div class="col-sm-4">
-												<label for="school">School</label>
-												<select th:field="*{school.id}" id="school" class="form-control required-field-hrisp">
-													<option selected value="">SELECT VALUE</option>
-													<option th:each="school : ${schoolList}" th:value="${school.id}" th:text="${school.schoolName}">schoolName</option>
-										   		</select>
+												<label for="schoolCustomName">Name of School (write in full)</label>
+												<input type="text" class="form-control required-field-hrisp" id="schoolCustomName" name="schoolCustomName" th:field="*{schoolCustomName}" placeholder="Enter name of school"/>
 											</div>
 											<div class="col-sm-4">
-												<label for="degreeCourse">Degree/Course</label>
-												<select th:field="*{degreeCourse.id}" id="degreeCourse" class="form-control">
-													<option selected value="">SELECT VALUE</option>
-													<option th:each="degreeCourse : ${degreeCourseList}" th:value="${degreeCourse.id}" th:text="${degreeCourse.degreeCourseName}">degreeCourseName</option>
-										   		</select>
-											</div>	
+												<label for="degreeCourseCustomName">Basic Education / Degree / Course (write in full)</label>
+												<input type="text" class="form-control" id="degreeCourseCustomName" name="degreeCourseCustomName" th:field="*{degreeCourseCustomName}" placeholder="Enter degree / course"/>
+											</div>
 										</div>
 									</div>								
 									
@@ -77,17 +71,26 @@
 										<div class="row">
 											<div class="col-sm-4">
 												<label for="startDate">Start Period</label>
-												<input type="date" class="form-control required-field-hrisp" id="startDate" name="startDate" th:field="*{startDate}" />
+												<input type="number" class="form-control" id="startDate_display"
+															   placeholder="YYYY" min="1900" max="2099" autocomplete="off" />
+															<input type="hidden" id="startDate" name="startDate"
+																   th:value="${educationalBg.startDate != null ? #temporals.format(educationalBg.startDate,'yyyy-MM-dd') : ''}" />
 											</div>
 											<div class="col-sm-4">
 												<label for="endDate">End Period</label>
-												<input type="date" class="form-control required-field-hrisp" id="endDate" name="endDate" th:field="*{endDate}" />
+												<input type="number" class="form-control" id="endDate_display"
+															   placeholder="YYYY" min="1900" max="2099" autocomplete="off" />
+															<input type="hidden" id="endDate" name="endDate"
+																   th:value="${educationalBg.endDate != null ? #temporals.format(educationalBg.endDate,'yyyy-MM-dd') : ''}" />
 											</div>
 											<div class="col-sm-4">
 												<label for="unitsEarned">Units Earned</label>
 												<input type="text" class="form-control" id="unitsEarned" name="unitsEarned" th:field="*{unitsEarned}" placeholder="Units Earned"/>
-											</div>															
-											
+											</div>
+											<div class="col-sm-12 mt-2 align-items-center">
+												<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" type="checkbox">
+												<label for="upToPresent">Active</label>
+											</div>
 										</div>
 									</div>
 													
@@ -105,11 +108,9 @@
 										   		</select>
 											</div>
 											<div class="col-sm-4">
-												<label for="academicHonors">Academic Honors</label>
-												<select th:field="*{academicHonors.id}" id="academicHonors" class="form-control">
-													<option selected value="">SELECT VALUE</option>
-													<option th:each="academicHonors : ${academicHonorsList}" th:value="${academicHonors.id}" th:text="${academicHonors.academicHonorsName}">academicHonorsName</option>
-										   		</select>
+												<label for="academicHonorsText">Academic Honors</label>
+												<input type="text" class="form-control" id="academicHonorsText" name="academicHonorsText"
+													   th:field="*{academicHonorsText}" placeholder="e.g. Cum Laude, With Honors" />
 											</div>										
 										</div>
 									</div>
@@ -130,6 +131,11 @@
 								<div class="modal-footer">
 									<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
 									<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
+							<button type="button" class="btn btn-outline-success ml-2"
+								onclick="validateAndGoNext(this.getAttribute('data-href'));"
+								th:attr="data-href=@{/employee/civil-eligibility/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+								Next: Civil Service Eligibility &#8594;
+							</button>
 								</div>
 							</form>
 						</div>
@@ -185,23 +191,25 @@
 														<td class="text-center">
 															<button id="editDegreeLevelButton" type="button" class="showDetails btn btn-primary"
 			                                                 th:data-row-degreeLevel="${educationalBg.getDegreeLevel().getId()}"	
-			                                                 th:data-row-school="${educationalBg.getSchool().getId()}"
-			                                                 th:data-row-degreeCourse="${educationalBg.getDegreeCourse().getId()}"
+			                                                 th:data-row-school="${educationalBg.getSchool() != null ? educationalBg.getSchool().getId() : 0}"
+			                                                 th:data-row-degreeCourseCustomName="${educationalBg.getEffectiveDegreeCourseName()}"
 			                                                 th:data-row-scholarship="${educationalBg.getScholarship().getId()}"
-			                                                 th:data-row-academicHonors="${educationalBg.getAcademicHonors().getId()}"
+			                                                 th:data-row-academicHonorsText="${educationalBg.getAcademicHonorsText()}"
 			                                                 th:data-row-startDate="${educationalBg.getStartDate()}"
 			                                                 th:data-row-endDate="${educationalBg.getEndDate()}"
+			                                                 th:data-row-upToPresent="${educationalBg.isUpToPresent()}"
 			                                                 th:data-row-unitsEarned="${educationalBg.getUnitsEarned()}"
 			                                                 th:data-row-yearGraduated="${educationalBg.getYearGraduated()}"
 			                                                 th:data-row-remarks="${educationalBg.getRemarks()}"
-			                                                 th:data-row-id="${educationalBg.getId()}"												 
+			                                                 th:data-row-id="${educationalBg.getId()}"
+			                                                 th:data-row-schoolCustomName="${educationalBg.getEffectiveSchoolName()}"
 															data-toggle="modal" data-target="#modal_form_vertical"
 			                                                >View Record</button>
 														</td>														
 														
 														<td th:text="${educationalBg.getDegreeLevel().getDegreeName()}">Full Name</td>
-														<td th:text="${educationalBg.getSchool().getSchoolName()}">Relationship</td>
-														<td th:text="${educationalBg.getDegreeCourse().getDegreeCourseName()}">Birthday</td>
+														<td th:text="${educationalBg.getEffectiveSchoolName()}">Relationship</td>
+														<td th:text="${educationalBg.getEffectiveDegreeCourseName()}">Birthday</td>
 														<td th:text="${educationalBg.getDateToString()}">Age</td>
 														
 													</tr>
@@ -211,9 +219,25 @@
 											</tbody>
 										</table>
 									</div>
-									
-									
-											
+
+									<!-- PDS Section Navigation -->
+									<div class="card mt-2">
+										<div class="card-body d-flex justify-content-between align-items-center py-2">
+											<a th:href="@{/employee/familybg/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}"
+											   class="btn btn-outline-secondary btn-sm">
+												&#8592; Previous: Family Background
+											</a>
+											<button type="button" class="btn btn-success btn-sm"
+												onclick="validateAndGoNext(this.getAttribute('data-href'));"
+												th:attr="data-href=@{/employee/civil-eligibility/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+												Next: Civil Service Eligibility &#8594;
+											</button>
+										</div>
+									</div>
+									<!-- /PDS Section Navigation -->
+
+
+
 								</div>
 							</div>
 							<!-- /dashboard content -->
@@ -260,54 +284,143 @@
 			let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
 			window.location.href = contextRoot + "/employee-list";
 		}
+
+		function validateAndGoNext(nextUrl) {
+			var missed = [];
+			$('.required-field-hrisp:visible').each(function() {
+				var v = $(this).val();
+				if (!v || v.trim() === '') {
+					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
+								|| $(this).attr('placeholder')
+								|| $(this).attr('name')
+								|| 'Unnamed field';
+					missed.push(label);
+				}
+			});
+			if (missed.length > 0) {
+				swal({
+					title: "Please fill required fields",
+					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
+					icon: "warning"
+				});
+				return;
+			}
+			window.location.href = nextUrl;
+		}
 	</script>
 	
 	<script th:inline="javascript">		
 	
 	    $(document).ready(function() {
-			
+
+			// Active (up to present) education has no end date: lock and clear End Period
+			function applyActiveState(isActive) {
+				if (isActive) {
+					$('#endDate_display').val('').prop('readonly', true);
+					$('#endDate').val('');
+				} else {
+					$('#endDate_display').prop('readonly', false);
+				}
+			}
+
+			$('#upToPresent').on('change', function() {
+				applyActiveState($(this).is(':checked'));
+			});
+
 			$('#addButton').click(function(){
 				let empHashCode = $('#empHashCode').val();
 				let employeeId = $('#employeeId').val();
-				
+
 		        $('#employeeForm')[0].reset();
-		        
+
 		        $('#empHashCode').val(empHashCode);
 		        $('#employeeId').val(employeeId);
 		        $(".spouseField").show();
+		        applyActiveState(false);
 		    });
-			
+
 			$(document).on("click", ".showDetails", function() {
-				
+
 	            var id = $(this).attr('data-row-id');
-	            var degreeLevel = $(this).attr('data-row-degreeLevel'); 
-	            var school = $(this).attr('data-row-school');
-	            var degreeCourse = $(this).attr('data-row-degreeCourse');
+	            var degreeLevel = $(this).attr('data-row-degreeLevel');
 	            var scholarship = $(this).attr('data-row-scholarship');
-	            var academicHonors = $(this).attr('data-row-academicHonors');
+	            var academicHonorsText = $(this).attr('data-row-academicHonorsText');
 	            var startDate = $(this).attr('data-row-startDate');
 	            var endDate = $(this).attr('data-row-endDate');
+	            var upToPresent = $(this).attr('data-row-upToPresent');
 	            var unitsEarned = $(this).attr('data-row-unitsEarned');
 	            var yearGraduated = $(this).attr('data-row-yearGraduated');
 	            var remarks = $(this).attr('data-row-remarks');
-	                    
-	            
+            var schoolCustomName = $(this).attr('data-row-schoolCustomName');
+            var degreeCourseCustomName = $(this).attr('data-row-degreeCourseCustomName');
+
+
 	            $("#modal_form_vertical").find("#id").val(id);
 	            $("#modal_form_vertical").find("#degreeLevel").val(degreeLevel);
-	            $("#modal_form_vertical").find("#school").val(school);
-	            $("#modal_form_vertical").find("#degreeCourse").val(degreeCourse);
 	            $("#modal_form_vertical").find("#scholarship").val(scholarship);
-	            $("#modal_form_vertical").find("#academicHonors").val(academicHonors);
+	            $("#modal_form_vertical").find("#academicHonorsText").val(academicHonorsText);
 	            $("#modal_form_vertical").find("#startDate").val(startDate);
 	            $("#modal_form_vertical").find("#endDate").val(endDate);
+	            $("#startDate_display").val(startDate ? startDate.substring(0, 4) : '');
+	            $("#endDate_display").val(endDate ? endDate.substring(0, 4) : '');
+	            $("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent === 'true');
 	            $("#modal_form_vertical").find("#unitsEarned").val(unitsEarned);
 	            $("#modal_form_vertical").find("#yearGraduated").val(yearGraduated);
 	            $("#modal_form_vertical").find("#remarks").val(remarks);
-	            
+            $("#modal_form_vertical").find("#schoolCustomName").val(schoolCustomName);
+            $("#modal_form_vertical").find("#degreeCourseCustomName").val(degreeCourseCustomName);
+            applyActiveState(upToPresent === 'true');
+
 	        });
+
 			
 			
-			
+
+			// ── Date Mask (dd/mm/yyyy ↔ yyyy-MM-dd) ──────────────────────────────
+			$(document).on('input', '.date-mask-input', function() {
+				var v = $(this).val().replace(/\D/g, '').substring(0, 8);
+				if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+				if (v.length >= 6) v = v.substring(0,5) + '/' + v.substring(5);
+				$(this).val(v);
+			});
+			$(document).on('blur', '.date-mask-input', function() {
+				var display = $(this).val().trim();
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var $hidden = $('#' + hiddenId);
+				var $err = $(this).nextAll('.date-error').first();
+				if (!display) { $hidden.val(''); $err.hide(); return; }
+				var parts = display.split('/');
+				if (parts.length !== 3) { $err.show(); return; }
+				var dd = parts[0], mm = parts[1], yy = parts[2];
+				var year = parseInt(yy, 10);
+				if (yy.length <= 2) year += (year <= 49 ? 2000 : 1900);
+				var d = new Date(year, parseInt(mm,10)-1, parseInt(dd,10));
+				if (isNaN(d.getTime()) || d.getDate() != parseInt(dd,10) || (d.getMonth()+1) != parseInt(mm,10)) {
+					$err.show(); $hidden.val(''); return;
+				}
+				$err.hide();
+				$hidden.val(year + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0'));
+			});
+			$('.date-mask-input').each(function() {
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var iso = $('#' + hiddenId).val();
+				if (iso && iso.length === 10) {
+					var parts = iso.split('-');
+					$(this).val(parts[2] + '/' + parts[1] + '/' + parts[0]);
+				}
+			});
+
+			// Year-only sync for start/end period
+			$('#startDate_display, #endDate_display').on('change blur', function() {
+				var year = parseInt($(this).val(), 10);
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				$('#' + hiddenId).val((year >= 1900 && year <= 2099) ? year + '-01-01' : '');
+			});
+			var startIso = $('#startDate').val();
+			var endIso = $('#endDate').val();
+			if (startIso) $('#startDate_display').val(startIso.substring(0, 4));
+			if (endIso) $('#endDate_display').val(endIso.substring(0, 4));
+
 			// start update profile photo
 			const fileSelect = document.getElementById('fileSelect');
 		    const profilePhoto = document.getElementById('profilePhoto');

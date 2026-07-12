@@ -41,7 +41,9 @@ public class LearningAndDevelopment {
 	private boolean upToPresent;
 
 	private Integer noHours;
-	
+
+	private String hoursDisplay;
+
 	private String learningType;
 	
 	private String providers;
@@ -52,7 +54,16 @@ public class LearningAndDevelopment {
 
 	@Transient
 	public String getInclusiveDates(){
-		return this.dateFrom +" - "+ this.dateTo;
+		String from = (dateFrom != null) ? dateFrom.toString() : "N/A";
+		String to;
+		if (upToPresent) {
+			to = "Present";
+		} else if (dateTo != null) {
+			to = dateTo.toString();
+		} else {
+			to = "N/A";
+		}
+		return from + " - " + to;
 	}
 	
 	@Transient

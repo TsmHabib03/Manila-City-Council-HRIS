@@ -106,10 +106,22 @@ public class CivilServiceEligibilityController {
 	    	    
 		if (errors.hasErrors()) {
 			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			model.addAttribute("civilEligibilityList", civilServiceEligibilityRepository.findByEmployeeId(civilServiceEligibility.getEmployee().getId()));
+			Long empId = civilServiceEligibility.getEmployee() != null
+				? civilServiceEligibility.getEmployee().getId() : null;
+			if (empId != null) {
+				Employee employee = employeeRepository.findById(empId).orElse(null);
+				if (employee != null) {
+					employee.setShowMode(civilServiceEligibility.getShowMode());
+					model.addAttribute("employee", employee);
+				}
+				model.addAttribute("civilEligibilityList",
+					civilServiceEligibilityRepository.findByEmployeeId(empId));
+			}
+			model.addAttribute("eligibilityList", eligibilityRepository.findAll());
+			model.addAttribute("civilServiceEligibility", civilServiceEligibility);
 			return "employee/pds/eligibility";
-		} 
-        	
+		}
+
 		// Ownership check
 		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
 		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());
@@ -120,6 +132,10 @@ public class CivilServiceEligibilityController {
 		}
 
 		String showMode = civilServiceEligibility.getShowMode();
+		Employee freshEmployee = employeeRepository
+			.findById(civilServiceEligibility.getEmployee().getId())
+			.orElseThrow();
+		civilServiceEligibility.setEmployee(freshEmployee);
 		civilServiceEligibility = civilServiceEligibilityRepository.save(civilServiceEligibility);
 
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Updated."));

@@ -11,6 +11,8 @@ public interface ServiceRecordRepository  extends JpaRepository<ServiceRecord, L
 	List<ServiceRecord> findByEmployeeIdOrderByDateFromDesc(long employeeId);
 	ServiceRecord findTopByEmployeeIdOrderByEntranceDateDesc(long employeeId);
 	ServiceRecord findTopByEmployeeIdOrderByDateFromDesc(long employeeId);
+	boolean existsByEmployeeStatusId(Long employeeStatusId);
+	boolean existsByPositionTitleId(Long positionTitleId);
 	
 	/**
      * Finds service records where the separation date matches the given numeric month and year.

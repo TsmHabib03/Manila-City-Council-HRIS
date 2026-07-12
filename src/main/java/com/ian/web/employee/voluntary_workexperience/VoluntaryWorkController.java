@@ -9,9 +9,11 @@ import javax.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
@@ -29,6 +31,7 @@ import com.ian.web.employee.references.EmpReferencesRepository;
 import com.ian.web.employee.workexperience.WorkExperienceRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @Controller
 @RequiredArgsConstructor
@@ -103,9 +106,11 @@ public class VoluntaryWorkController {
 			) {
 	    
 		if (errors.hasErrors()) {
-			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			model.addAttribute("voluntaryWorkList", voluntaryWorkRepository.findByEmployeeId(voluntaryWork.getEmployee().getId()));
-			return "employee/pds/voluntary-work";
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
+			return "redirect:/employee/voluntary-work/"
+				+ voluntaryWork.getEmployee().getId() + "/"
+				+ voluntaryWork.getShowMode() + "/"
+				+ voluntaryWork.getEmployee().getEmpHashCode();
 		}	
 		
 		// Ownership check
@@ -117,11 +122,41 @@ public class VoluntaryWorkController {
 			return "redirect:/dashboard";
 		}
 
+		// Active (up to present) work has no end date, regardless of what the form submitted
+		if (voluntaryWork.isUpToPresent()) {
+			voluntaryWork.setDateTo(null);
+		}
+		voluntaryWork.setAddress(StringUtils.defaultIfBlank(voluntaryWork.getAddress(), "N/A"));
+
 		String showMode = voluntaryWork.getShowMode();
 		voluntaryWork = voluntaryWorkRepository.save(voluntaryWork);
 
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully saved."));
 		return "redirect:/employee/voluntary-work/"+voluntaryWork.getEmployee().getId()+"/"+showMode+"/"+voluntaryWork.getEmployee().getEmpHashCode();
+	}
+
+	@PostMapping("/deleteAllVoluntaryWork/{employeeId}")
+	@Transactional
+	public String deleteAllVoluntaryWork(
+			@PathVariable long employeeId,
+			@RequestParam(required = false) String showMode,
+			@RequestParam String empHashCode,
+			final RedirectAttributes redirect,
+			HttpServletRequest request) {
+
+		// Ownership check
+		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
+		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());
+		boolean isOwnRecord = actorObj != null && actorObj.getId() == employeeId;
+		if (!isAdmin && !isOwnRecord) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/dashboard";
+		}
+
+		voluntaryWorkRepository.deleteAll(voluntaryWorkRepository.findByEmployeeId(employeeId));
+
+		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "All voluntary work records removed."));
+		return "redirect:/employee/voluntary-work/" + employeeId + "/" + (showMode == null ? "" : showMode) + "/" + empHashCode;
 	}
 
 }

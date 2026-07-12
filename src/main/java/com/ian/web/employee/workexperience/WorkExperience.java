@@ -12,7 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.ian.web.employee.Employee;
 import lombok.AllArgsConstructor;
@@ -37,8 +36,9 @@ public class WorkExperience {
 	private LocalDate dateTo;
 	
 	private boolean upToPresent;
-	
-	@NotBlank
+
+	private boolean partTime;
+
     private String positionTitle;
 	private String department;
 	private String officeName;
@@ -61,10 +61,22 @@ public class WorkExperience {
 	private String showMode;
 
 	public String getInclusiveDates(){
-		return this.dateFrom +" - "+this.dateTo;
+		String from = (this.dateFrom != null) ? String.valueOf(this.dateFrom.getYear()) : "N/A";
+		String to;
+		if(this.upToPresent) {
+			to = "Present";
+		} else if(this.dateTo != null) {
+			to = String.valueOf(this.dateTo.getYear());
+		} else {
+			to = "N/A";
+		}
+		return from + " - " + to;
 	}
 	
 	public String getFormattedSalary(){
+		if (this.salary == null) {
+			return "N/A";
+		}
 		DecimalFormat decimalFormat = new DecimalFormat("#,###,###.00");
 		return decimalFormat.format(this.salary);
 	}

@@ -32,6 +32,7 @@ import com.ian.web.systemsettings.academichonors.AcademicHonors;
 import com.ian.web.systemsettings.academichonors.AcademicHonorsRepository;
 import com.ian.web.systemsettings.degree_courses.DegreeCourses;
 import com.ian.web.systemsettings.degree_courses.DegreeCoursesRepository;
+import com.ian.web.systemsettings.degreelevels.DegreeLevel;
 import com.ian.web.systemsettings.degreelevels.DegreeLevelRepository;
 import com.ian.web.systemsettings.scholarship.Scholarship;
 import com.ian.web.systemsettings.scholarship.ScholarshipRepository;
@@ -116,11 +117,22 @@ public class EducationalBackgroundController {
 			}
 			
 			model.addAttribute("educationalBgList", educationalBgListNew);
-			
-			model.addAttribute("degreeLevelList", degreeLevelRepository.findAll());
+
+			// Deduplicate degree levels by name (safety net — ideally fixed in DB)
+			List<DegreeLevel> rawLevels = degreeLevelRepository.findAll();
+			List<DegreeLevel> degreeLevelList = rawLevels.stream()
+				.collect(java.util.stream.Collectors.toMap(
+					DegreeLevel::getDegreeName,
+					d -> d,
+					(a, b) -> a.getId() < b.getId() ? a : b
+				))
+				.values().stream()
+				.sorted(java.util.Comparator.comparing(DegreeLevel::getDegreeName))
+				.collect(java.util.stream.Collectors.toList());
+			model.addAttribute("degreeLevelList", degreeLevelList);
 			model.addAttribute("schoolList", schoolRepository.findAllByOrderBySchoolNameAsc());
 			model.addAttribute("degreeCourseList", degreeCoursesRepository.findAllByOrderByDegreeCourseNameAsc());
-			model.addAttribute("scholarshipList", scholarshipRepository.findAll());			
+			model.addAttribute("scholarshipList", scholarshipRepository.findAll());
 			model.addAttribute("academicHonorsList", academicHonorsRepository.findAll());
 			
 			EducationalBackground educationalBg = new EducationalBackground();
@@ -148,10 +160,10 @@ public class EducationalBackgroundController {
 			) {
 	    	    
 		if (errors.hasErrors()) {
-			model.addAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
-			model.addAttribute("educationalBgList", educationalBackgroundRepository.findByEmployeeId(educBackground.getEmployee().getId()));
-			return "employee/pds/educational-background";
-		}				
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please check items marked in red."));
+			return "redirect:/employee/educationalbg/" + educBackground.getEmployee().getId()
+				+ "/" + educBackground.getShowMode() + "/" + educBackground.getEmployee().getEmpHashCode();
+		}
 		
 		if(educBackground.getDegreeCourse() == null) {
 			educBackground.setDegreeCourse(null);
@@ -170,7 +182,11 @@ public class EducationalBackgroundController {
 		} else if(educBackground.getScholarship().getId() == null) {
 			educBackground.setScholarship(null);
 		}
-		
+
+		// Per change request V1: School and Degree/Course are free-text fields
+		// (stored in schoolCustomName / degreeCourseCustomName). No FK lookup or auto-create.
+		educBackground.setSchool(null);
+
 		// Ownership check
 		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
 		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());
@@ -178,6 +194,11 @@ public class EducationalBackgroundController {
 		if (!isAdmin && !isOwnRecord) {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
 			return "redirect:/dashboard";
+		}
+
+		// Active (up to present) education has no end date, regardless of what the form submitted
+		if (educBackground.isUpToPresent()) {
+			educBackground.setEndDate(null);
 		}
 
 		String showMode = educBackground.getShowMode();

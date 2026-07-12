@@ -22,49 +22,54 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@NoArgsConstructor 
+@NoArgsConstructor
 @AllArgsConstructor
 public class Appointment {
-	
+
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
+
 	private String plantillaNo;
-	
+
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate signingDate;
-	
+
 	private int pageNo;
-	
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "employee_id")
 	Employee employee;
-	
+
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "position_title_id")
     private PositionTitle positionTitle;
-	
-	private String status;	
-	private Double salary;	
+
+	private String status;
+	private Double salary;
 	private String vice;
 	private String statusOfSepeparation;
 	private String statusOfAppointment;
-	private int salaryGrade;
-	private int stepInc;
-	
+	private Integer salaryGrade;
+	private Integer stepInc;
+
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate entranceDate;
-	
+
 	private String eligibility;
-	
 	private String highestEducAttainment;
-	
 	private String officeAssignment;
-	
 	private String remarks;
 	private String district;
 	private String experience;
 	private String training;
+
+	public String getSalaryGradeDisplay() {
+		return salaryGrade == null ? "N/A" : String.valueOf(salaryGrade);
+	}
+
+	public String getStepIncDisplay() {
+		return stepInc == null ? "N/A" : String.valueOf(stepInc);
+	}
 
 }

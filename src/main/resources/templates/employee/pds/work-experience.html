@@ -43,17 +43,30 @@
 										<div class="col-sm-4">
 											<label for="firstName">Date From</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('dateFrom')}" th:errors="*{dateFrom}"></span>
-											<input id="dateFrom" name="dateFrom" th:field="*{dateFrom}" type="date" class="form-control required-field-hrisp" >
+											<input type="text" class="form-control date-mask-input"
+													   id="dateFrom_display"
+													   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+													<input type="hidden" id="dateFrom" name="dateFrom"
+														   th:value="${workExperience.dateFrom != null ? #temporals.format(workExperience.dateFrom,'yyyy-MM-dd') : ''}" />
+													<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>	
 										<div class="col-sm-4">
 											<label for="firstName">Date To</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('dateTo')}" th:errors="*{dateTo}"></span>
-											<input id="dateTo" name="dateTo" th:field="*{dateTo}" type="date" class="form-control required-field-hrisp" >
+											<input type="text" class="form-control date-mask-input"
+													   id="dateTo_display"
+													   placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+													<input type="hidden" id="dateTo" name="dateTo"
+														   th:value="${workExperience.dateTo != null ? #temporals.format(workExperience.dateTo,'yyyy-MM-dd') : ''}" />
+													<small class="text-danger date-error" style="display:none">Invalid date. Use dd/mm/yyyy.</small>
 										</div>	
 										<div class="col-sm-4">
-											<label for="firstName">&nbsp;</label><br>
-											<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" placeholder="N/A" type="checkbox"> 
-											<label for="dateTo">isPresent</label>
+											<label>&nbsp;</label><br>
+											<input th:field="*{upToPresent}" id="upToPresent" name="upToPresent" type="checkbox">
+											<label for="upToPresent">Active</label>
+											&nbsp;&nbsp;
+											<input th:field="*{partTime}" id="partTime" name="partTime" type="checkbox">
+											<label for="partTime">Part-time</label>
 										</div>
 									</div>
 
@@ -61,17 +74,20 @@
 										<div class="col-sm-4">
 											<label for="positionTitle">Position Title</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('positionTitle')}" th:errors="*{positionTitle}"></span>
-											<input id="positionTitle" name="positionTitle" th:field="*{positionTitle}" placeholder="Position Title" type="text" class="form-control required-field-hrisp" >
+											<input id="positionTitle" name="positionTitle" th:field="*{positionTitle}" placeholder="Position Title" type="text" class="form-control" >
 										</div>
 										<div class="col-sm-4">
 											<label for="department">Department</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></span>
-											<input id="department" name="department" th:field="*{department}" placeholder="Department" type="text" class="form-control required-field-hrisp" >
+											<input id="department" name="department" th:field="*{department}" placeholder="Department" type="text" class="form-control" >
 										</div>
 										<div class="col-sm-4">
 											<label for="officeName">Office Name</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('officeName')}" th:errors="*{officeName}"></span>
-											<input id="officeName" name="officeName" th:field="*{officeName}" placeholder="Office Name" type="text" class="form-control required-field-hrisp" >
+											<select id="officeName" name="officeName" th:field="*{officeName}" class="form-control">
+												<option value="">SELECT VALUE</option>
+												<option th:each="o : ${officeList}" th:value="${o.officeName}" th:text="${o.officeName}"></option>
+											</select>
 										</div>		
 									</div>
 
@@ -79,29 +95,29 @@
 										<div class="col-sm-4">
 											<label for="immediateSupervisor">Immediate Supervisor</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('immediateSupervisor')}" th:errors="*{immediateSupervisor}"></span>
-											<input id="immediateSupervisor" name="immediateSupervisor" th:field="*{immediateSupervisor}" placeholder="Immediate Supervisor" type="text" class="form-control required-field-hrisp" >
+											<input id="immediateSupervisor" name="immediateSupervisor" th:field="*{immediateSupervisor}" placeholder="Immediate Supervisor" type="text" class="form-control" >
 										</div>
 										<div class="col-sm-8">
 											<label for="jobDescription">Job Description</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('jobDescription')}" th:errors="*{jobDescription}"></span>
-											<input id="jobDescription" name="jobDescription" th:field="*{jobDescription}" placeholder="Job Description" type="text" class="form-control required-field-hrisp" >
+											<input id="jobDescription" name="jobDescription" th:field="*{jobDescription}" placeholder="Job Description" type="text" class="form-control" >
 										</div>
 									</div>
 									<div class="row mt-3">
 										<div class="col-sm-4">
 											<label for="salary">Salary</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></span>
-											<input id="salary" name="salary" th:field="*{salary}" placeholder="Salary" type="number" class="form-control required-field-hrisp" >
+											<input id="salary" name="salary" th:field="*{salary}" placeholder="Salary" type="number" class="form-control" >
 										</div>
 										<div class="col-sm-4">
 											<label for="salaryGrade">Salary Grade</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('salaryGrade')}" th:errors="*{salaryGrade}"></span>
-											<input id="salaryGrade" name="salaryGrade" th:field="*{salaryGrade}" placeholder="Salary" type="number" class="form-control required-field-hrisp" >
+											<input id="salaryGrade" name="salaryGrade" th:field="*{salaryGrade}" placeholder="Salary Grade" type="number" class="form-control" >
 										</div>
 										<div class="col-sm-4">
-											<label for="salaryGrade">Step Number</label>
+											<label for="stepNo">Step Number</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('stepNo')}" th:errors="*{stepNo}"></span>
-											<input id="stepNo" name="stepNo" th:field="*{stepNo}" placeholder="Salary" type="number" class="form-control required-field-hrisp" >
+											<input id="stepNo" name="stepNo" th:field="*{stepNo}" placeholder="Step No." type="number" class="form-control" >
 										</div>
 									</div>
 									<div class="row  mt-3">
@@ -110,13 +126,8 @@
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('appointmentStatus')}" th:errors="*{appointmentStatus}"></span>
 											
 											<select name="appointmentStatus" id="appointmentStatus" th:field="*{appointmentStatus}" class="form-control">
-												<option value="CASUAL">CASUAL</option>
-												<option value="CONTRACTUAL">CONTRACTUAL</option>
-												<option value="PERMANENT">PERMANENT</option>
-												<option value="TEMPORARY">TEMPORARY</option>
-												<option value="NO-EMP-STATUS">NO-EMP-STATUS</option>
-												<option value="ELECTIVE">ELECTIVE</option>
-												<option value="JOB ORDER">JOB ORDER</option>
+												<option value="">SELECT VALUE</option>
+												<option th:each="s : ${appointmentStatusList}" th:value="${s.appointmentStatusName}" th:text="${s.appointmentStatusName}"></option>
 											</select>
 										</div>
 										<div class="col-sm-6">
@@ -142,6 +153,11 @@
 							<div class="modal-footer">
 								<button type="button" class="btn bg-primary" data-dismiss="modal">Close</button>
 								<button id="submitBtn" type="submit" class="btn bg-primary">Save Info</button>
+							<button type="button" class="btn btn-outline-success ml-2"
+								onclick="validateAndGoNext(this.getAttribute('data-href'));"
+								th:attr="data-href=@{/employee/voluntary-work/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+								Next: Voluntary Work &#8594;
+							</button>
 							</div>
 						</form>
 					</div>
@@ -176,7 +192,7 @@
 										</div>
 					
 										<div class="card-body">
-											List of All Work Experience. Type to search desired information.
+											<span class="text-danger">List of all Work Experience (Present to Past Order)</span>. Type to search desired information.
 										</div>
 					
 										<table class="table table-bordered table-hover datatable-highlight">
@@ -199,6 +215,7 @@
 															 th:data-row-dateFrom="${experience.getDateFrom()}"
 															 th:data-row-dateTo="${experience.getDateTo()}"
 															 th:data-row-upToPresent="${experience.isUpToPresent()}"
+			                                                 th:data-row-partTime="${experience.isPartTime()}"
 			                                                 th:data-row-positionTitle="${experience.getPositionTitle()}"	
 			                                                 th:data-row-department="${experience.getDepartment()}"
 			                                                 th:data-row-officeName="${experience.getOfficeName()}"
@@ -228,9 +245,23 @@
 											</tbody>
 										</table>
 									</div>
-									
-									
-											
+
+									<!-- PDS Section Navigation -->
+									<div class="card mt-2">
+										<div class="card-body d-flex justify-content-between align-items-center py-2">
+											<a th:href="@{/employee/civil-eligibility/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}"
+											   class="btn btn-outline-secondary btn-sm">
+												&#8592; Previous: Civil Service Eligibility
+											</a>
+											<button type="button" class="btn btn-success btn-sm"
+												onclick="validateAndGoNext(this.getAttribute('data-href'));"
+												th:attr="data-href=@{/employee/voluntary-work/{id}/{mode}/{hash}(id=${employee.id},mode=${employee.showMode},hash=${employee.empHashCode})}">
+												Next: Voluntary Work &#8594;
+											</button>
+										</div>
+									</div>
+									<!-- /PDS Section Navigation -->
+
 								</div>
 							</div>
 							<!-- /dashboard content -->
@@ -267,18 +298,57 @@
 	<!-- /Main sidebar -->
 	
 	<script th:inline="javascript">		
+		// Validation helper for "Next" navigation across PDS sections
+		function validateAndGoNext(nextUrl) {
+			var missed = [];
+			$('.required-field-hrisp:visible').each(function() {
+				var v = $(this).val();
+				if (!v || v.trim() === '') {
+					var label = $('label[for="' + $(this).attr('id') + '"]').text().trim()
+								|| $(this).attr('placeholder')
+								|| $(this).attr('name')
+								|| 'Unnamed field';
+					missed.push(label);
+				}
+			});
+			if (missed.length > 0) {
+				swal({
+					title: "Please fill required fields",
+					text: missed.map(function(l, i) { return (i+1) + '. ' + l; }).join('\n'),
+					icon: "warning"
+				});
+				return;
+			}
+			window.location.href = nextUrl;
+		}
 	
 	$(document).ready(function() {
-			
+
+			// Active (up to present) work has no end date: lock and clear Date To
+			function applyActiveState(isActive) {
+				if (isActive) {
+					$('#dateTo_display').val('').prop('readonly', true);
+					$('#dateTo').val('');
+					$('#dateTo_display').nextAll('.date-error').first().hide();
+				} else {
+					$('#dateTo_display').prop('readonly', false);
+				}
+			}
+
+			$('#upToPresent').on('change', function() {
+				applyActiveState($(this).is(':checked'));
+			});
+
 			$('#addButton').click(function(){
 				let empHashCode = $('#empHashCode').val();
 				let employeeId = $('#employeeId').val();
-				
+
 		        $('#employeeForm')[0].reset();
-		        
+
 		        $('#empHashCode').val(empHashCode);
 		        $('#employeeId').val(employeeId);
 		        $(".spouseField").show();
+		        applyActiveState(false);
 		    });
 			
 			$(document).on("click", ".showDetails", function() {
@@ -288,6 +358,7 @@
 				var dateFrom = $(this).attr('data-row-dateFrom');
 				var dateTo = $(this).attr('data-row-dateTo');
 				var upToPresent = $(this).attr('data-row-upToPresent');
+				var partTime = $(this).attr('data-row-partTime');
 	            var department = $(this).attr('data-row-department'); 
 	            var officeName = $(this).attr('data-row-officeName');
 	            var immediateSupervisor = $(this).attr('data-row-immediateSupervisor');
@@ -301,8 +372,11 @@
 	                    
 	            $("#modal_form_vertical").find("#id").val(id);
 				$("#modal_form_vertical").find("#dateFrom").val(dateFrom);
+				if (dateFrom && dateFrom.length === 10) { var dfP = dateFrom.split('-'); $("#modal_form_vertical").find("#dateFrom_display").val(dfP[2]+'/'+dfP[1]+'/'+dfP[0]); } else { $("#modal_form_vertical").find("#dateFrom_display").val(''); }
 				$("#modal_form_vertical").find("#dateTo").val(dateTo);
-				$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent);
+				if (dateTo && dateTo.length === 10) { var dtP = dateTo.split('-'); $("#modal_form_vertical").find("#dateTo_display").val(dtP[2]+'/'+dtP[1]+'/'+dtP[0]); } else { $("#modal_form_vertical").find("#dateTo_display").val(''); }
+				$("#modal_form_vertical").find("#upToPresent").prop("checked", upToPresent === 'true');
+				$("#modal_form_vertical").find("#partTime").prop("checked", partTime === 'true');
 	            $("#modal_form_vertical").find("#positionTitle").val(positionTitle);
 	            $("#modal_form_vertical").find("#department").val(department);
 	            $("#modal_form_vertical").find("#officeName").val(officeName);
@@ -313,10 +387,46 @@
 	            $("#modal_form_vertical").find("#stepNo").val(stepNo);
 	            $("#modal_form_vertical").find("#appointmentStatus").val(appointmentStatus);
 	            $("#modal_form_vertical").find("#govtOffice").val(govtOffice);
-	            $("#modal_form_vertical").find("#remarks").val(remarks);	            
-	            
+	            $("#modal_form_vertical").find("#remarks").val(remarks);
+	            applyActiveState(upToPresent === 'true');
+
 	        });
 					
+
+			// ── Date Mask (dd/mm/yyyy ↔ yyyy-MM-dd) ──────────────────────────────
+			$(document).on('input', '.date-mask-input', function() {
+				var v = $(this).val().replace(/\D/g, '').substring(0, 8);
+				if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+				if (v.length >= 6) v = v.substring(0,5) + '/' + v.substring(5);
+				$(this).val(v);
+			});
+			$(document).on('blur', '.date-mask-input', function() {
+				var display = $(this).val().trim();
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var $hidden = $('#' + hiddenId);
+				var $err = $(this).nextAll('.date-error').first();
+				if (!display) { $hidden.val(''); $err.hide(); return; }
+				var parts = display.split('/');
+				if (parts.length !== 3) { $err.show(); return; }
+				var dd = parts[0], mm = parts[1], yy = parts[2];
+				var year = parseInt(yy, 10);
+				if (yy.length <= 2) year += (year <= 49 ? 2000 : 1900);
+				var d = new Date(year, parseInt(mm,10)-1, parseInt(dd,10));
+				if (isNaN(d.getTime()) || d.getDate() != parseInt(dd,10) || (d.getMonth()+1) != parseInt(mm,10)) {
+					$err.show(); $hidden.val(''); return;
+				}
+				$err.hide();
+				$hidden.val(year + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0'));
+			});
+			$('.date-mask-input').each(function() {
+				var hiddenId = $(this).attr('id').replace('_display', '');
+				var iso = $('#' + hiddenId).val();
+				if (iso && iso.length === 10) {
+					var parts = iso.split('-');
+					$(this).val(parts[2] + '/' + parts[1] + '/' + parts[0]);
+				}
+			});
+
 			// start update profile photo
 			const fileSelect = document.getElementById('fileSelect');
 		    const profilePhoto = document.getElementById('profilePhoto');

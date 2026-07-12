@@ -16,6 +16,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
@@ -70,6 +71,9 @@ public class Employee extends Person  implements UserDetails {
     private String plantillaNo;
     private String titleSuffix;
     private String civilStatus;
+    private String maidenName;
+    @Transient
+    private Boolean permanentSameAsResidential;
     private String height;
     private String weight;
     private String religion;

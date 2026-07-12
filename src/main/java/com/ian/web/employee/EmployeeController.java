@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
+import com.ian.web.employee.clearance.ClearanceRepository;
 import com.ian.web.employee.educationalbg.EducationalBackgroundRepository;
 import com.ian.web.employee.eligibility.CivilServiceEligibilityRepository;
 import com.ian.web.employee.familybg.FamilyBgRepository;
@@ -30,6 +31,7 @@ import com.ian.web.employee.otherinfoquestion.OtherInfoQuestionRepository;
 import com.ian.web.employee.references.EmpReferencesRepository;
 import com.ian.web.employee.voluntary_workexperience.VoluntaryWorkRepository;
 import com.ian.web.employee.workexperience.WorkExperienceRepository;
+import com.ian.web.systemsettings.civil_status.CivilStatusRepository;
 import com.ian.web.systemsettings.division.DivisionRepository;
 import com.ian.web.systemsettings.employee_status.EmployeeStatusRepository;
 import com.ian.web.systemsettings.position_title.PositionTitleRepository;
@@ -50,6 +52,7 @@ public class EmployeeController {
 	private final PositionTitleRepository positionTitleRepository;
 	private final EmployeeStatusRepository employeeStatusRepository;
 	private final DivisionRepository divisionRepository;
+	private final CivilStatusRepository civilStatusRepository;
 	
 	private final FamilyBgRepository familyBgRepository;
 	private final EducationalBackgroundRepository educationalBackgroundRepository;
@@ -61,6 +64,7 @@ public class EmployeeController {
 	private final OtherInfoQuestionRepository otherInfoQuestionRepository;
 	private final EmpReferencesRepository empReferencesRepository;
 	private final GovermentIssuedIdRepository govermentIssuedIdRepository;
+	private final ClearanceRepository clearanceRepository;
 	private final PasswordEncoder passwordEncoder;
 
 
@@ -81,6 +85,7 @@ public class EmployeeController {
 		model.addAttribute("employeeStatusList", employeeStatusRepository.findAll());
 		model.addAttribute("divisionList", divisionRepository.findAll());
 		model.addAttribute("positionTitleList", positionTitleRepository.findAll());
+		model.addAttribute("civilStatusList", civilStatusRepository.findAll());
 		model.addAttribute("employee", new Employee());
 		return "employee/employee-list";
 	}
@@ -113,7 +118,8 @@ public class EmployeeController {
 		model.addAttribute("employeeStatusList", employeeStatusRepository.findAll());
 		model.addAttribute("divisionList", divisionRepository.findAll());
 		model.addAttribute("positionTitleList", positionTitleRepository.findAll());
-		
+		model.addAttribute("civilStatusList", civilStatusRepository.findAll());
+
 		PdsCountDto pdsDtoCount = new PdsCountDto();
 		pdsDtoCount.setFamilyBgCount(familyBgRepository.findByEmployeeId(employeeId).size());
 		pdsDtoCount.setEducationalBgCount(educationalBackgroundRepository.findByEmployeeId(employeeId).size());
@@ -169,6 +175,12 @@ public class EmployeeController {
 	    	String fn = employee.getFirstName();
 	    	employee.setUsername((fn != null && !fn.isEmpty() ? fn.substring(0, 1) : "") + employee.getLastName());
 	    	employee.setPassword(passwordEncoder.encode(defaultEmployeePassword));
+	    	if (employee.getGender() == null || employee.getGender().isBlank()) {
+	    		employee.setGender(null);
+	    	}
+	    	if (employee.getUserType() == null || employee.getUserType().isBlank()) {
+	    		employee.setUserType("ROLE_EMPLOYEE");
+	    	}
 	    }
 
 	    // Access control: only Admin can add new employees or edit others; employees may only edit themselves
@@ -181,14 +193,9 @@ public class EmployeeController {
 	        return "redirect:/dashboard";
 	    }
 
-	    // Preserve HR-managed fields and prevent privilege escalation for non-admins
+	    // Prevent privilege escalation for non-admins (userType and employeeStatus are HR-only)
 	    if (!isAdmin && isOwnRecord && employeeOldRecord != null) {
 	        employee.setUserType(employeeOldRecord.getUserType());
-	        employee.setEmpNo(employeeOldRecord.getEmpNo());
-	        employee.setAssumptiondate(employeeOldRecord.getAssumptiondate());
-	        employee.setPlantillaNo(employeeOldRecord.getPlantillaNo());
-	        employee.setPositionTitle(employeeOldRecord.getPositionTitle());
-	        employee.setDivision(employeeOldRecord.getDivision());
 	        employee.setEmployeeStatus(employeeOldRecord.getEmployeeStatus());
 	    }
 
@@ -276,5 +283,45 @@ public class EmployeeController {
         }
         return sb.toString();
     }
-	
+
+	@PostMapping("/deleteEmployee/{id}")
+	public String deleteEmployee(
+			@PathVariable long id,
+			final RedirectAttributes redirect,
+			HttpServletRequest request) {
+
+		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
+		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());
+		if (!isAdmin) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/employee-list";
+		}
+		if (id == 1L) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Cannot delete the system admin."));
+			return "redirect:/employee-list";
+		}
+		try {
+			// Delete PDS records
+			govermentIssuedIdRepository.deleteAll(govermentIssuedIdRepository.findByEmployeeId(id));
+			empReferencesRepository.deleteAll(empReferencesRepository.findByEmployeeId(id));
+			otherInfoQuestionRepository.deleteAll(otherInfoQuestionRepository.findByEmployeeId(id));
+			otherInfoRepository.deleteAll(otherInfoRepository.findByEmployeeId(id));
+			learningAndDevelopmentRepository.deleteAll(learningAndDevelopmentRepository.findByEmployeeId(id));
+			voluntaryWorkRepository.deleteAll(voluntaryWorkRepository.findByEmployeeId(id));
+			workExperienceRepository.deleteAll(workExperienceRepository.findByEmployeeId(id));
+			civilServiceEligibilityRepository.deleteAll(civilServiceEligibilityRepository.findByEmployeeId(id));
+			educationalBackgroundRepository.deleteAll(educationalBackgroundRepository.findByEmployeeId(id));
+			familyBgRepository.deleteAll(familyBgRepository.findByEmployeeId(id));
+			// Delete clearance records
+			clearanceRepository.deleteAll(clearanceRepository.findByEmployeeId(id));
+			// Delete employee
+			employeeRepository.deleteById(id);
+			redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Employee deleted successfully."));
+		} catch (Exception e) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR",
+				"Cannot delete employee. Ensure service records and 201 documents are removed first, then try again."));
+		}
+		return "redirect:/employee-list";
+	}
+
 }
