@@ -1,6 +1,6 @@
 # Leave Management Analysis Prompt
 
-Use this prompt with Claude to analyze the leave-management documents in the project locally first. Do not upload anything to the server yet. Read the files in `Leave_Docs/` only, then produce a structured understanding of the leave workflow before any implementation.
+Use this prompt with Claude to analyze the leave-management documents in the project locally first. Do not upload anything to the server yet. Read the files in `docs/leave/reference/` only, then produce a structured understanding of the leave workflow before any implementation.
 
 ## Goal
 Understand the leave-management process described in the attached documents and translate it into a clear module plan for this HRIS project.
@@ -11,12 +11,12 @@ Understand the leave-management process described in the attached documents and 
 - Do not discuss attendance or payroll processing unless the document explicitly mentions them as file-routing or reference context.
 - Focus only on leave management, leave application export, and leave credit tracking.
 - Keep context usage low by reading the documents in chunks and summarizing each chunk before moving on.
-- Use the documents in `Leave_Docs/` as the source of truth.
+- Use the documents in `docs/leave/reference/` as the source of truth.
 
 ## Chunks to Read
 
 ### Chunk 1: Procedure Manual First
-Read `Leave_Docs/PROCEDURES-MANUAL-FAD-LEAVE-PROCESSING.pdf` first.
+Read `docs/leave/reference/PROCEDURES-MANUAL-FAD-LEAVE-PROCESSING.pdf` first.
 
 Extract only the workflow steps and roles:
 - objective
@@ -31,7 +31,7 @@ Extract only the workflow steps and roles:
 Summarize the process as a simple step-by-step leave workflow.
 
 ### Chunk 2: Printable Leave Application Form
-Next read `Leave_Docs/CS Form No. 6, Revised 2020 (Application for Leave) (Fillable) (2).pdf`.
+Next read `docs/leave/reference/CS Form No. 6, Revised 2020 (Application for Leave) (Fillable) (2).pdf`.
 
 Extract only the fields and printable layout requirements:
 - employee identity fields
@@ -47,7 +47,7 @@ Extract only the fields and printable layout requirements:
 Summarize this as the PDF export form requirement.
 
 ### Chunk 3: Leave Card Sample
-Next read `Leave_Docs/LEAVE_CARD_SAMPLE FOR EMPLOYEES.pdf`.
+Next read `docs/leave/reference/LEAVE_CARD_SAMPLE FOR EMPLOYEES.pdf`.
 
 Extract only what the leave card tracks:
 - employee header details
