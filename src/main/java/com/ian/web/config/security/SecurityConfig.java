@@ -19,6 +19,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 					"/admin_js/**","/parent_css/**","/parent_js/**",
 					"/js/*","/js/**","/css/*","/css/**","/images/*","/images/**"};
 
+	// Leave-module endpoints that mutate records or expose the admin roster/views.
+	// The UI already hides these from employees (showMode != 'EMPLOYEE'); this enforces
+	// it server-side so an authenticated ROLE_EMPLOYEE cannot reach them directly.
+	// Employee self-service uses /my-leaves/** and the hash-gated PDF endpoints, which
+	// stay at .authenticated().
+	private static final String[] LEAVE_ADMIN = new String[] {
+			"/leaves", "/leaves/**",
+			"/addLeaveApplication", "/updateLeaveApplication", "/deleteLeaveApplication/**",
+			"/addLeaveCardEntry", "/updateLeaveCardEntry", "/deleteLeaveCardEntry/**",
+			"/postLeaveAccrual/**",
+			"/holidays", "/save-holiday", "/delete-holiday/**",
+			"/leave-types", "/save-leave-type", "/delete-leave-type/**"};
+
 	private final UserDetailsService userDetailsService;
 
 	public SecurityConfig(UserDetailsService userDetailsService) {
@@ -39,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 			.authorizeRequests()
 				.antMatchers(PUBLIC).permitAll()
+				.antMatchers(LEAVE_ADMIN).hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
 				.anyRequest().authenticated()
 				.and()
 			.formLogin()
