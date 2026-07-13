@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
@@ -150,9 +151,22 @@ public class LeaveController {
 	// ── PDF exports ──────────────────────────────────────────────────────────
 
 	@GetMapping("/leaveForm6Pdf/{applicationId}")
-	public void exportForm6Pdf(@PathVariable long applicationId, HttpServletResponse response) throws Exception {
+	public void exportForm6Pdf(@PathVariable long applicationId, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 		LeaveApplication app = leaveApplicationRepository.findById(applicationId).orElseThrow();
 		Employee employee = app.getEmployee();
+
+		// /leaveForm6Pdf takes only a numeric id (no hash token), so guard against IDOR:
+		// only staff or the application's owner may render it. Mirrors the actorObj
+		// isAdmin/isOwnRecord check used in the PDS controllers.
+		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
+		boolean isStaff = actorObj != null
+				&& ("ROLE_ADMIN".equals(actorObj.getUserType()) || "ROLE_HR".equals(actorObj.getUserType()));
+		boolean isOwnRecord = actorObj != null && employee != null && actorObj.getId() == employee.getId();
+		if (!isStaff && !isOwnRecord) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("OFFICE_DEPARTMENT", nvl(app.getOfficeDepartment()));
