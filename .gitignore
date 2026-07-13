@@ -45,6 +45,9 @@ buildNumber.properties
 hs_err_pid*
 replay_pid*
 
+# Claude Code local settings and worktrees
+.claude/
+
 # IDE settings
 .classpath
 .factorypath
