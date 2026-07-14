@@ -173,6 +173,12 @@
 										<div class="card-body">
 											List of All Educational Background. Type to search desired record.
 										</div>
+
+										<form id="deleteRecordForm" method="post" th:action="@{/deleteEducationalBg/0}">
+											<input type="hidden" name="employeeId" th:value="${employee.id}">
+											<input type="hidden" name="empHashCode" th:value="${employee.empHashCode}">
+											<input type="hidden" name="showMode" th:value="${employee.showMode}">
+										</form>
 					
 										<table class="table table-bordered table-hover datatable-highlight">
 											<thead>
@@ -205,6 +211,8 @@
 			                                                 th:data-row-schoolCustomName="${educationalBg.getEffectiveSchoolName()}"
 															data-toggle="modal" data-target="#modal_form_vertical"
 			                                                >View Record</button>
+															<button type="button" class="deleteRecord btn btn-danger mt-1"
+															 th:data-row-id="${educationalBg.getId()}">Delete</button>
 														</td>														
 														
 														<td th:text="${educationalBg.getDegreeLevel().getDegreeName()}">Full Name</td>
@@ -312,6 +320,24 @@
 	<script th:inline="javascript">		
 	
 	    $(document).ready(function() {
+
+			// Per-record delete (CR-015)
+			$(document).on('click', '.deleteRecord', function() {
+				var id = $(this).attr('data-row-id');
+				swal({
+					title: "Delete this record?",
+					text: "This permanently removes the record and cannot be undone.",
+					icon: "warning",
+					buttons: ["Cancel", "Yes, delete"],
+					dangerMode: true
+				}).then(function(confirmed){
+					if (confirmed) {
+						var form = $('#deleteRecordForm');
+						form.attr('action', form.attr('action').replace(/\/\d*$/, '/' + id));
+						form.submit();
+					}
+				});
+			});
 
 			// Active (up to present) education has no end date: lock and clear End Period
 			function applyActiveState(isActive) {
