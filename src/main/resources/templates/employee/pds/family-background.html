@@ -63,6 +63,7 @@
 													<option value="FATHER">FATHER</option>
 													<option value="MOTHER">MOTHER</option>
 													<option value="CHILDREN">CHILDREN</option>
+													<option value="N/A">N/A</option>
 												</select>
 											</div>	
 										</div>
@@ -222,7 +223,12 @@
 										<div class="card-body">
 											List of All Family Members. Type to search desired family member.
 										</div>
-					
+
+										<form id="deleteRecordForm" method="post" th:action="@{/deleteFamilyBg/0}">
+											<input type="hidden" name="employeeId" th:value="${employee.id}">
+											<input type="hidden" name="empHashCode" th:value="${employee.empHashCode}">
+											<input type="hidden" name="showMode" th:value="${employee.showMode}">
+										</form>
 										<table class="table table-bordered table-hover datatable-highlight">
 											<thead>
 												<tr>
@@ -259,6 +265,8 @@
 			                                                 th:data-row-isDeceased="${familyBg.isDeceased()}"
 															data-toggle="modal" data-target="#modal_form_vertical"
 			                                                >View Record</button>
+															<button type="button" class="deleteRecord btn btn-danger mt-1"
+															 th:data-row-id="${familyBg.getId()}">Delete</button>
 														</td>														
 														
 														<td>
@@ -389,6 +397,36 @@
 
 			$('#deceasedToggle').on('change', function() {
 				applyDeceasedState($(this).is(':checked'));
+				applyRelationshipNaMode($('#relationship').val() === 'N/A');
+			});
+
+			// Relationship N/A relaxes the mandatory name fields (CR-015)
+			function applyRelationshipNaMode(isNa) {
+				if (isNa) {
+					$('#firstName').removeClass('required-field-hrisp');
+					$('#lastName').removeClass('required-field-hrisp');
+				} else if (!$('#deceasedToggle').is(':checked')) {
+					$('#firstName').addClass('required-field-hrisp');
+					$('#lastName').addClass('required-field-hrisp');
+				}
+			}
+
+			// Per-record delete (CR-015)
+			$(document).on('click', '.deleteRecord', function() {
+				var id = $(this).attr('data-row-id');
+				swal({
+					title: "Delete this record?",
+					text: "This permanently removes the record and cannot be undone.",
+					icon: "warning",
+					buttons: ["Cancel", "Yes, delete"],
+					dangerMode: true
+				}).then(function(confirmed){
+					if (confirmed) {
+						var form = $('#deleteRecordForm');
+						form.attr('action', form.attr('action').replace(/\/\d*$/, '/' + id));
+						form.submit();
+					}
+				});
 			});
 
 			$('#addButton').click(function(){
@@ -469,12 +507,18 @@
 					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
 					$("#birthdateGroup, #ageGroup").hide();   // no DOB for parents
+				} else if(relationship === 'N/A'){
+					$("#gender").prop("disabled", false);
+					$("#maidenNameGroup").hide();
+					$(".spouseField").hide();
+					$("#birthdateGroup, #ageGroup").hide();
 				} else {
 					$("#gender").prop("disabled", false);
 					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
 					$("#birthdateGroup, #ageGroup").show();   // children keep DOB
 				}
+				applyRelationshipNaMode(relationship === 'N/A');
 
 	        });
 			
@@ -499,13 +543,19 @@
 					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
 					$("#birthdateGroup, #ageGroup").hide();   // no DOB for parents
+				} else if(selectedValue === 'N/A'){
+					$("#gender").prop("disabled", false);
+					$("#maidenNameGroup").hide();
+					$(".spouseField").hide();
+					$("#birthdateGroup, #ageGroup").hide();
 				} else {
 					$("#gender").prop("disabled", false);
 					$("#maidenNameGroup").hide();
 					$(".spouseField").hide();
 					$("#birthdateGroup, #ageGroup").show();   // children keep DOB
 				}
-		        
+				applyRelationshipNaMode(selectedValue === 'N/A');
+
 		    });
 			
 

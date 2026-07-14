@@ -216,7 +216,7 @@
 														</div>
 					
 														<div class="row mt-3">
-					                                        <p>37.) Have you ever been seperated from the service in any of the following modes: resignation, retirement, dropped from the rolls, dismissal, termination, end of term,finished contract or phased out (abolition) in the public or private sector?</p>
+					                                        <p>37.) Have you ever been separated from the service in any of the following modes: resignation, retirement, dropped from the rolls, dismissal, termination, end of term,finished contract or phased out (abolition) in the public or private sector?</p>
 															<div class="col-sm-12">
 																<span class="validationError text-danger" th:if="${#fields.hasErrors('questionFour')}" th:errors="*{questionFour}"></span>
 																<p class=" d-flex align-items-center">
@@ -382,6 +382,7 @@
 					
 												<div class="modal-footer">
 													<button type="button" class="btn bg-secondary" data-dismiss="modal">Close</button>
+													<button type="button" class="btn bg-warning" id="clearQuestionsBtn">Clear</button>
 													<button type="submit" class="btn bg-primary" id="submitBtn">Save Info</button>
 												</div>
 											</form>
@@ -465,7 +466,31 @@
 		}
 	
 	    $(document).ready(function() {
-			
+
+			// ── Clear all Other Info Question answers (CR-015) ─────────────────
+			$('#clearQuestionsBtn').click(function(){
+				swal({
+					title: "Clear all answers?",
+					text: "This resets every question to NO and clears all details. Press Save Info afterwards to keep the cleared answers.",
+					icon: "warning",
+					buttons: ["Cancel", "Yes, clear"],
+					dangerMode: true
+				}).then(function(confirmed){
+					if (!confirmed) return;
+					var $form = $('#employeeForm');
+					$form.find('input[type="radio"][value="YES"]').prop('checked', false);
+					$form.find('input[type="radio"][value="NO"]').prop('checked', true);
+					$form.find('input[type="text"], input[type="number"], input[type="file"]').val('');
+					$form.find('select').val(null);
+					$form.find('.date-error').hide();
+					// Re-disable and hide the "If YES" detail fields via the existing helpers
+					['questionTwoA','questionTwoB','questionThree','questionFour','questionFive',
+					 'questionSix','questionSevenA','questionEight','questionNine','questionTen'].forEach(function(q){
+						disabledDetails(q);
+					});
+				});
+			});
+
 			$("#eligibility").change(function() {
 		        var selectedValue = $(this).val();
 		        
