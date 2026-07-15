@@ -14,6 +14,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
@@ -124,5 +125,38 @@ public class OtherInfoController {
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully saved."));
 		return "redirect:/employee/other-info/"+otherInfo.getEmployee().getId()+"/"+showMode+"/"+otherInfo.getEmployee().getEmpHashCode();
 
+	}
+
+	@PostMapping("/deleteOtherInfo/{id}")
+	@Transactional
+	public String deleteOtherInfo(
+			@PathVariable long id,
+			@RequestParam long employeeId,
+			@RequestParam(required = false) String showMode,
+			@RequestParam String empHashCode,
+			final RedirectAttributes redirect,
+			HttpServletRequest request) {
+
+		// Ownership check
+		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
+		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());
+		boolean isOwnRecord = actorObj != null && actorObj.getId() == employeeId;
+		if (!isAdmin && !isOwnRecord) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/dashboard";
+		}
+
+		String redirectBase = "redirect:/employee/other-info/" + employeeId + "/" + (showMode == null ? "" : showMode) + "/" + empHashCode;
+
+		Optional<OtherInfo> recordOptional = otherInfoRepository.findById(id);
+		if (!recordOptional.isPresent() || recordOptional.get().getEmployee().getId() != employeeId) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Record not found."));
+			return redirectBase;
+		}
+
+		otherInfoRepository.delete(recordOptional.get());
+
+		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record successfully deleted."));
+		return redirectBase;
 	}
 }

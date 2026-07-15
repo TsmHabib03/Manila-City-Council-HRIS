@@ -194,6 +194,12 @@
 										<div class="card-body">
 											<span class="text-danger">List of all Work Experience (Present to Past Order)</span>. Type to search desired information.
 										</div>
+
+										<form id="deleteRecordForm" method="post" th:action="@{/deleteWorkExperience/0}">
+											<input type="hidden" name="employeeId" th:value="${employee.id}">
+											<input type="hidden" name="empHashCode" th:value="${employee.empHashCode}">
+											<input type="hidden" name="showMode" th:value="${employee.showMode}">
+										</form>
 					
 										<table class="table table-bordered table-hover datatable-highlight">
 											<thead>
@@ -230,6 +236,8 @@
 			                                                 th:data-row-id="${experience.getId()}"												 
 															data-toggle="modal" data-target="#modal_form_vertical"
 			                                                >View Record</button>
+															<button type="button" class="deleteRecord btn btn-danger mt-1"
+															 th:data-row-id="${experience.getId()}">Delete</button>
 														</td>														
 														
 														<td th:text="${experience.getPositionTitle()}"></td>
@@ -323,6 +331,24 @@
 		}
 	
 	$(document).ready(function() {
+
+			// Per-record delete (CR-015)
+			$(document).on('click', '.deleteRecord', function() {
+				var id = $(this).attr('data-row-id');
+				swal({
+					title: "Delete this record?",
+					text: "This permanently removes the record and cannot be undone.",
+					icon: "warning",
+					buttons: ["Cancel", "Yes, delete"],
+					dangerMode: true
+				}).then(function(confirmed){
+					if (confirmed) {
+						var form = $('#deleteRecordForm');
+						form.attr('action', form.attr('action').replace(/\/\d*$/, '/' + id));
+						form.submit();
+					}
+				});
+			});
 
 			// Active (up to present) work has no end date: lock and clear Date To
 			function applyActiveState(isActive) {

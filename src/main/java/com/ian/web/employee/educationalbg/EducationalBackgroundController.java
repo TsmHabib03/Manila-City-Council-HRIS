@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
@@ -207,7 +209,40 @@ public class EducationalBackgroundController {
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Updated."));
 		return "redirect:/employee/educationalbg/"+educBackground.getEmployee().getId()+"/"+showMode+"/"+educBackground.getEmployee().getEmpHashCode();
 	}
-    
+
+	@PostMapping("/deleteEducationalBg/{id}")
+	@Transactional
+	public String deleteEducationalBg(
+			@PathVariable long id,
+			@RequestParam long employeeId,
+			@RequestParam(required = false) String showMode,
+			@RequestParam String empHashCode,
+			final RedirectAttributes redirect,
+			HttpServletRequest request) {
+
+		// Ownership check
+		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
+		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());
+		boolean isOwnRecord = actorObj != null && actorObj.getId() == employeeId;
+		if (!isAdmin && !isOwnRecord) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/dashboard";
+		}
+
+		String redirectBase = "redirect:/employee/educationalbg/" + employeeId + "/" + (showMode == null ? "" : showMode) + "/" + empHashCode;
+
+		Optional<EducationalBackground> recordOptional = educationalBackgroundRepository.findById(id);
+		if (!recordOptional.isPresent() || recordOptional.get().getEmployee().getId() != employeeId) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Record not found."));
+			return redirectBase;
+		}
+
+		educationalBackgroundRepository.delete(recordOptional.get());
+
+		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record successfully deleted."));
+		return redirectBase;
+	}
+
 
 //    @GetMapping("/educational-background/{employeeId}")
 //    public String getRecord(Model model, @PathVariable("employeeId") long id){

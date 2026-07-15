@@ -3,7 +3,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
-              name="PDS2025_P3" pageWidth="612" pageHeight="793" columnWidth="612"
+              name="PDS2025_P3" pageWidth="612" pageHeight="792" columnWidth="612"
               leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
 
 	<parameter name="FormBg3" class="java.lang.String"/>
@@ -194,7 +194,7 @@
 
 	<title><band height="0" splitType="Stretch"/></title>
 	<detail>
-		<band height="793" splitType="Prevent">
+		<band height="792" splitType="Prevent">
 			<rectangle><reportElement mode="Opaque" x="61" y="26" width="500" height="17" backcolor="#969696"/><graphicElement><pen lineWidth="0.0" lineStyle="Solid"/></graphicElement></rectangle>
 			<rectangle><reportElement mode="Opaque" x="61" y="203" width="500" height="12" backcolor="#969696"/><graphicElement><pen lineWidth="0.0" lineStyle="Solid"/></graphicElement></rectangle>
 			<rectangle><reportElement mode="Opaque" x="61" y="603" width="500" height="15" backcolor="#969696"/><graphicElement><pen lineWidth="0.0" lineStyle="Solid"/></graphicElement></rectangle>

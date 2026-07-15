@@ -162,5 +162,38 @@ public class LearningAndDevelopmentController {
 		return "redirect:/employee/learning-development/" + employeeId + "/" + (showMode == null ? "" : showMode) + "/" + empHashCode;
 	}
 
+	@PostMapping("/deleteLearningDevelopment/{id}")
+	@Transactional
+	public String deleteLearningDevelopment(
+			@PathVariable long id,
+			@RequestParam long employeeId,
+			@RequestParam(required = false) String showMode,
+			@RequestParam String empHashCode,
+			final RedirectAttributes redirect,
+			HttpServletRequest request) {
+
+		// Ownership check
+		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
+		boolean isAdmin = actorObj != null && "ROLE_ADMIN".equals(actorObj.getUserType());
+		boolean isOwnRecord = actorObj != null && actorObj.getId() == employeeId;
+		if (!isAdmin && !isOwnRecord) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
+			return "redirect:/dashboard";
+		}
+
+		String redirectBase = "redirect:/employee/learning-development/" + employeeId + "/" + (showMode == null ? "" : showMode) + "/" + empHashCode;
+
+		Optional<LearningAndDevelopment> recordOptional = learningAndDevelopmentRepository.findById(id);
+		if (!recordOptional.isPresent() || recordOptional.get().getEmployee().getId() != employeeId) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Record not found."));
+			return redirectBase;
+		}
+
+		learningAndDevelopmentRepository.delete(recordOptional.get());
+
+		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record successfully deleted."));
+		return redirectBase;
+	}
+
 
 }
