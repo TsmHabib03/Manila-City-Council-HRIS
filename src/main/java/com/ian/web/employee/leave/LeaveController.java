@@ -70,15 +70,47 @@ public class LeaveController {
 
 	@PostMapping({ "/addLeaveApplication", "/updateLeaveApplication" })
 	@Transactional
-	public String saveLeaveApplication(LeaveApplication application, final RedirectAttributes redirect) {
+	public String saveLeaveApplication(LeaveApplication application, HttpServletRequest request,
+			final RedirectAttributes redirect) {
+
+		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
+		boolean isStaff = actorObj != null
+				&& ("ROLE_ADMIN".equals(actorObj.getUserType()) || "ROLE_HR".equals(actorObj.getUserType()));
+
+		if (!isStaff) {
+			// Employees may only file a brand-new application for themselves. Filing and
+			// approving share this endpoint, so without this guard an employee could edit
+			// or self-approve an existing application (the exact IDOR 0ca9c03 closed off).
+			if (actorObj == null || application.getId() != 0) {
+				redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Access denied."));
+				return actorObj == null ? "redirect:/login"
+						: "redirect:/my-leaves/" + actorObj.getId() + "/" + actorObj.getEmpHashCode();
+			}
+			application.setEmployee(actorObj);
+			application.setStatus(LeaveConstants.STATUS_FILED);
+			application.setRecommendation(null);
+			application.setRecommendationReason(null);
+			application.setApprovedDaysWithPay(null);
+			application.setApprovedDaysWithoutPay(null);
+			application.setApprovedOthers(null);
+			application.setDisapprovalReason(null);
+			application.setDisapprovedExigency(false);
+			application.setCertOfficerName(LeaveConstants.DEFAULT_CERT_OFFICER_NAME);
+			application.setCertOfficerTitle(LeaveConstants.DEFAULT_CERT_OFFICER_TITLE);
+			application.setRecommenderName(LeaveConstants.DEFAULT_RECOMMENDER_NAME);
+			application.setRecommenderTitle(LeaveConstants.DEFAULT_RECOMMENDER_TITLE);
+			application.setApproverName(LeaveConstants.DEFAULT_APPROVER_NAME);
+			application.setApproverTitle(LeaveConstants.DEFAULT_APPROVER_TITLE);
+		}
 
 		fillCertification(application);
 		LeaveApplication saved = leaveApplicationRepository.save(application);
 		syncLedgerEntry(saved);
 
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Saved."));
-		return "redirect:/leaves/" + saved.getEmployee().getId()
-				+ "/" + saved.getEmployee().getEmpHashCode();
+		return isStaff
+				? "redirect:/leaves/" + saved.getEmployee().getId() + "/" + saved.getEmployee().getEmpHashCode()
+				: "redirect:/my-leaves/" + saved.getEmployee().getId() + "/" + saved.getEmployee().getEmpHashCode();
 	}
 
 	@GetMapping("/deleteLeaveApplication/{id}")

@@ -22,11 +22,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	// Leave-module endpoints that mutate records or expose the admin roster/views.
 	// The UI already hides these from employees (showMode != 'EMPLOYEE'); this enforces
 	// it server-side so an authenticated ROLE_EMPLOYEE cannot reach them directly.
-	// Employee self-service uses /my-leaves/** and the hash-gated PDF endpoints, which
+	// /addLeaveApplication and /updateLeaveApplication are intentionally NOT listed here:
+	// employees may file their own leave application through those same URLs, same as
+	// /addEmployee et al. for PDS self-service. LeaveController.saveLeaveApplication does
+	// the in-method own-record + admin-field-reset guard (mirrors EmployeeController.saveEmployee).
+	// Employee self-service also uses /my-leaves/** and the hash-gated PDF endpoints, which
 	// stay at .authenticated().
 	private static final String[] LEAVE_ADMIN = new String[] {
 			"/leaves", "/leaves/**",
-			"/addLeaveApplication", "/updateLeaveApplication", "/deleteLeaveApplication/**",
+			"/deleteLeaveApplication/**",
 			"/addLeaveCardEntry", "/updateLeaveCardEntry", "/deleteLeaveCardEntry/**",
 			"/postLeaveAccrual/**",
 			"/holidays", "/save-holiday", "/delete-holiday/**",

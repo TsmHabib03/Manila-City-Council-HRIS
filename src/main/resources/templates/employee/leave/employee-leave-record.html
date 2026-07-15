@@ -32,7 +32,7 @@
 						</h4>
 						<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
 					</div>
-					<div class="header-elements">
+					<div class="header-elements" th:if="${showMode != 'EMPLOYEE'}">
 						<span class="badge badge-primary mr-1" th:text="'VL Balance: ' + ${vlBalance}">VL</span>
 						<span class="badge badge-info" th:text="'SL Balance: ' + ${slBalance}">SL</span>
 					</div>
@@ -255,6 +255,107 @@
 			</div>
 			<!-- /Add/Edit Leave Application Modal -->
 
+			<!-- File My Leave Application Modal (employee self-service: create only) -->
+			<div id="modal_my_leave_application" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">File Leave Application (CS Form No. 6)</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form id="myLeaveApplicationForm" th:action="@{/addLeaveApplication}" method="post" class="form-horizontal" th:object="${leaveApplication}">
+							<input type="hidden" th:field="*{officeDepartment}">
+							<input type="hidden" th:field="*{position}">
+							<input type="hidden" th:field="*{salary}">
+							<input type="hidden" name="dateOfFiling" th:value="*{dateOfFiling}">
+							<div class="modal-body">
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="mla_leaveType">6.A Type of Leave <span class="text-danger">*</span></label>
+											<select id="mla_leaveType" name="leaveType" class="form-control required-field-hrisp">
+												<option value="">SELECT VALUE</option>
+												<option th:each="ltype : ${leaveTypeList}" th:value="${ltype}" th:text="${ltype}"></option>
+											</select>
+										</div>
+										<div class="col-sm-4">
+											<label for="mla_leaveTypeOthers">Others (specify)</label>
+											<input id="mla_leaveTypeOthers" name="leaveTypeOthers" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="mla_commutation">6.D Commutation</label>
+											<select id="mla_commutation" name="commutation" class="form-control">
+												<option value="">SELECT VALUE</option>
+												<option value="Not Requested">Not Requested</option>
+												<option value="Requested">Requested</option>
+											</select>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="mla_leaveDetailOption">6.B Details of Leave</label>
+											<select id="mla_leaveDetailOption" name="leaveDetailOption" class="form-control">
+												<option value="">SELECT VALUE</option>
+												<option th:each="opt : ${leaveDetailOptionList}" th:value="${opt}" th:text="${opt}"></option>
+											</select>
+										</div>
+										<div class="col-sm-8">
+											<label for="mla_leaveDetailText">Specify (location / illness / purpose)</label>
+											<input id="mla_leaveDetailText" name="leaveDetailText" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-3">
+											<label for="mla_workingDays">6.C Working Days <span class="text-danger">*</span></label>
+											<input id="mla_workingDays" name="workingDays" type="number" step="0.001" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="mla_dateFrom">From <span class="text-danger">*</span></label>
+											<input id="mla_dateFrom" name="dateFrom" type="date" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-3">
+											<label for="mla_dateTo">To</label>
+											<input id="mla_dateTo" name="dateTo" type="date" class="form-control">
+										</div>
+										<div class="col-sm-3">
+											<label for="mla_inclusiveDates">Inclusive Dates (as printed)</label>
+											<input id="mla_inclusiveDates" name="inclusiveDates" type="text" placeholder="e.g. 12/26/25, 1/2/26" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="mla_remarks">Remarks</label>
+											<input id="mla_remarks" name="remarks" type="text" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="alert alert-info mb-0">
+									This files your leave request for HR/admin review. Leave credit certification and
+									approval are completed by HR once they process the request.
+								</div>
+
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /File My Leave Application Modal -->
+
 			<!-- Add/Edit Leave Card Entry Modal -->
 			<div id="modal_card_entry" class="modal fade" tabindex="-1">
 				<div class="modal-dialog modal-lg">
@@ -348,6 +449,9 @@
 										<th:block th:if="${showMode != 'EMPLOYEE'}">
 											<button id="addNewApplicationBtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_leave_application">File Leave Application</button>
 											<a th:href="@{/leaves}" class="btn bg-green ml-1">Back to Employee List</a>
+										</th:block>
+										<th:block th:if="${showMode == 'EMPLOYEE'}">
+											<button id="fileMyLeaveBtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_my_leave_application">File Leave Application</button>
 										</th:block>
 									</div>
 								</div>
@@ -468,22 +572,22 @@
 											<th rowspan="2" style="width:110px;">&nbsp;</th>
 											<th rowspan="2">Period</th>
 											<th rowspan="2">Particulars</th>
-											<th colspan="3" class="text-center">Vacation Leave</th>
-											<th colspan="3" class="text-center">Sick Leave</th>
+											<th th:colspan="${showMode == 'EMPLOYEE'} ? 2 : 3" class="text-center">Vacation Leave</th>
+											<th th:colspan="${showMode == 'EMPLOYEE'} ? 2 : 3" class="text-center">Sick Leave</th>
 											<th rowspan="2">Remarks<br><small>(date/s of leave)</small></th>
 										</tr>
 										<tr>
 											<th class="text-right">Earned</th>
 											<th class="text-right">Abs./UT w/ pay</th>
-											<th class="text-right">Balance</th>
+											<th class="text-right" th:if="${showMode != 'EMPLOYEE'}">Balance</th>
 											<th class="text-right">Earned</th>
 											<th class="text-right">Abs./UT w/ pay</th>
-											<th class="text-right">Balance</th>
+											<th class="text-right" th:if="${showMode != 'EMPLOYEE'}">Balance</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr th:if="${#lists.isEmpty(leaveCardEntryList)}">
-											<td colspan="10" class="text-center text-muted py-3">
+											<td th:colspan="${showMode == 'EMPLOYEE'} ? 8 : 10" class="text-center text-muted py-3">
 												No leave card entries yet. Post a monthly accrual to start the ledger.
 											</td>
 										</tr>
@@ -517,10 +621,10 @@
 												<td th:text="${entry.particulars}">particulars</td>
 												<td class="text-right" th:text="${entry.vlEarned}">vlE</td>
 												<td class="text-right" th:text="${entry.vlDeducted}">vlD</td>
-												<td class="text-right font-weight-semibold" th:text="${entry.vlBalance}">vlB</td>
+												<td class="text-right font-weight-semibold" th:if="${showMode != 'EMPLOYEE'}" th:text="${entry.vlBalance}">vlB</td>
 												<td class="text-right" th:text="${entry.slEarned}">slE</td>
 												<td class="text-right" th:text="${entry.slDeducted}">slD</td>
-												<td class="text-right font-weight-semibold" th:text="${entry.slBalance}">slB</td>
+												<td class="text-right font-weight-semibold" th:if="${showMode != 'EMPLOYEE'}" th:text="${entry.slBalance}">slB</td>
 												<td th:text="${entry.remarks}">remarks</td>
 											</tr>
 										</th:block>
@@ -601,6 +705,23 @@
 					$(this).closest('.modal').modal('hide');
 					return;
 				}
+				var emptyFields = [];
+				$(this).find('.required-field-hrisp').each(function() {
+					if ($(this).val() === null || $(this).val().trim() === '') {
+						emptyFields.push($(this));
+					}
+				});
+				if (emptyFields.length > 0) {
+					event.preventDefault();
+					swal({ title: "Error!", text: "Fields marked in RED are mandatory.", icon: "error", buttons: false, timer: 2000 });
+				}
+			});
+
+			$('#fileMyLeaveBtn').on('click', function() {
+				$('#myLeaveApplicationForm')[0].reset();
+			});
+
+			$('#myLeaveApplicationForm').submit(function(event) {
 				var emptyFields = [];
 				$(this).find('.required-field-hrisp').each(function() {
 					if ($(this).val() === null || $(this).val().trim() === '') {
