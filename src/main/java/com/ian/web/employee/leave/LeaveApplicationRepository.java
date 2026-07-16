@@ -10,4 +10,8 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
 
 	List<LeaveApplication> findByEmployeeIdOrderByDateOfFilingDesc(long employeeId);
 
+	List<LeaveApplication> findByStatusOrderByDateOfFilingDesc(String status);
+
+	long countByStatus(String status);
+
 }

@@ -568,7 +568,23 @@
 								-->
 								<li class="nav-item"><a th:href="@{/appointments}" class="nav-link" id="appointmentsListNav"><i class="icon-user-tie"></i> Appointments</a></li>
 							<li class="nav-item"><a th:href="@{/leaves}" class="nav-link" id="leavesListNav"><i class="icon-calendar3"></i> Leave Management</a></li>
+									<li class="nav-item"><a th:href="@{/leave-tracker}" class="nav-link" id="leaveTrackerNav"><i class="icon-calendar52"></i> Leave Tracker</a></li>
 								<li class="nav-item"><a th:href="@{/201files}" class="nav-link" id="docs201ListNav"><i class="icon-magazine"></i> 201 Files</a></li>
+									<li class="nav-item"><a th:href="@{/trainings}" class="nav-link" id="trainingNav"><i class="icon-graduation2"></i> Training and Seminar</a></li>
+									<li class="nav-item nav-item-submenu" id="archiveNav">
+										<a href="#" class="nav-link"><i class="icon-box"></i> Archive</a>
+										<ul class="nav nav-group-sub">
+											<li class="nav-item">
+												<a th:href="@{/archive/SALN}" class="nav-link" id="archiveSalnNav"><i class="icon-folder-open"></i> SALN</a>
+											</li>
+											<li class="nav-item">
+												<a th:href="@{/archive/RESIGNED}" class="nav-link" id="archiveResignedNav"><i class="icon-folder-open"></i> Resigned Employees</a>
+											</li>
+											<li class="nav-item">
+												<a th:href="@{/archive/LEAVES}" class="nav-link" id="archiveLeavesNav"><i class="icon-folder-open"></i> Leaves</a>
+											</li>
+										</ul>
+									</li>
 								<li class="nav-item nav-item-submenu" id="employeeReportsNav" style="display:none">
 									<a href="#" class="nav-link"><i class="icon-vcard"></i> Reports</a>
 									<ul class="nav nav-group-sub">
@@ -643,6 +659,7 @@
 								<li class="nav-item"><a th:href="@{/appointment-statuses}" class="nav-link" id="appointmentStatusNav"><i class="icon-stamp"></i>Appointment Status</a></li>
 								<li class="nav-item"><a th:href="@{/service-record-signatory}" class="nav-link" id="srSignatoryNav"><i class="icon-stamp"></i>Service Record Signatory</a></li>
 								<li class="nav-item"><a th:href="@{/clearance-approver-settings}" class="nav-link" id="clearanceApproversNav"><i class="icon-stamp"></i>Clearance Approvers</a></li>
+								<li class="nav-item"><a th:href="@{/leave-signatories}" class="nav-link" id="leaveSignatoryNav"><i class="icon-stamp"></i>Leave Signatories</a></li>
 								
 							</ul>
 						</li>							

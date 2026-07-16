@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+
+	<!-- DataTables Buttons (CSV / Excel export) -->
+	<script th:src="@{/global_assets/js/plugins/tables/datatables/extensions/jszip/jszip.min.js}"></script>
+	<script th:src="@{/global_assets/js/plugins/tables/datatables/extensions/buttons.min.js}"></script>
+
+	<title>Human Resource Information System</title>
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Upload File Modal -->
+			<div id="modal_upload" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Upload File — <span th:text="${sectionTitle}">Section</span></h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form th:action="@{/archive/upload}" method="post" enctype="multipart/form-data">
+							<input type="hidden" name="section" th:value="${section}">
+							<div class="modal-body">
+								<div class="form-group">
+									<label for="docFile">File <span class="text-danger">*</span></label>
+									<input id="docFile" name="docFile" type="file" class="form-control-file" required>
+									<small class="text-muted">Max 5 MB per file.</small>
+								</div>
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="up_employeeName">Employee / Official</label>
+											<input id="up_employeeName" name="employeeName" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="up_department">Department</label>
+											<input id="up_department" name="department" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="up_refDate" th:text="${section == 'SALN'} ? 'SALN Date (Year)' : (${section == 'RESIGNED'} ? 'Resignation Date' : 'Leave Date')">Date</label>
+											<input id="up_refDate" name="refDate" type="date" class="form-control">
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="up_docType">Document Type</label>
+											<input id="up_docType" name="docType" type="text" placeholder="e.g. Resignation Letter" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="up_status">Status</label>
+											<input id="up_status" name="status" type="text" placeholder="e.g. Submitted, Reviewed, Archived" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="up_label">Label</label>
+											<select id="up_label" name="label" class="form-control">
+												<option value="">(No label)</option>
+												<option th:each="l : ${labelList}" th:value="${l.labelName}" th:text="${l.labelName}"></option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="up_tags">Tags</label>
+									<input id="up_tags" name="tags" type="text" placeholder="e.g. Confidential, Final" class="form-control">
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn bg-primary">Upload</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Upload File Modal -->
+
+			<!-- Edit Metadata Modal -->
+			<div id="modal_edit" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-teal">
+							<h5 class="modal-title">Edit File Details</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form th:action="@{/archive/update}" method="post">
+							<input type="hidden" name="id" id="ed_id">
+							<div class="modal-body">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="ed_employeeName">Employee / Official</label>
+											<input id="ed_employeeName" name="employeeName" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="ed_department">Department</label>
+											<input id="ed_department" name="department" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="ed_refDate" th:text="${section == 'SALN'} ? 'SALN Date (Year)' : (${section == 'RESIGNED'} ? 'Resignation Date' : 'Leave Date')">Date</label>
+											<input id="ed_refDate" name="refDate" type="date" class="form-control">
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="ed_docType">Document Type</label>
+											<input id="ed_docType" name="docType" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="ed_status">Status</label>
+											<input id="ed_status" name="status" type="text" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="ed_label">Label</label>
+											<select id="ed_label" name="label" class="form-control">
+												<option value="">(No label)</option>
+												<option th:each="l : ${labelList}" th:value="${l.labelName}" th:text="${l.labelName}"></option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="ed_tags">Tags</label>
+									<input id="ed_tags" name="tags" type="text" class="form-control">
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn bg-teal">Save</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Edit Metadata Modal -->
+
+			<!-- Manage Labels Modal -->
+			<div id="modal_labels" class="modal fade" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header bg-slate">
+							<h5 class="modal-title">Manage Labels — <span th:text="${sectionTitle}">Section</span></h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							<form th:action="@{/archive/saveLabel}" method="post" class="mb-3">
+								<input type="hidden" name="section" th:value="${section}">
+								<input type="hidden" name="id" value="0">
+								<div class="input-group">
+									<input name="labelName" type="text" placeholder="New label name" class="form-control" required>
+									<div class="input-group-append">
+										<button type="submit" class="btn bg-slate">Add Label</button>
+									</div>
+								</div>
+							</form>
+							<table class="table table-sm table-bordered mb-0">
+								<thead><tr><th>Label</th><th style="width:180px;">Actions</th></tr></thead>
+								<tbody>
+									<tr th:if="${#lists.isEmpty(labelList)}">
+										<td colspan="2" class="text-center text-muted">No labels yet.</td>
+									</tr>
+									<tr th:each="l : ${labelList}">
+										<td>
+											<form th:action="@{/archive/saveLabel}" method="post" class="form-inline renameLabelForm">
+												<input type="hidden" name="section" th:value="${section}">
+												<input type="hidden" name="id" th:value="${l.id}">
+												<input name="labelName" type="text" th:value="${l.labelName}" class="form-control form-control-sm mr-1" style="width:70%;">
+												<button type="submit" class="btn btn-outline-primary btn-sm">Rename</button>
+											</form>
+										</td>
+										<td>
+											<a th:href="@{'/archive/deleteLabel/' + ${l.id}}"
+												class="btn btn-outline-danger btn-sm"
+												onclick="return confirm('Delete this label? Files keep their current label text.')">Delete</a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Manage Labels Modal -->
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card p-3">
+							<div class="card-header header-elements-inline bg-primary">
+								<h6 class="card-title">Archive — <span th:text="${sectionTitle}">Section</span></h6>
+								<div class="header-elements">
+									<button type="button" class="btn bg-teal btn-sm mr-1" data-toggle="modal" data-target="#modal_upload">Upload File</button>
+									<button type="button" class="btn bg-slate btn-sm" data-toggle="modal" data-target="#modal_labels">Manage Labels</button>
+								</div>
+							</div>
+							<div class="card-body">
+
+								<!-- Label filter: each label gets its own table view -->
+								<div class="mb-2" id="labelFilterBar">
+									<button type="button" class="btn btn-primary btn-sm labelFilter active" data-label="">All</button>
+									<button type="button" th:each="l : ${labelList}"
+										class="btn btn-outline-primary btn-sm labelFilter ml-1"
+										th:data-label="${l.labelName}" th:text="${l.labelName}">label</button>
+								</div>
+
+								<div class="table-responsive">
+									<table class="table table-bordered" id="table-list">
+										<thead>
+											<tr>
+												<th>Actions</th>
+												<th>File Name</th>
+												<th th:text="${section == 'SALN'} ? 'Year' : (${section == 'RESIGNED'} ? 'Resignation Date' : 'Leave Date')">Ref Date</th>
+												<th>Employee</th>
+												<th>Department</th>
+												<th>Type</th>
+												<th>Document Type</th>
+												<th>Status</th>
+												<th>Label</th>
+												<th>Tags</th>
+												<th>Date Uploaded</th>
+												<th>Uploader</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="f : ${fileList}">
+												<td style="white-space:nowrap;">
+													<a th:href="@{${f.fileUrl}}" target="_blank" class="btn btn-outline-primary btn-sm" title="View / Download"><i class="icon-eye"></i></a>
+													<button type="button" class="editFile btn btn-outline-info btn-sm" title="Edit details"
+														th:data-row-id="${f.id}"
+														th:data-row-employeeName="${f.employeeName}"
+														th:data-row-department="${f.department}"
+														th:data-row-refDate="${f.refDate}"
+														th:data-row-docType="${f.docType}"
+														th:data-row-status="${f.status}"
+														th:data-row-label="${f.label}"
+														th:data-row-tags="${f.tags}"
+														data-toggle="modal" data-target="#modal_edit"><i class="icon-pencil7"></i></button>
+													<a th:href="@{'/archive/delete/' + ${f.id}}"
+														class="btn btn-outline-danger btn-sm" title="Delete"
+														onclick="return confirm('Delete this file record?')"><i class="icon-trash"></i></a>
+												</td>
+												<td th:text="${f.fileName}">file</td>
+												<td th:text="${section == 'SALN'} ? (${f.refDate != null} ? ${f.refDate.getYear()} : '') : ${f.refDate}">ref</td>
+												<td th:text="${f.employeeName}">emp</td>
+												<td th:text="${f.department}">dept</td>
+												<td th:text="${f.fileType}">type</td>
+												<td th:text="${f.docType}">docType</td>
+												<td th:text="${f.status}">status</td>
+												<td th:text="${f.label}">label</td>
+												<td th:text="${f.tags}">tags</td>
+												<td th:text="${f.uploadDate}">uploaded</td>
+												<td th:text="${f.uploader}">uploader</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+		const section = /*[[${section}]]*/ '';
+
+		$(document).ready(function() {
+
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav, #archiveNav").addClass("nav-item-expanded nav-item-open");
+			$("#archive" + section.charAt(0) + section.slice(1).toLowerCase() + "Nav").addClass("active");
+
+			const table = $('#table-list').DataTable({
+				"lengthMenu": [10, 25, 50, 100],
+				"ordering": true,
+				"columnDefs": [ { "orderable": false, "targets": 0 } ],
+				"dom": '<"datatable-header"fBl>rt<"datatable-footer"ip>',
+				"buttons": [
+					{ extend: 'csvHtml5',   className: 'btn btn-light ml-2', text: 'Export CSV',
+						exportOptions: { columns: ':gt(0)' }, title: 'Archive-' + section },
+					{ extend: 'excelHtml5', className: 'btn btn-light ml-1', text: 'Export Excel',
+						exportOptions: { columns: ':gt(0)' }, title: 'Archive-' + section }
+				]
+			});
+
+			// Per-label table view (column 8 = Label)
+			$(document).on('click', '.labelFilter', function() {
+				$('.labelFilter').removeClass('active btn-primary').addClass('btn-outline-primary');
+				$(this).addClass('active btn-primary').removeClass('btn-outline-primary');
+				const label = $(this).data('label');
+				if (label) {
+					table.column(8).search('^' + label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', true, false).draw();
+				} else {
+					table.column(8).search('').draw();
+				}
+			});
+
+			$(document).on("click", ".editFile", function() {
+				var btn = $(this);
+				var modal = $("#modal_edit");
+				modal.find("#ed_id").val(btn.attr('data-row-id'));
+				modal.find("#ed_employeeName").val(btn.attr('data-row-employeeName'));
+				modal.find("#ed_department").val(btn.attr('data-row-department'));
+				modal.find("#ed_refDate").val(btn.attr('data-row-refDate'));
+				modal.find("#ed_docType").val(btn.attr('data-row-docType'));
+				modal.find("#ed_status").val(btn.attr('data-row-status'));
+				modal.find("#ed_label").val(btn.attr('data-row-label'));
+				modal.find("#ed_tags").val(btn.attr('data-row-tags'));
+			});
+
+			let msgCode = /*[[${msg == null ? '' : msg.code} ]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+
+			if(msgCode === 'ERROR'){
+				swal({ title: "Error!", text: msgDesc, icon: "error", buttons: false, timer: 2500 });
+			} else if(msgCode === 'EDIT-SUCCESS'){
+				swal({ title: "Success!", text: msgDesc, icon: "success", buttons: false, timer: 2000 });
+			}
+		});
+	</script>
+</body>
+</html>

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
@@ -45,6 +46,7 @@ public class LeaveController {
 	private final LeaveApplicationRepository leaveApplicationRepository;
 	private final LeaveCardEntryRepository leaveCardEntryRepository;
 	private final LeaveTypeRepository leaveTypeRepository;
+	private final LeaveSignatoryRepository leaveSignatoryRepository;
 
 	// ── pages ────────────────────────────────────────────────────────────────
 
@@ -64,6 +66,49 @@ public class LeaveController {
 	public String viewMyLeaves(Model model, @PathVariable long employeeId, @PathVariable String empHashCode) {
 		populateLeaveModel(model, employeeId, empHashCode, "EMPLOYEE");
 		return "employee/leave/employee-leave-record";
+	}
+
+	/** Calendar-type Leave Tracker: shows who is on APPROVED leave (CR Request ID 015). */
+	@GetMapping("/leave-tracker")
+	public String viewLeaveTracker(Model model) {
+		List<Map<String, String>> events = new ArrayList<>();
+		for (LeaveApplication app : leaveApplicationRepository
+				.findByStatusOrderByDateOfFilingDesc(LeaveConstants.STATUS_APPROVED)) {
+			if (app.getDateFrom() == null || app.getEmployee() == null) {
+				continue;
+			}
+			Map<String, String> event = new HashMap<>();
+			event.put("title", buildCardName(app.getEmployee()) + " — " + nvl(app.getLeaveType()));
+			event.put("start", app.getDateFrom().toString());
+			// FullCalendar end dates are exclusive, so add a day to include dateTo
+			LocalDate to = app.getDateTo() != null ? app.getDateTo() : app.getDateFrom();
+			event.put("end", to.plusDays(1).toString());
+			event.put("url", "/leaves/" + app.getEmployee().getId() + "/" + app.getEmployee().getEmpHashCode());
+			events.add(event);
+		}
+		model.addAttribute("leaveEvents", events);
+		return "employee/leave/leave-tracker";
+	}
+
+	/** JSON feed for the dashboard incoming-leaves panel and nav badge. */
+	@GetMapping("/leave-list/{status}")
+	@ResponseBody
+	public List<Map<String, Object>> listLeavesByStatus(@PathVariable String status) {
+		List<Map<String, Object>> rows = new ArrayList<>();
+		for (LeaveApplication app : leaveApplicationRepository.findByStatusOrderByDateOfFilingDesc(status)) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("id", app.getId());
+			row.put("employeeId", app.getEmployee() != null ? app.getEmployee().getId() : null);
+			row.put("empHashCode", app.getEmployee() != null ? app.getEmployee().getEmpHashCode() : null);
+			row.put("employeeName", app.getEmployee() != null ? buildCardName(app.getEmployee()) : "");
+			row.put("leaveType", nvl(app.getLeaveType()));
+			row.put("inclusiveDates", app.getInclusiveDatesDisplay());
+			row.put("workingDays", app.getWorkingDays());
+			row.put("dateOfFiling", app.getDateOfFiling() != null ? app.getDateOfFiling().toString() : "");
+			row.put("status", nvl(app.getStatus()));
+			rows.add(row);
+		}
+		return rows;
 	}
 
 	// ── leave application CRUD ───────────────────────────────────────────────
@@ -95,12 +140,7 @@ public class LeaveController {
 			application.setApprovedOthers(null);
 			application.setDisapprovalReason(null);
 			application.setDisapprovedExigency(false);
-			application.setCertOfficerName(LeaveConstants.DEFAULT_CERT_OFFICER_NAME);
-			application.setCertOfficerTitle(LeaveConstants.DEFAULT_CERT_OFFICER_TITLE);
-			application.setRecommenderName(LeaveConstants.DEFAULT_RECOMMENDER_NAME);
-			application.setRecommenderTitle(LeaveConstants.DEFAULT_RECOMMENDER_TITLE);
-			application.setApproverName(LeaveConstants.DEFAULT_APPROVER_NAME);
-			application.setApproverTitle(LeaveConstants.DEFAULT_APPROVER_TITLE);
+			applySignatoryDefaults(application);
 		}
 
 		fillCertification(application);
@@ -239,6 +279,8 @@ public class LeaveController {
 		map.put("RECOMMENDER_TITLE", nvl(app.getRecommenderTitle()));
 		map.put("APPROVER_NAME", nvl(app.getApproverName()));
 		map.put("APPROVER_TITLE", nvl(app.getApproverTitle()));
+		map.put("ENDORSER_NAME", nvl(app.getEndorserName()));
+		map.put("ENDORSER_TITLE", nvl(app.getEndorserTitle()));
 
 		response.setContentType("application/pdf");
 		response.setHeader("Content-Disposition", "inline; filename=CS-Form-6-" + applicationId + ".pdf");
@@ -309,6 +351,7 @@ public class LeaveController {
 				? employee.getDivision().getDivisionName() : "City Council of Manila");
 		application.setPosition(employee.getPositionTitle() != null
 				? employee.getPositionTitle().getPositionTitleName() : "");
+		applySignatoryDefaults(application);
 		model.addAttribute("leaveApplication", application);
 
 		LeaveCardEntry cardEntry = new LeaveCardEntry();
@@ -332,6 +375,36 @@ public class LeaveController {
 		model.addAttribute("leaveCardEntryList", cardEntries);
 		model.addAttribute("vlBalance", CREDIT_FMT.format(totals[0]));
 		model.addAttribute("slBalance", CREDIT_FMT.format(totals[1]));
+	}
+
+	// ── signatory settings (CR Request ID 015: leave endorsement signatories) ──
+
+	@GetMapping("/leave-signatories")
+	public String viewLeaveSignatories(Model model) {
+		LeaveSignatory signatory = leaveSignatoryRepository.findAll().stream()
+				.findFirst().orElseGet(LeaveSignatory::new);
+		model.addAttribute("leaveSignatory", signatory);
+		return "employee/leave/leave-signatories";
+	}
+
+	@PostMapping("/saveLeaveSignatories")
+	public String saveLeaveSignatories(LeaveSignatory signatory, final RedirectAttributes redirect) {
+		leaveSignatoryRepository.save(signatory);
+		redirect.addFlashAttribute("msg", new UXMessage("SUCCESS", "Leave signatories saved."));
+		return "redirect:/leave-signatories";
+	}
+
+	/** Prefills the printed signatories from the settings row, falling back to the constants. */
+	private void applySignatoryDefaults(LeaveApplication application) {
+		LeaveSignatory s = leaveSignatoryRepository.findAll().stream().findFirst().orElse(null);
+		application.setCertOfficerName(s != null ? nvl(s.getCertOfficerName()) : LeaveConstants.DEFAULT_CERT_OFFICER_NAME);
+		application.setCertOfficerTitle(s != null ? nvl(s.getCertOfficerTitle()) : LeaveConstants.DEFAULT_CERT_OFFICER_TITLE);
+		application.setRecommenderName(s != null ? nvl(s.getRecommenderName()) : LeaveConstants.DEFAULT_RECOMMENDER_NAME);
+		application.setRecommenderTitle(s != null ? nvl(s.getRecommenderTitle()) : LeaveConstants.DEFAULT_RECOMMENDER_TITLE);
+		application.setApproverName(s != null ? nvl(s.getApproverName()) : LeaveConstants.DEFAULT_APPROVER_NAME);
+		application.setApproverTitle(s != null ? nvl(s.getApproverTitle()) : LeaveConstants.DEFAULT_APPROVER_TITLE);
+		application.setEndorserName(s != null ? nvl(s.getEndorserName()) : "");
+		application.setEndorserTitle(s != null ? nvl(s.getEndorserTitle()) : "");
 	}
 
 	/** Sets the running VL/SL balances on each entry; returns {vlTotal, slTotal}. */
@@ -410,6 +483,11 @@ public class LeaveController {
 				+ LeaveConstants.particularsCode(application.getLeaveType()));
 		entry.setVlDeducted(deductsVl ? days : null);
 		entry.setSlDeducted(deductsSl ? days : null);
+		Double daysNoPay = application.getApprovedDaysWithoutPay();
+		if (daysNoPay != null && daysNoPay > 0) {
+			entry.setVlDeductedNoPay(deductsVl ? daysNoPay : null);
+			entry.setSlDeductedNoPay(deductsSl ? daysNoPay : null);
+		}
 		entry.setRemarks(application.getInclusiveDatesDisplay());
 		leaveCardEntryRepository.save(entry);
 	}

@@ -235,6 +235,16 @@
 												<input id="la_approverTitle" th:field="*{approverTitle}" type="text" class="form-control">
 											</div>
 										</div>
+										<div class="row mt-2">
+											<div class="col-sm-6">
+												<label for="la_endorserName">Leave Endorsement (Endorser)</label>
+												<input id="la_endorserName" th:field="*{endorserName}" type="text" class="form-control">
+											</div>
+											<div class="col-sm-6">
+												<label for="la_endorserTitle">Title</label>
+												<input id="la_endorserTitle" th:field="*{endorserTitle}" type="text" class="form-control">
+											</div>
+										</div>
 									</div>
 								</div>
 
@@ -417,6 +427,19 @@
 
 								<div class="form-group">
 									<div class="row">
+										<div class="col-sm-3 offset-sm-3">
+											<label for="ce_vlDeductedNoPay">VL Absence/UT w/o pay</label>
+											<input id="ce_vlDeductedNoPay" th:field="*{vlDeductedNoPay}" type="number" step="0.001" class="form-control">
+										</div>
+										<div class="col-sm-3 offset-sm-3">
+											<label for="ce_slDeductedNoPay">SL Absence/UT w/o pay</label>
+											<input id="ce_slDeductedNoPay" th:field="*{slDeductedNoPay}" type="number" step="0.001" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
 										<div class="col-sm-12">
 											<label for="ce_remarks">Remarks (dates of leave)</label>
 											<input id="ce_remarks" th:field="*{remarks}" type="text" placeholder="e.g. 12/26/25, 1/2/26" class="form-control">
@@ -502,6 +525,8 @@
 													th:data-row-recommenderName="${app.recommenderName}"
 													th:data-row-recommenderTitle="${app.recommenderTitle}"
 													th:data-row-approverName="${app.approverName}"
+													th:data-row-endorserName="${app.endorserName}"
+													th:data-row-endorserTitle="${app.endorserTitle}"
 													th:data-row-approverTitle="${app.approverTitle}"
 													th:data-row-remarks="${app.remarks}"
 													data-toggle="modal" data-target="#modal_leave_application">
@@ -572,22 +597,24 @@
 											<th rowspan="2" style="width:110px;">&nbsp;</th>
 											<th rowspan="2">Period</th>
 											<th rowspan="2">Particulars</th>
-											<th th:colspan="${showMode == 'EMPLOYEE'} ? 2 : 3" class="text-center">Vacation Leave</th>
-											<th th:colspan="${showMode == 'EMPLOYEE'} ? 2 : 3" class="text-center">Sick Leave</th>
+											<th th:colspan="${showMode == 'EMPLOYEE'} ? 3 : 4" class="text-center">Vacation Leave</th>
+											<th th:colspan="${showMode == 'EMPLOYEE'} ? 3 : 4" class="text-center">Sick Leave</th>
 											<th rowspan="2">Remarks<br><small>(date/s of leave)</small></th>
 										</tr>
 										<tr>
 											<th class="text-right">Earned</th>
 											<th class="text-right">Abs./UT w/ pay</th>
+											<th class="text-right">Abs./UT w/o pay</th>
 											<th class="text-right" th:if="${showMode != 'EMPLOYEE'}">Balance</th>
 											<th class="text-right">Earned</th>
 											<th class="text-right">Abs./UT w/ pay</th>
+											<th class="text-right">Abs./UT w/o pay</th>
 											<th class="text-right" th:if="${showMode != 'EMPLOYEE'}">Balance</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr th:if="${#lists.isEmpty(leaveCardEntryList)}">
-											<td th:colspan="${showMode == 'EMPLOYEE'} ? 8 : 10" class="text-center text-muted py-3">
+											<td th:colspan="${showMode == 'EMPLOYEE'} ? 10 : 12" class="text-center text-muted py-3">
 												No leave card entries yet. Post a monthly accrual to start the ledger.
 											</td>
 										</tr>
@@ -605,8 +632,10 @@
 															th:data-row-particulars="${entry.particulars}"
 															th:data-row-vlEarned="${entry.vlEarned}"
 															th:data-row-vlDeducted="${entry.vlDeducted}"
+															th:data-row-vlDeductedNoPay="${entry.vlDeductedNoPay}"
 															th:data-row-slEarned="${entry.slEarned}"
 															th:data-row-slDeducted="${entry.slDeducted}"
+															th:data-row-slDeductedNoPay="${entry.slDeductedNoPay}"
 															th:data-row-remarks="${entry.remarks}"
 															data-toggle="modal" data-target="#modal_card_entry">
 															<i class="icon-pencil7"></i>
@@ -621,9 +650,11 @@
 												<td th:text="${entry.particulars}">particulars</td>
 												<td class="text-right" th:text="${entry.vlEarned}">vlE</td>
 												<td class="text-right" th:text="${entry.vlDeducted}">vlD</td>
+												<td class="text-right" th:text="${entry.vlDeductedNoPay}">vlDnp</td>
 												<td class="text-right font-weight-semibold" th:if="${showMode != 'EMPLOYEE'}" th:text="${entry.vlBalance}">vlB</td>
 												<td class="text-right" th:text="${entry.slEarned}">slE</td>
 												<td class="text-right" th:text="${entry.slDeducted}">slD</td>
+												<td class="text-right" th:text="${entry.slDeductedNoPay}">slDnp</td>
 												<td class="text-right font-weight-semibold" th:if="${showMode != 'EMPLOYEE'}" th:text="${entry.slBalance}">slB</td>
 												<td th:text="${entry.remarks}">remarks</td>
 											</tr>
@@ -766,6 +797,8 @@
 			modal.find("#la_recommenderTitle").val(btn.attr('data-row-recommenderTitle'));
 			modal.find("#la_approverName").val(btn.attr('data-row-approverName'));
 			modal.find("#la_approverTitle").val(btn.attr('data-row-approverTitle'));
+			modal.find("#la_endorserName").val(btn.attr('data-row-endorserName'));
+			modal.find("#la_endorserTitle").val(btn.attr('data-row-endorserTitle'));
 			modal.find("#la_remarks").val(btn.attr('data-row-remarks'));
 
 			$('#leaveApplicationForm').attr('action', contextRoot + '/updateLeaveApplication');
@@ -784,8 +817,10 @@
 			modal.find("#ce_particulars").val(btn.attr('data-row-particulars'));
 			modal.find("#ce_vlEarned").val(btn.attr('data-row-vlEarned'));
 			modal.find("#ce_vlDeducted").val(btn.attr('data-row-vlDeducted'));
+			modal.find("#ce_vlDeductedNoPay").val(btn.attr('data-row-vlDeductedNoPay'));
 			modal.find("#ce_slEarned").val(btn.attr('data-row-slEarned'));
 			modal.find("#ce_slDeducted").val(btn.attr('data-row-slDeducted'));
+			modal.find("#ce_slDeductedNoPay").val(btn.attr('data-row-slDeductedNoPay'));
 			modal.find("#ce_remarks").val(btn.attr('data-row-remarks'));
 			$('#leaveCardEntryForm').attr('action', contextRoot + '/updateLeaveCardEntry');
 		});

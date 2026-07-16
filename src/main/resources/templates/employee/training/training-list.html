@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+
+	<title>Human Resource Information System</title>
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Add/Edit Training Modal -->
+			<div id="modal_form_vertical" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<h5 class="modal-title">Training / Seminar Information</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<form id="trainingForm" th:action="@{/saveTraining}" method="post" th:object="${training}">
+							<input type="hidden" th:field="*{id}" id="id">
+							<div class="modal-body">
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="typeOfTraining">Type of Training</label>
+											<input id="typeOfTraining" th:field="*{typeOfTraining}" type="text" placeholder="e.g. Technical Skills" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-8">
+											<label for="titleOfTraining">Title of Training</label>
+											<input id="titleOfTraining" th:field="*{titleOfTraining}" type="text" placeholder="Title" class="form-control required-field-hrisp">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="employeeAttendees">Employee Attendees</label>
+											<input id="employeeAttendees" th:field="*{employeeAttendees}" type="text" placeholder="e.g. John, Maria, Alex" class="form-control">
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-4">
+											<label for="trainingDate">Date</label>
+											<input id="trainingDate" name="trainingDate" th:value="*{trainingDate}" type="date" class="form-control required-field-hrisp">
+										</div>
+										<div class="col-sm-4">
+											<label for="trainingProvider">Training Provider</label>
+											<input id="trainingProvider" th:field="*{trainingProvider}" type="text" placeholder="Provider" class="form-control">
+										</div>
+										<div class="col-sm-4">
+											<label for="location">Location</label>
+											<input id="location" th:field="*{location}" type="text" placeholder="Location" class="form-control">
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn bg-primary">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- /Add/Edit Training Modal -->
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card p-3">
+							<div class="card-header header-elements-inline bg-primary">
+								<h6 class="card-title">Training and Seminar</h6>
+								<div class="header-elements">
+									<button id="addButton" type="button" class="btn bg-teal btn-sm" data-toggle="modal" data-target="#modal_form_vertical">Add Record</button>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="table-responsive">
+									<table class="table table-bordered" id="table-list">
+										<thead>
+											<tr>
+												<th>Action</th>
+												<th>Type of Training</th>
+												<th>Title of Training</th>
+												<th>Employee Attendees</th>
+												<th>Date</th>
+												<th>Training Provider</th>
+												<th>Location</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="t : ${trainingList}">
+												<td>
+													<button type="button" class="showDetails btn btn-outline-primary btn-sm"
+														th:data-row-id="${t.getId()}"
+														th:data-row-typeOfTraining="${t.typeOfTraining}"
+														th:data-row-titleOfTraining="${t.titleOfTraining}"
+														th:data-row-employeeAttendees="${t.employeeAttendees}"
+														th:data-row-trainingDate="${t.trainingDate}"
+														th:data-row-trainingProvider="${t.trainingProvider}"
+														th:data-row-location="${t.location}"
+														data-toggle="modal" data-target="#modal_form_vertical">View / Edit</button>
+													<a th:href="@{'/deleteTraining/' + ${t.getId()}}"
+														class="btn btn-outline-danger btn-sm mt-1"
+														onclick="return confirm('Delete this training record?')">Delete</a>
+												</td>
+												<td th:text="${t.typeOfTraining}">type</td>
+												<td th:text="${t.titleOfTraining}">title</td>
+												<td th:text="${t.employeeAttendees}">attendees</td>
+												<td th:text="${t.trainingDate}">date</td>
+												<td th:text="${t.trainingProvider}">provider</td>
+												<td th:text="${t.location}">location</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+
+		$(document).ready(function() {
+
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#trainingNav").addClass("active");
+
+			$('#table-list').DataTable({
+				"lengthMenu": [10, 25, 50],
+				"ordering": true,
+				"columnDefs": [ { "orderable": false, "targets": 0 } ]
+			});
+
+			$('#addButton').click(function() {
+				$('#trainingForm')[0].reset();
+				$('#id').val('');
+			});
+
+			$(document).on("click", ".showDetails", function() {
+				var btn = $(this);
+				var modal = $("#modal_form_vertical");
+				modal.find("#id").val(btn.attr('data-row-id'));
+				modal.find("#typeOfTraining").val(btn.attr('data-row-typeOfTraining'));
+				modal.find("#titleOfTraining").val(btn.attr('data-row-titleOfTraining'));
+				modal.find("#employeeAttendees").val(btn.attr('data-row-employeeAttendees'));
+				modal.find("#trainingDate").val(btn.attr('data-row-trainingDate'));
+				modal.find("#trainingProvider").val(btn.attr('data-row-trainingProvider'));
+				modal.find("#location").val(btn.attr('data-row-location'));
+			});
+
+			let msgCode = /*[[${msg == null ? '' : msg.code} ]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+
+			if(msgCode === 'ERROR'){
+				swal({ title: "Error!", text: msgDesc, icon: "error", buttons: false, timer: 2000 });
+			} else if(msgCode === 'EDIT-SUCCESS'){
+				swal({ title: "Success!", text: msgDesc, icon: "success", buttons: false, timer: 2000 });
+			}
+		});
+	</script>
+</body>
+</html>

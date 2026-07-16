@@ -94,8 +94,49 @@
 							</div>
 							-->
 							
-							<div class="row">			
-								<div class="col-lg-12 offset-lg-0">									
+							<!-- Incoming submitted leaves (CR Request ID 015) -->
+							<div class="row">
+								<div class="col-lg-12 offset-lg-0">
+									<div class="card">
+										<div class="card-header header-elements-inline">
+											<h5 class="card-title">Incoming Leave Applications
+												<span class="badge bg-teal badge-pill ml-1">New <span id="incomingLeaveCount">0</span></span>
+											</h5>
+											<div class="header-elements">
+												<a th:href="@{/leave-tracker}" class="btn bg-teal btn-sm mr-2">
+													<i class="icon-calendar3 mr-1"></i> Leave Tracker
+												</a>
+												<div class="list-icons">
+							                		<a class="list-icons-item" data-action="collapse"></a>
+							                	</div>
+						                	</div>
+										</div>
+
+										<div class="card-body">
+											<div class="card card-table table-responsive shadow-0 mb-0">
+												<table class="table" id="incomingLeavesTable">
+													<thead>
+														<tr>
+															<th>Date of Filing</th>
+															<th>Employee</th>
+															<th>Type of Leave</th>
+															<th>Working Days</th>
+															<th>Inclusive Dates</th>
+															<th>Action</th>
+														</tr>
+													</thead>
+													<tbody>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- /incoming submitted leaves -->
+
+							<div class="row">
+								<div class="col-lg-12 offset-lg-0">
 									<div class="card">
 										<div class="card-header header-elements-inline">
 											<h5 class="card-title">Number of Actual Employees</h5>
@@ -107,7 +148,7 @@
 							                	</div>
 						                	</div>
 										</div>
-			
+
 										<div class="card-body">
 											<div class="chart-container">
 												<div class="chart has-fixed-height" id="pie_donut_by_gender"></div>
@@ -294,6 +335,13 @@
 												<span class="badge bg-blue badge-pill ml-auto">New <span id="clearanceCount">0</span></span>
 											</a>
 										</li>
+										<li class="nav-item">
+											<a th:href="@{/leaves}" class="nav-link">
+												<i class="icon-calendar52"></i>
+												Leave Applications
+												<span class="badge bg-teal badge-pill ml-auto">New <span id="leaveNavCount">0</span></span>
+											</a>
+										</li>
 										</th:block>
 									</ul>
 								</div>
@@ -369,8 +417,49 @@
 			getEmployeeCountByStatus();
 			getEmployeeCountByDivision();
 			getEmployeeCountByGender();
-			getNewClerances();	
-			getBirthdayListEmployees();	
+			getNewClerances();
+			getBirthdayListEmployees();
+			getIncomingLeaves();
+
+			// Incoming submitted leave applications (CR Request ID 015)
+			function getIncomingLeaves(){
+				if ($('#incomingLeavesTable').length === 0) {
+					return; // panel is admin/HR-only
+				}
+				$.ajax({
+					url: contextRoot + '/leave-list/FILED',
+					type: 'GET',
+					dataType: 'json',
+					success: function(response) {
+						renderIncomingLeaves(response);
+					},
+					error: function(xhr, status, error) {
+						console.error('Error fetching incoming leaves:', error);
+					}
+				});
+			}
+
+			function renderIncomingLeaves(data) {
+				$('#incomingLeaveCount').html(data.length);
+				$('#leaveNavCount').html(data.length);
+				const tbody = $('#incomingLeavesTable tbody');
+				tbody.empty();
+				if (data.length === 0) {
+					tbody.append('<tr><td colspan="6" class="text-center text-muted py-3">No newly filed leave applications.</td></tr>');
+					return;
+				}
+				data.forEach(function(item) {
+					const link = contextRoot + '/leaves/' + item.employeeId + '/' + item.empHashCode;
+					const row = $('<tr>');
+					row.append($('<td>').text(item.dateOfFiling));
+					row.append($('<td>').text(item.employeeName));
+					row.append($('<td>').text(item.leaveType));
+					row.append($('<td>').text(item.workingDays == null ? '' : item.workingDays));
+					row.append($('<td>').text(item.inclusiveDates));
+					row.append($('<td>').html('<a class="btn btn-outline-primary btn-sm" href="' + link + '">View</a>'));
+					tbody.append(row);
+				});
+			}
 			
 			
 			function getBirthdayListEmployees(){

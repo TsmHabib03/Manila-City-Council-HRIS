@@ -56,6 +56,11 @@ public class LeaveCardEntry {
 	private Double slEarned;
 	private Double slDeducted;
 
+	/** Absence/UT WITHOUT pay — informational columns; leave-without-pay
+	 *  consumes no earned credits, so these never affect vl()/sl(). */
+	private Double vlDeductedNoPay;
+	private Double slDeductedNoPay;
+
 	/** Card REMARKS column: actual dates of leave, e.g. "12/26/19, 1/2/20". */
 	private String remarks;
 

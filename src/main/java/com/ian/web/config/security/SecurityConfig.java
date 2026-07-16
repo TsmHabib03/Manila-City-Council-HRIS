@@ -34,7 +34,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			"/addLeaveCardEntry", "/updateLeaveCardEntry", "/deleteLeaveCardEntry/**",
 			"/postLeaveAccrual/**",
 			"/holidays", "/save-holiday", "/delete-holiday/**",
-			"/leave-types", "/save-leave-type", "/delete-leave-type/**"};
+			"/leave-types", "/save-leave-type", "/delete-leave-type/**",
+			"/leave-signatories", "/saveLeaveSignatories",
+			"/leave-tracker", "/leave-list/**"};
+
+	// CR Request ID 015 modules: Archive (SALN / Resigned / past Leaves files)
+	// and Training & Seminar are HR records management — staff only.
+	private static final String[] ARCHIVE_ADMIN = new String[] {
+			"/archive/**", "/trainings", "/saveTraining", "/deleteTraining/**"};
 
 	private final UserDetailsService userDetailsService;
 
@@ -57,6 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 				.antMatchers(PUBLIC).permitAll()
 				.antMatchers(LEAVE_ADMIN).hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
+				.antMatchers(ARCHIVE_ADMIN).hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
 				.anyRequest().authenticated()
 				.and()
 			.formLogin()

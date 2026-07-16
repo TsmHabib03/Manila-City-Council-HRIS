@@ -97,6 +97,9 @@ public class LeaveApplication {
 	private String recommenderTitle = LeaveConstants.DEFAULT_RECOMMENDER_TITLE;
 	private String approverName = LeaveConstants.DEFAULT_APPROVER_NAME;
 	private String approverTitle = LeaveConstants.DEFAULT_APPROVER_TITLE;
+	/** Leave Endorsement signatory (CR Request ID 015); defaulted from settings. */
+	private String endorserName;
+	private String endorserTitle;
 
 	private String remarks;
 
