@@ -43,7 +43,7 @@
 										<div class="col-sm-4">
 											<label for="eligibility">Eligibility</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('eligibility')}" th:errors="*{eligibility}"></span>
-											<select th:field="*{eligibility}" id="eligibility" class="form-control required-field-hrisp">
+											<select th:field="*{eligibility}" id="eligibility" class="form-control required-field-hrisp hrisp-searchable" data-tags="true">
 												<option value="">SELECT VALUE</option>
 												<option th:each="type: ${eligibilityList}" th:value="${type.getEligibilityName()}" th:text="${type.getEligibilityName()}"></option>
 												<option value="OTHERS">OTHERS</option>
@@ -427,7 +427,7 @@
 	            var licenseReleaseDate = $(this).attr('data-row-licenseReleaseDate');
 	                    
 	            $("#modal_form_vertical").find("#id").val(id);
-				$("#modal_form_vertical").find("#eligibility").val(eligibility);
+				hrispSelectVal($("#modal_form_vertical").find("#eligibility"), eligibility);
 				$("#modal_form_vertical").find("#otherEligibility").val(otherEligibility);
 	            $("#modal_form_vertical").find("#rating").val(rating);
 	            $("#modal_form_vertical").find("#examYear").val(examYear);

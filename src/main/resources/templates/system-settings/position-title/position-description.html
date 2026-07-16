@@ -65,7 +65,7 @@
                     <div class="form-group row">
                         <div class="col-md-6">
                             <label><b>1. Position Title:</b></label>
-                            <select id="positionTitleSelect" th:field="*{positionTitle.id}" class="form-control">
+                            <select id="positionTitleSelect" th:field="*{positionTitle.id}" class="form-control hrisp-searchable">
                                 <option value="">-- Select Position Title --</option>
                                 <option th:each="pt : ${positionTitleList}" th:value="${pt.id}" th:text="${pt.positionTitleName}"></option>
                             </select>
@@ -542,7 +542,7 @@
 	            // Set form values from data attributes
 	            modal.find('#id').val(button.data('form-id'));
 	            //modal.find('#positionTitle').val(button.data('position-title-id'));
-	            modal.find('#positionTitleSelect').val(button.data('position-title-id'));
+	            modal.find('#positionTitleSelect').val(button.data('position-title-id')).trigger('change');
 	            
 	            // Text and Textarea fields
 	            modal.find('input[name="itemNumber"]').val(button.data('item-number'));
