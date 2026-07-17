@@ -744,7 +744,7 @@
 	    	}
 	    	
 	    	var city1 = $('#city1').attr('data-city1');
-	    	$('#city1').val(city1);
+	    	hrispSelectVal('#city1', city1);
 	
 	    	if (!province1) {
 	    		$('#province1')[0].selectedIndex = 1;
@@ -766,7 +766,7 @@
 	    	}
 	    	
 	    	var city2 = $('#city2').attr('data-city2');
-	    	$('#city2').val(city2);
+	    	hrispSelectVal('#city2', city2);
 	
 	    	if (!province2) {
 	    		$('#province2')[0].selectedIndex = 1;
@@ -780,19 +780,19 @@
 			// ── Select2 Searchable Address Dropdowns ────────────────────────────
 			function initSelect2Address() {
 				$('#province1, #province2').select2({ placeholder: '-- Type or select province --', allowClear: true, width: '100%' });
-				$('#city1, #city2').select2({ placeholder: '-- Type or select city --', allowClear: true, width: '100%' });
+				$('#city1, #city2').select2({ tags: true, placeholder: '-- Type or select city --', allowClear: true, width: '100%' });
 			}
 						// Re-bind loadCities via jQuery (Select2 replaces native onchange)
 			$('#province1').on('change', function() {
 				loadCities('city1', $(this).val());
 				setTimeout(function() {
-					if ($('#city1').data('select2')) $('#city1').select2({ placeholder: '-- Select city --', allowClear: true, width: '100%' });
+					if ($('#city1').data('select2')) $('#city1').select2({ tags: true, placeholder: '-- Select city --', allowClear: true, width: '100%' });
 				}, 60);
 			});
 			$('#province2').on('change', function() {
 				loadCities('city2', $(this).val());
 				setTimeout(function() {
-					if ($('#city2').data('select2')) $('#city2').select2({ placeholder: '-- Select city --', allowClear: true, width: '100%' });
+					if ($('#city2').data('select2')) $('#city2').select2({ tags: true, placeholder: '-- Select city --', allowClear: true, width: '100%' });
 				}, 60);
 			});
 						// Initialise Select2 after provinces/cities are loaded
@@ -810,7 +810,7 @@
 					$('#province2').prop('readonly', false).val(selProvince).prop('readonly', true);
 					setTimeout(function() {
 						loadCities('city2', selProvince);
-						setTimeout(function() { $('#city2').val($('#city1').val()); }, 200);
+						setTimeout(function() { hrispSelectVal('#city2', $('#city1').val()); }, 200);
 					}, 50);
 				}
 			});
