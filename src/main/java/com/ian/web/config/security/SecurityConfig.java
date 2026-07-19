@@ -28,6 +28,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	// the in-method own-record + admin-field-reset guard (mirrors EmployeeController.saveEmployee).
 	// Employee self-service also uses /my-leaves/** and the hash-gated PDF endpoints, which
 	// stay at .authenticated().
+	// /cancelMyLeave/** and /appealMyLeave/** are intentionally NOT listed here (CR 016):
+	// employees cancel/appeal their own applications; the controller does the owner guard.
 	private static final String[] LEAVE_ADMIN = new String[] {
 			"/leaves", "/leaves/**",
 			"/deleteLeaveApplication/**",
@@ -36,7 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			"/holidays", "/save-holiday", "/delete-holiday/**",
 			"/leave-types", "/save-leave-type", "/delete-leave-type/**",
 			"/leave-signatories", "/saveLeaveSignatories",
-			"/leave-tracker", "/leave-list/**"};
+			"/leave-tracker", "/leave-list/**",
+			"/leave-workflow/**", "/leave-applications", "/leave-pending-list",
+			"/leave-year-end/**", "/leaveVerificationReceiptPdf/**"};
 
 	// CR Request ID 015 modules: Archive (SALN / Resigned / past Leaves files)
 	// and Training & Seminar are HR records management — staff only.

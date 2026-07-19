@@ -141,10 +141,10 @@
 								<div class="form-group">
 									<div class="row">
 										<div class="col-sm-3">
-											<label for="la_status">Status <span class="text-danger">*</span></label>
-											<select id="la_status" th:field="*{status}" class="form-control required-field-hrisp">
-												<option th:each="s : ${statusList}" th:value="${s}" th:text="${s}"></option>
-											</select>
+											<label class="d-block">Status</label>
+											<input type="hidden" th:field="*{status}" id="la_status">
+											<span id="la_status_display" class="badge badge-info">FILED</span>
+											<small class="d-block text-muted">Changed via the Workflow panel</small>
 										</div>
 										<div class="col-sm-3">
 											<label for="la_recommendation">7.B Recommendation</label>
@@ -250,7 +250,8 @@
 
 								<div class="alert alert-info mb-0">
 									Leave credit certification (7.A) is computed automatically from the leave card when you save.
-									Approving this application posts the deduction to the leave card
+									Screening, endorsement, reviews and approval are done from the <strong>Workflow</strong> panel;
+									the leave card deduction posts only on final approval
 									(Vacation/Forced Leave deducts VL, Sick Leave deducts SL; other types are recorded without deduction).
 								</div>
 
@@ -273,7 +274,7 @@
 							<h5 class="modal-title">File Leave Application (CS Form No. 6)</h5>
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
-						<form id="myLeaveApplicationForm" th:action="@{/addLeaveApplication}" method="post" class="form-horizontal" th:object="${leaveApplication}">
+						<form id="myLeaveApplicationForm" th:action="@{/addLeaveApplication}" method="post" enctype="multipart/form-data" class="form-horizontal" th:object="${leaveApplication}">
 							<input type="hidden" th:field="*{officeDepartment}">
 							<input type="hidden" th:field="*{position}">
 							<input type="hidden" th:field="*{salary}">
@@ -350,9 +351,25 @@
 									</div>
 								</div>
 
+								<div class="form-group">
+									<div class="row">
+										<div class="col-sm-12">
+											<label for="mla_supportingDocs">Supporting Documents</label>
+											<input id="mla_supportingDocs" name="supportingDocs" type="file" multiple class="form-control-file">
+											<small class="form-text text-muted">
+												Required for leaves of more than 5 working days
+												(e.g. medical certificate, travel documents). You may also submit
+												them to HR after filing.
+											</small>
+										</div>
+									</div>
+								</div>
+
 								<div class="alert alert-info mb-0">
-									This files your leave request for HR/admin review. Leave credit certification and
-									approval are completed by HR once they process the request.
+									This files your leave request for HR screening and supervisor endorsement.
+									Leaves of more than 5 working days additionally go through Administrative Review
+									(and Council Review beyond 15 days) before final approval by the Vice-Mayor.
+									You will be notified here in HRIS once your request is approved or disapproved.
 								</div>
 
 							</div>
@@ -458,6 +475,78 @@
 			</div>
 			<!-- /Add/Edit Leave Card Entry Modal -->
 
+			<!-- Leave Decision Flow Modal (CR Request ID 016, staff only) -->
+			<div th:if="${showMode != 'EMPLOYEE'}" id="modal_leave_workflow" class="modal fade" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header bg-teal">
+							<h5 class="modal-title">Leave Decision Flow</h5>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+
+							<div class="d-flex align-items-center mb-3">
+								<span class="mr-2 font-weight-semibold">Current Status:</span>
+								<span id="wf_status" class="badge badge-info">-</span>
+								<span id="wf_days" class="ml-3 text-muted"></span>
+							</div>
+
+							<div id="wf_docs_section" class="mb-3">
+								<h6 class="font-weight-semibold mb-1">Supporting Documents</h6>
+								<div id="wf_docs_note" class="alert alert-warning py-2 mb-2" style="display:none;">
+									This leave exceeds 5 working days — supporting documents are required
+									before it can be forwarded for Administrative Review.
+								</div>
+								<ul id="wf_docs_list" class="list-unstyled mb-2"></ul>
+								<form id="wf_docs_form" th:action="@{/leave-workflow/0/upload-docs}" method="post" enctype="multipart/form-data" class="form-inline">
+									<input type="file" name="supportingDocs" multiple class="form-control-file mr-2">
+									<button type="submit" class="btn btn-outline-primary btn-sm">Attach</button>
+									<a id="wf_receipt_link" href="#" target="_blank" class="btn bg-indigo btn-sm ml-2" style="display:none;"
+										title="Print the verification receipt for the received documents">Print Verification Receipt</a>
+								</form>
+							</div>
+
+							<div class="mb-3">
+								<h6 class="font-weight-semibold mb-1">Available Actions</h6>
+								<div id="wf_actions" class="mb-2"></div>
+								<form id="wf_action_form" th:action="@{/leave-workflow/0/action}" method="post" style="display:none;"
+									class="border rounded p-2">
+									<input type="hidden" name="action" id="wf_action_input">
+									<div class="form-group mb-2" id="wf_signatory_group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="wf_signatoryName" class="mb-0">Signatory Name <span class="text-danger">*</span></label>
+												<input type="text" name="signatoryName" id="wf_signatoryName" class="form-control form-control-sm">
+											</div>
+											<div class="col-sm-6">
+												<label for="wf_signatoryTitle" class="mb-0">Signatory Title</label>
+												<input type="text" name="signatoryTitle" id="wf_signatoryTitle" class="form-control form-control-sm">
+											</div>
+										</div>
+									</div>
+									<div class="form-group mb-2">
+										<label for="wf_remarks" class="mb-0">Remarks <span id="wf_remarks_required" class="text-danger" style="display:none;">*</span></label>
+										<input type="text" name="remarks" id="wf_remarks" class="form-control form-control-sm">
+									</div>
+									<button type="submit" id="wf_action_submit" class="btn btn-primary btn-sm">Confirm</button>
+									<button type="button" id="wf_action_cancel" class="btn btn-link btn-sm">Cancel</button>
+								</form>
+							</div>
+
+							<div>
+								<h6 class="font-weight-semibold mb-1">History</h6>
+								<ul id="wf_history" class="media-list mb-0"></ul>
+							</div>
+
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /Leave Decision Flow Modal -->
+
 			<!-- Content area -->
 			<div class="content pt-0">
 
@@ -535,9 +624,25 @@
 												<a th:href="@{'/leaveForm6Pdf/' + ${app.getId()}}" target="_blank"
 													class="btn bg-indigo btn-sm" title="Print CS Form No. 6">Form 6 PDF</a>
 												<th:block th:if="${showMode != 'EMPLOYEE'}">
+													<button type="button" class="showWorkflow btn bg-teal btn-sm"
+														th:data-row-id="${app.getId()}"
+														data-toggle="modal" data-target="#modal_leave_workflow"
+														title="Screen, endorse, review and approve this application">Workflow</button>
 													<a th:href="@{'/deleteLeaveApplication/' + ${app.getId()}}"
 														class="btn btn-danger btn-sm"
 														onclick="return confirm('Delete this leave application? Any linked leave card entry will also be removed.')">Delete</a>
+												</th:block>
+												<th:block th:if="${showMode == 'EMPLOYEE'}">
+													<form th:if="${#lists.contains(pendingStatuses, app.status)}"
+														th:action="@{'/cancelMyLeave/' + ${app.getId()}}" method="post" class="d-inline-block"
+														onsubmit="return confirm('Cancel this leave application?')">
+														<button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
+													</form>
+													<form th:if="${app.status == 'DISAPPROVED'}"
+														th:action="@{'/appealMyLeave/' + ${app.getId()}}" method="post" class="d-inline-block"
+														onsubmit="return confirm('Appeal this disapproved leave application? It will be re-screened by HR.')">
+														<button type="submit" class="btn btn-outline-warning btn-sm">Appeal</button>
+													</form>
 												</th:block>
 											</td>
 											<td th:text="${app.dateOfFiling}">dateOfFiling</td>
@@ -551,8 +656,13 @@
 												<span th:classappend="${app.status == 'APPROVED' ? 'badge badge-success'
 													: (app.status == 'DISAPPROVED' ? 'badge badge-danger'
 													: (app.status == 'RETURNED' ? 'badge badge-warning'
-													: (app.status == 'FILED' ? 'badge badge-info' : 'badge badge-secondary')))}"
-													th:text="${app.status}">status</span>
+													: (app.status == 'FILED' ? 'badge badge-info'
+													: (app.status == 'APPEALED' ? 'badge badge-warning'
+													: (app.status == 'ENDORSED' ? 'badge badge-primary'
+													: (app.status == 'FOR_ADMIN_REVIEW' ? 'badge bg-indigo'
+													: (app.status == 'FOR_COUNCIL_REVIEW' ? 'badge bg-purple'
+													: (app.status == 'FOR_FINAL_APPROVAL' ? 'badge bg-teal' : 'badge badge-secondary'))))))))}"
+													th:text="${#strings.replace(app.status,'_',' ')}">status</span>
 											</td>
 											<td th:text="${app.certVlBalance}">vl</td>
 											<td th:text="${app.certSlBalance}">sl</td>
@@ -721,6 +831,8 @@
 			$('#addNewApplicationBtn').on('click', function() {
 				$('#leaveApplicationForm')[0].reset();
 				$('#la_id').val('0');
+				$('#la_status').val('FILED');
+				$('#la_status_display').text('FILED').attr('class', statusBadgeClass('FILED'));
 				$('#leaveApplicationForm').attr('action', contextRoot + '/addLeaveApplication');
 			});
 
@@ -784,6 +896,9 @@
 			modal.find("#la_inclusiveDates").val(btn.attr('data-row-inclusiveDates'));
 			modal.find("#la_commutation").val(btn.attr('data-row-commutation'));
 			modal.find("#la_status").val(btn.attr('data-row-status'));
+			modal.find("#la_status_display")
+				.text((btn.attr('data-row-status') || 'FILED').replace(/_/g, ' '))
+				.attr('class', statusBadgeClass(btn.attr('data-row-status')));
 			modal.find("#la_recommendation").val(btn.attr('data-row-recommendation'));
 			modal.find("#la_recommendationReason").val(btn.attr('data-row-recommendationReason'));
 			modal.find("#la_approvedDaysWithPay").val(btn.attr('data-row-approvedDaysWithPay'));
@@ -804,6 +919,115 @@
 			$('#leaveApplicationForm').attr('action', contextRoot + '/updateLeaveApplication');
 			if (/*[[${showMode == 'EMPLOYEE'}]]*/false) {
 				$('#leaveApplicationForm').find('input, select, textarea').not('#la_employeeId, #la_empHashCode, #la_id').prop('disabled', true);
+			}
+		});
+
+		// ── Leave Decision Flow (CR Request ID 016) ──────────────────────────
+
+		function statusBadgeClass(status) {
+			switch (status) {
+				case 'APPROVED': return 'badge badge-success';
+				case 'DISAPPROVED': return 'badge badge-danger';
+				case 'RETURNED': case 'APPEALED': return 'badge badge-warning';
+				case 'FILED': return 'badge badge-info';
+				case 'ENDORSED': return 'badge badge-primary';
+				case 'FOR_ADMIN_REVIEW': return 'badge bg-indigo';
+				case 'FOR_COUNCIL_REVIEW': return 'badge bg-purple';
+				case 'FOR_FINAL_APPROVAL': return 'badge bg-teal';
+				default: return 'badge badge-secondary';
+			}
+		}
+
+		let wfActionMeta = {};
+
+		$(document).on("click", ".showWorkflow", function() {
+			var id = $(this).attr('data-row-id');
+			$('#wf_status').text('Loading...').attr('class', 'badge badge-secondary');
+			$('#wf_days').text('');
+			$('#wf_docs_list, #wf_actions, #wf_history').empty();
+			$('#wf_action_form').hide();
+			$.get(contextRoot + '/leave-workflow/' + id + '/panel', function(data) {
+				renderWorkflowPanel(id, data);
+			});
+		});
+
+		function renderWorkflowPanel(id, data) {
+			$('#wf_status').text((data.status || '').replace(/_/g, ' ')).attr('class', statusBadgeClass(data.status));
+			$('#wf_days').text(data.workingDays != null ? data.workingDays + ' working day(s)' : '');
+
+			$('#wf_docs_note').toggle(data.needsDocs && !data.hasDocs);
+			var docsList = $('#wf_docs_list').empty();
+			if (data.docs.length === 0) {
+				docsList.append('<li class="text-muted">No documents attached.</li>');
+			}
+			$.each(data.docs, function(i, d) {
+				docsList.append($('<li>').append(
+					$('<a>').attr({ href: d.url, target: '_blank' })
+						.html('<i class="icon-file-text2 mr-1"></i>').append(document.createTextNode(d.name))));
+			});
+			$('#wf_docs_form').attr('action', contextRoot + '/leave-workflow/' + id + '/upload-docs');
+			$('#wf_receipt_link').toggle(!!data.needsDocs || (data.workingDays || 0) > 5)
+				.attr('href', contextRoot + '/leaveVerificationReceiptPdf/' + id);
+
+			wfActionMeta = {};
+			var actions = $('#wf_actions').empty();
+			if (data.allowedActions.length === 0) {
+				actions.append('<span class="text-muted">No further actions — this application is final.</span>');
+			}
+			$.each(data.allowedActions, function(i, a) {
+				wfActionMeta[a.action] = a;
+				var cls = a.action === 'DISAPPROVE' ? 'btn btn-outline-danger btn-sm mr-1 mb-1'
+					: (a.action === 'RETURN' ? 'btn btn-outline-warning btn-sm mr-1 mb-1'
+					: (a.action === 'REOPEN' ? 'btn btn-outline-secondary btn-sm mr-1 mb-1'
+					: 'btn btn-primary btn-sm mr-1 mb-1'));
+				actions.append($('<button>').attr({ type: 'button', 'data-wf-action': a.action })
+					.addClass('wfActionBtn ' + cls).text(a.label));
+			});
+			$('#wf_action_form').hide().attr('action', contextRoot + '/leave-workflow/' + id + '/action');
+
+			var history = $('#wf_history').empty();
+			if (data.history.length === 0) {
+				history.append('<li class="text-muted">No workflow actions recorded yet.</li>');
+			}
+			$.each(data.history, function(i, h) {
+				var line = $('<li class="mb-1">');
+				line.append($('<span class="font-weight-semibold">').text(h.label));
+				if (h.signatoryName) { line.append(document.createTextNode(' — ' + h.signatoryName)); }
+				if (h.toStatus) { line.append($('<span class="badge badge-light ml-1">').text(h.toStatus.replace(/_/g, ' '))); }
+				var meta = h.createdAt + (h.actorName ? ' · recorded by ' + h.actorName : '');
+				line.append($('<small class="d-block text-muted">').text(meta));
+				if (h.remarks) { line.append($('<small class="d-block">').text('Remarks: ' + h.remarks)); }
+				history.append(line);
+			});
+		}
+
+		$(document).on('click', '.wfActionBtn', function() {
+			var meta = wfActionMeta[$(this).attr('data-wf-action')];
+			if (!meta) { return; }
+			$('#wf_action_input').val(meta.action);
+			$('#wf_signatory_group').toggle(!!meta.requiresSignatory);
+			$('#wf_signatoryName').val(meta.signatoryName || '');
+			$('#wf_signatoryTitle').val(meta.signatoryTitle || '');
+			$('#wf_remarks').val('');
+			$('#wf_remarks_required').toggle(!!meta.requiresRemarks);
+			$('#wf_action_submit').text('Confirm: ' + meta.label);
+			$('#wf_action_form').show();
+		});
+
+		$('#wf_action_cancel').on('click', function() {
+			$('#wf_action_form').hide();
+		});
+
+		$('#wf_action_form').submit(function(event) {
+			var meta = wfActionMeta[$('#wf_action_input').val()] || {};
+			if (meta.requiresSignatory && $('#wf_signatoryName').val().trim() === '') {
+				event.preventDefault();
+				swal({ title: "Error!", text: "Signatory name is required for this step.", icon: "error", buttons: false, timer: 2500 });
+				return;
+			}
+			if (meta.requiresRemarks && $('#wf_remarks').val().trim() === '') {
+				event.preventDefault();
+				swal({ title: "Error!", text: "Remarks are required for this step.", icon: "error", buttons: false, timer: 2500 });
 			}
 		});
 

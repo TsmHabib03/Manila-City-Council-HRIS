@@ -1,7 +1,9 @@
 package com.ian.web.employee.leave;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -9,8 +11,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ian.web.employee.Employee;
 
@@ -102,6 +106,13 @@ public class LeaveApplication {
 	private String endorserTitle;
 
 	private String remarks;
+
+	// ── Supporting documents (CR Request ID 016: required for leaves > 5 days) ──
+	@ElementCollection
+	private List<String> supportingDocUrls;
+
+	@Transient
+	private MultipartFile[] supportingDocs;
 
 	public String getInclusiveDatesDisplay() {
 		if (inclusiveDates != null && !inclusiveDates.isBlank()) {

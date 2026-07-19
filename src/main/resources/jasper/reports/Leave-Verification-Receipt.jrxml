@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Leave Verification Receipt (CR Request ID 016): printed by HR when supporting
+     documents for a leave of more than 5 working days have been received and verified. -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="Leave-Verification-Receipt" pageWidth="595" pageHeight="420" columnWidth="555"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+
+	<style name="Base" isDefault="true" fontName="Arial" fontSize="9"/>
+
+	<parameter name="RECEIPT_NO" class="java.lang.String"/>
+	<parameter name="EMP_NAME" class="java.lang.String"/>
+	<parameter name="OFFICE_DEPARTMENT" class="java.lang.String"/>
+	<parameter name="POSITION" class="java.lang.String"/>
+	<parameter name="LEAVE_TYPE" class="java.lang.String"/>
+	<parameter name="DATE_OF_FILING" class="java.lang.String"/>
+	<parameter name="INCLUSIVE_DATES" class="java.lang.String"/>
+	<parameter name="WORKING_DAYS" class="java.lang.String"/>
+	<parameter name="STATUS" class="java.lang.String"/>
+	<parameter name="ENDORSER_NAME" class="java.lang.String"/>
+	<parameter name="ENDORSER_TITLE" class="java.lang.String"/>
+	<parameter name="DOCUMENT_LIST" class="java.lang.String"/>
+	<parameter name="VERIFIED_BY" class="java.lang.String"/>
+	<parameter name="VERIFIED_AT" class="java.lang.String"/>
+
+	<title>
+		<band height="380" splitType="Stretch">
+
+			<!-- header -->
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="11"/>
+				<textElement textAlignment="Center"><font size="8"/></textElement>
+				<text><![CDATA[Republic of the Philippines]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="11" width="555" height="12"/>
+				<textElement textAlignment="Center"><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[CITY COUNCIL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="23" width="555" height="11"/>
+				<textElement textAlignment="Center"><font size="8"/></textElement>
+				<text><![CDATA[Manila]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="38" width="555" height="16"/>
+				<textElement textAlignment="Center"><font size="12" isBold="true"/></textElement>
+				<text><![CDATA[LEAVE VERIFICATION RECEIPT]]></text>
+			</staticText>
+
+			<staticText>
+				<reportElement x="380" y="60" width="80" height="12"/>
+				<textElement textAlignment="Right"><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Receipt No.:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="465" y="60" width="90" height="12"/>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{RECEIPT_NO}]]></textFieldExpression>
+			</textField>
+
+			<!-- employee / leave details -->
+			<staticText>
+				<reportElement x="0" y="80" width="110" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Employee:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="80" width="300" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{EMP_NAME}]]></textFieldExpression>
+			</textField>
+
+			<staticText>
+				<reportElement x="0" y="96" width="110" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Office/Department:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="96" width="300" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{OFFICE_DEPARTMENT}]]></textFieldExpression>
+			</textField>
+
+			<staticText>
+				<reportElement x="0" y="112" width="110" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Position:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="112" width="300" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{POSITION}]]></textFieldExpression>
+			</textField>
+
+			<staticText>
+				<reportElement x="0" y="128" width="110" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Type of Leave:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="128" width="300" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{LEAVE_TYPE}]]></textFieldExpression>
+			</textField>
+
+			<staticText>
+				<reportElement x="0" y="144" width="110" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Date of Filing:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="144" width="120" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{DATE_OF_FILING}]]></textFieldExpression>
+			</textField>
+
+			<staticText>
+				<reportElement x="250" y="144" width="100" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Working Days:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="350" y="144" width="60" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{WORKING_DAYS}]]></textFieldExpression>
+			</textField>
+
+			<staticText>
+				<reportElement x="0" y="160" width="110" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Inclusive Dates:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="160" width="300" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{INCLUSIVE_DATES}]]></textFieldExpression>
+			</textField>
+
+			<staticText>
+				<reportElement x="0" y="176" width="110" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Endorsed by:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="176" width="300" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[($P{ENDORSER_NAME} == null || $P{ENDORSER_NAME}.isEmpty()) ? "" : $P{ENDORSER_NAME} + ($P{ENDORSER_TITLE} == null || $P{ENDORSER_TITLE}.isEmpty() ? "" : ", " + $P{ENDORSER_TITLE})]]></textFieldExpression>
+			</textField>
+
+			<!-- documents received -->
+			<staticText>
+				<reportElement x="0" y="198" width="555" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Supporting documents received and verified:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true" isStretchWithOverflow="true">
+				<reportElement x="10" y="212" width="545" height="48"/>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{DOCUMENT_LIST}]]></textFieldExpression>
+			</textField>
+
+			<staticText>
+				<reportElement x="0" y="268" width="555" height="22"/>
+				<textElement><font size="8" isItalic="true"/></textElement>
+				<text><![CDATA[This receipt certifies that the supporting documents listed above were received and verified by the Human Resource Management Section for a leave application of more than five (5) working days, and that the application has been forwarded for administrative review.]]></text>
+			</staticText>
+
+			<!-- verified by -->
+			<staticText>
+				<reportElement x="0" y="310" width="110" height="12"/>
+				<textElement><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Verified by:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="310" width="240" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement textAlignment="Center"><font size="9" isBold="true"/></textElement>
+				<textFieldExpression><![CDATA[$P{VERIFIED_BY}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="110" y="322" width="240" height="10"/>
+				<textElement textAlignment="Center"><font size="7"/></textElement>
+				<text><![CDATA[HR / Administrative Division]]></text>
+			</staticText>
+
+			<staticText>
+				<reportElement x="370" y="310" width="80" height="12"/>
+				<textElement textAlignment="Right"><font size="9" isBold="true"/></textElement>
+				<text><![CDATA[Date/Time:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="455" y="310" width="100" height="12"/>
+				<box><bottomPen lineWidth="0.5"/></box>
+				<textElement textAlignment="Center"><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[$P{VERIFIED_AT}]]></textFieldExpression>
+			</textField>
+
+		</band>
+	</title>
+</jasperReport>

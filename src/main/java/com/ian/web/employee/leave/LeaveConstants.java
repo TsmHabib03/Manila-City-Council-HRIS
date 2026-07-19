@@ -22,8 +22,44 @@ public final class LeaveConstants {
 	public static final String STATUS_DISAPPROVED = "DISAPPROVED";
 	public static final String STATUS_CANCELLED = "CANCELLED";
 
+	// CR Request ID 016: multi-stage leave decision flow statuses
+	public static final String STATUS_ENDORSED = "ENDORSED";
+	public static final String STATUS_FOR_ADMIN_REVIEW = "FOR_ADMIN_REVIEW";
+	public static final String STATUS_FOR_COUNCIL_REVIEW = "FOR_COUNCIL_REVIEW";
+	public static final String STATUS_FOR_FINAL_APPROVAL = "FOR_FINAL_APPROVAL";
+	public static final String STATUS_APPEALED = "APPEALED";
+
 	public static final List<String> STATUS_LIST = List.of(
 			STATUS_FILED, STATUS_RETURNED, STATUS_APPROVED, STATUS_DISAPPROVED, STATUS_CANCELLED);
+
+	/** Statuses still moving through the decision flow (not yet final). */
+	public static final List<String> PENDING_STATUSES = List.of(
+			STATUS_FILED, STATUS_APPEALED, STATUS_RETURNED, STATUS_ENDORSED,
+			STATUS_FOR_ADMIN_REVIEW, STATUS_FOR_COUNCIL_REVIEW, STATUS_FOR_FINAL_APPROVAL);
+
+	// CR Request ID 016: decision-flow workflow actions (recorded per transition)
+	public static final String ACTION_RETURN = "RETURN";
+	public static final String ACTION_ENDORSE = "ENDORSE";
+	public static final String ACTION_APPROVE = "APPROVE";
+	public static final String ACTION_SEND_TO_ADMIN_REVIEW = "SEND_TO_ADMIN_REVIEW";
+	public static final String ACTION_ADMIN_ENDORSE = "ADMIN_ENDORSE";
+	public static final String ACTION_COUNCIL_ENDORSE = "COUNCIL_ENDORSE";
+	public static final String ACTION_FINAL_APPROVE = "FINAL_APPROVE";
+	public static final String ACTION_DISAPPROVE = "DISAPPROVE";
+	public static final String ACTION_CANCEL = "CANCEL";
+	public static final String ACTION_APPEAL = "APPEAL";
+	public static final String ACTION_REOPEN = "REOPEN";
+	/** Non-transition audit marker: verification receipt printed. */
+	public static final String ACTION_RECEIPT_PRINTED = "RECEIPT_PRINTED";
+
+	/** Leaves of at most this many working days may be approved directly by HR. */
+	public static final double SHORT_PATH_MAX_DAYS = 5;
+	/** Leaves longer than this many working days additionally require Council Review. */
+	public static final double COUNCIL_THRESHOLD_DAYS = 15;
+	/** Mandatory/forced leave days every employee must use (or forfeit) per year. */
+	public static final double MANDATORY_LEAVE_DAYS = 5;
+	/** Ledger period marker for the year-end mandatory deduction, e.g. "YE-2026". */
+	public static final String YEAR_END_PERIOD_PREFIX = "YE-";
 
 	// 6.A Type of leave (CS Form No. 6, Revised 2020)
 	public static final String LT_VACATION = "Vacation Leave";

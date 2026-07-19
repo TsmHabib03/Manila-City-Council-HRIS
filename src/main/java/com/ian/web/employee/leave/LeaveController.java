@@ -47,6 +47,10 @@ public class LeaveController {
 	private final LeaveCardEntryRepository leaveCardEntryRepository;
 	private final LeaveTypeRepository leaveTypeRepository;
 	private final LeaveSignatoryRepository leaveSignatoryRepository;
+	private final LeaveLedger leaveLedger;
+	private final LeaveWorkflowActionRepository leaveWorkflowActionRepository;
+	private final LeaveWorkflowController leaveWorkflowController;
+	private final LeaveYearEndProcessor leaveYearEndProcessor;
 
 	// ── pages ────────────────────────────────────────────────────────────────
 
@@ -88,6 +92,43 @@ public class LeaveController {
 		}
 		model.addAttribute("leaveEvents", events);
 		return "employee/leave/leave-tracker";
+	}
+
+	/**
+	 * CR Request ID 016: queue of leave applications submitted by employees that
+	 * are still moving through the decision flow. This is where the "Leave
+	 * Applications" navigation lands.
+	 */
+	@GetMapping("/leave-applications")
+	public String viewLeaveApplicationQueue(Model model) {
+		List<LeaveApplication> pending = leaveApplicationRepository
+				.findByStatusInOrderByDateOfFilingDesc(LeaveConstants.PENDING_STATUSES);
+		model.addAttribute("pendingApplications", pending);
+		model.addAttribute("pendingStatuses", LeaveConstants.PENDING_STATUSES);
+		model.addAttribute("currentYear", LocalDate.now().getYear());
+		return "employee/leave/leave-application-queue";
+	}
+
+	/** JSON feed counting every application still in the decision flow (CR 016). */
+	@GetMapping("/leave-pending-list")
+	@ResponseBody
+	public List<Map<String, Object>> listPendingLeaves() {
+		List<Map<String, Object>> rows = new ArrayList<>();
+		for (LeaveApplication app : leaveApplicationRepository
+				.findByStatusInOrderByDateOfFilingDesc(LeaveConstants.PENDING_STATUSES)) {
+			Map<String, Object> row = new HashMap<>();
+			row.put("id", app.getId());
+			row.put("employeeId", app.getEmployee() != null ? app.getEmployee().getId() : null);
+			row.put("empHashCode", app.getEmployee() != null ? app.getEmployee().getEmpHashCode() : null);
+			row.put("employeeName", app.getEmployee() != null ? buildCardName(app.getEmployee()) : "");
+			row.put("leaveType", nvl(app.getLeaveType()));
+			row.put("inclusiveDates", app.getInclusiveDatesDisplay());
+			row.put("workingDays", app.getWorkingDays());
+			row.put("dateOfFiling", app.getDateOfFiling() != null ? app.getDateOfFiling().toString() : "");
+			row.put("status", nvl(app.getStatus()));
+			rows.add(row);
+		}
+		return rows;
 	}
 
 	/** JSON feed for the dashboard incoming-leaves panel and nav badge. */
@@ -143,9 +184,23 @@ public class LeaveController {
 			applySignatoryDefaults(application);
 		}
 
-		fillCertification(application);
+		if (application.getId() == 0) {
+			// CR Request ID 016: every new application enters the decision flow at
+			// FILED — there is no accept/approve shortcut upon submission, even for staff.
+			application.setStatus(LeaveConstants.STATUS_FILED);
+			leaveWorkflowController.storeSupportingDocs(application, application.getSupportingDocs());
+		} else {
+			// CR Request ID 016: status only ever changes through /leave-workflow/{id}/action.
+			// Field edits keep working; a tampered status in the POST body is discarded, and
+			// the supporting-doc URLs (managed elsewhere) survive this detached-entity save.
+			LeaveApplication current = leaveApplicationRepository.findById(application.getId()).orElseThrow();
+			application.setStatus(current.getStatus());
+			application.setSupportingDocUrls(current.getSupportingDocUrls());
+		}
+
+		leaveLedger.fillCertification(application);
 		LeaveApplication saved = leaveApplicationRepository.save(application);
-		syncLedgerEntry(saved);
+		leaveLedger.syncLedgerEntry(saved);
 
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Saved."));
 		return isStaff
@@ -160,6 +215,7 @@ public class LeaveController {
 		long employeeId = application.getEmployee().getId();
 		String hashCode = application.getEmployee().getEmpHashCode();
 		leaveCardEntryRepository.deleteAll(leaveCardEntryRepository.findByLeaveApplicationId(id));
+		leaveWorkflowActionRepository.deleteByLeaveApplicationId(id);
 		leaveApplicationRepository.deleteById(id);
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Deleted."));
 		return "redirect:/leaves/" + employeeId + "/" + hashCode;
@@ -188,6 +244,14 @@ public class LeaveController {
 		leaveCardEntryRepository.deleteById(id);
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Leave Card Entry Successfully Deleted."));
 		return "redirect:/leaves/" + employeeId + "/" + hashCode;
+	}
+
+	/** CR Request ID 016: year-end mandatory/forced leave deduction (idempotent). */
+	@PostMapping("/leave-year-end/run")
+	public String runYearEndDeduction(@RequestParam("year") int year, final RedirectAttributes redirect) {
+		String summary = leaveYearEndProcessor.run(year);
+		redirect.addFlashAttribute("msg", new UXMessage("SUCCESS", summary));
+		return "redirect:/leave-applications";
 	}
 
 	/** Posts the 1.25 VL / 1.25 SL monthly accrual row for the given month. */
@@ -295,7 +359,7 @@ public class LeaveController {
 
 		Employee employee = employeeRepository.findByIdAndEmpHashCode(employeeId, empHashCode).orElseThrow();
 		List<LeaveCardEntry> entries = leaveCardEntryRepository.findByEmployeeIdOrderByEntryDateAscIdAsc(employeeId);
-		computeRunningBalances(entries);
+		leaveLedger.computeRunningBalances(entries);
 
 		List<Map<String, ?>> rows = new ArrayList<>();
 		for (LeaveCardEntry e : entries) {
@@ -366,12 +430,13 @@ public class LeaveController {
 		model.addAttribute("leaveDetailOptionList", LeaveConstants.LEAVE_DETAIL_OPTION_LIST);
 		model.addAttribute("statusList", LeaveConstants.STATUS_LIST);
 		model.addAttribute("entryTypeList", LeaveConstants.ENTRY_TYPE_LIST);
+		model.addAttribute("pendingStatuses", LeaveConstants.PENDING_STATUSES);
 
 		model.addAttribute("leaveApplicationList",
 				leaveApplicationRepository.findByEmployeeIdOrderByDateOfFilingDesc(employeeId));
 
 		List<LeaveCardEntry> cardEntries = leaveCardEntryRepository.findByEmployeeIdOrderByEntryDateAscIdAsc(employeeId);
-		double[] totals = computeRunningBalances(cardEntries);
+		double[] totals = leaveLedger.computeRunningBalances(cardEntries);
 		model.addAttribute("leaveCardEntryList", cardEntries);
 		model.addAttribute("vlBalance", CREDIT_FMT.format(totals[0]));
 		model.addAttribute("slBalance", CREDIT_FMT.format(totals[1]));
@@ -407,91 +472,6 @@ public class LeaveController {
 		application.setEndorserTitle(s != null ? nvl(s.getEndorserTitle()) : "");
 	}
 
-	/** Sets the running VL/SL balances on each entry; returns {vlTotal, slTotal}. */
-	private double[] computeRunningBalances(List<LeaveCardEntry> entries) {
-		double vl = 0;
-		double sl = 0;
-		for (LeaveCardEntry e : entries) {
-			vl += e.vl();
-			sl += e.sl();
-			e.setVlBalance(round3(vl));
-			e.setSlBalance(round3(sl));
-		}
-		return new double[] { round3(vl), round3(sl) };
-	}
-
-	/**
-	 * Auto-fills the 7.A certification block from the current ledger balances,
-	 * excluding any entry already posted by this same application.
-	 */
-	private void fillCertification(LeaveApplication application) {
-		if (application.getEmployee() == null) {
-			return;
-		}
-		List<LeaveCardEntry> entries = leaveCardEntryRepository
-				.findByEmployeeIdOrderByEntryDateAscIdAsc(application.getEmployee().getId());
-		double vl = 0;
-		double sl = 0;
-		for (LeaveCardEntry e : entries) {
-			if (e.getLeaveApplication() != null && e.getLeaveApplication().getId() == application.getId()) {
-				continue;
-			}
-			vl += e.vl();
-			sl += e.sl();
-		}
-
-		double days = application.getWorkingDays() == null ? 0 : application.getWorkingDays();
-		boolean deductsVl = LeaveConstants.DEDUCTS_VL.contains(application.getLeaveType());
-		boolean deductsSl = LeaveConstants.DEDUCTS_SL.contains(application.getLeaveType());
-
-		if (application.getCertAsOfDate() == null) {
-			application.setCertAsOfDate(application.getDateOfFiling() != null
-					? application.getDateOfFiling() : LocalDate.now());
-		}
-		application.setCertVlTotalEarned(round3(vl));
-		application.setCertVlLessApplication(deductsVl ? days : 0d);
-		application.setCertVlBalance(round3(vl - (deductsVl ? days : 0)));
-		application.setCertSlTotalEarned(round3(sl));
-		application.setCertSlLessApplication(deductsSl ? days : 0d);
-		application.setCertSlBalance(round3(sl - (deductsSl ? days : 0)));
-	}
-
-	/**
-	 * Keeps the leave card in sync with the application: removes any entry the
-	 * application posted before, then re-posts one if the application is
-	 * APPROVED. Non-deducting leave types are recorded with no deduction, per
-	 * the ledger behavior on the sample card.
-	 */
-	private void syncLedgerEntry(LeaveApplication application) {
-		leaveCardEntryRepository.deleteAll(leaveCardEntryRepository.findByLeaveApplicationId(application.getId()));
-
-		if (!LeaveConstants.STATUS_APPROVED.equals(application.getStatus())) {
-			return;
-		}
-
-		double days = application.getWorkingDays() == null ? 0 : application.getWorkingDays();
-		boolean deductsVl = LeaveConstants.DEDUCTS_VL.contains(application.getLeaveType());
-		boolean deductsSl = LeaveConstants.DEDUCTS_SL.contains(application.getLeaveType());
-
-		LeaveCardEntry entry = new LeaveCardEntry();
-		entry.setEmployee(application.getEmployee());
-		entry.setLeaveApplication(application);
-		entry.setEntryType(LeaveConstants.ENTRY_LEAVE);
-		entry.setEntryDate(application.getDateFrom() != null ? application.getDateFrom()
-				: (application.getDateOfFiling() != null ? application.getDateOfFiling() : LocalDate.now()));
-		entry.setParticulars("(" + CREDIT_FMT.format(days) + "-0-0) "
-				+ LeaveConstants.particularsCode(application.getLeaveType()));
-		entry.setVlDeducted(deductsVl ? days : null);
-		entry.setSlDeducted(deductsSl ? days : null);
-		Double daysNoPay = application.getApprovedDaysWithoutPay();
-		if (daysNoPay != null && daysNoPay > 0) {
-			entry.setVlDeductedNoPay(deductsVl ? daysNoPay : null);
-			entry.setSlDeductedNoPay(deductsSl ? daysNoPay : null);
-		}
-		entry.setRemarks(application.getInclusiveDatesDisplay());
-		leaveCardEntryRepository.save(entry);
-	}
-
 	private static String buildCardName(Employee employee) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(nvl(employee.getLastName()).toUpperCase());
@@ -502,10 +482,6 @@ public class LeaveController {
 			sb.append(" ").append(employee.getMiddleName().substring(0, 1).toUpperCase()).append(".");
 		}
 		return sb.toString();
-	}
-
-	private static double round3(double value) {
-		return Math.round(value * 1000d) / 1000d;
 	}
 
 	private static String fmt(Double value) {

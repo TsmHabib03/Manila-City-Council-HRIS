@@ -1,5 +1,6 @@
 package com.ian.web.employee.leave;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,13 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
 	List<LeaveApplication> findByStatusOrderByDateOfFilingDesc(String status);
 
 	long countByStatus(String status);
+
+	List<LeaveApplication> findByStatusInOrderByDateOfFilingDesc(Collection<String> statuses);
+
+	long countByStatusIn(Collection<String> statuses);
+
+	/** Year-end mandatory deduction: an employee's approved leaves of one type (CR 016). */
+	List<LeaveApplication> findByEmployeeIdAndLeaveTypeAndStatusOrderByDateFromAsc(
+			long employeeId, String leaveType, String status);
 
 }
