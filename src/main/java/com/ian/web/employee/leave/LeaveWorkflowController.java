@@ -13,6 +13,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
+import com.ian.web.config.security.Roles;
 import com.ian.web.employee.Employee;
 import com.ian.web.fileupload.FileDTO;
 import com.ian.web.fileupload.StorageService;
@@ -42,9 +45,15 @@ import net.sf.jasperreports.engine.JasperRunManager;
  * up to 5 working days HR approves directly; over 5 days supporting documents
  * are required and the request goes through Administrative Review (plus
  * Council Review when over 15 days) before final approval by the Vice-Mayor.
- * Stages are recorded by HR/Admin on behalf of the physical signatories; every
- * step is audit-trailed and the employee is notified in-app. The ledger
+ * Every step is audit-trailed and the employee is notified in-app. The ledger
  * deduction still only ever happens at APPROVED (LeaveLedger.syncLedgerEntry).
+ *
+ * CR 016 v2: the Supervisor, Secretary to the City Council and Vice-Mayor act
+ * on their own accounts (ROLE_SUPERVISOR / ROLE_COUNCIL / ROLE_VICEMAYOR) —
+ * each may act only while the application sits at their stage and is notified
+ * when a request enters their queue. ADMIN/HR retain the v1 record-any-stage
+ * fallback (also covers the Chief Admin Officer stage, which has no account,
+ * and acting officials — the signatory name stays editable per action).
  */
 @Slf4j
 @Controller
@@ -73,10 +82,15 @@ public class LeaveWorkflowController {
 			HttpServletRequest request, final RedirectAttributes redirect) {
 
 		LeaveApplication app = leaveApplicationRepository.findById(id).orElseThrow();
-		Employee actor = (Employee) request.getSession().getAttribute("actorObj");
+		Employee actor = sessionActor(request);
 		String back = "redirect:/leaves/" + app.getEmployee().getId() + "/" + app.getEmployee().getEmpHashCode();
 
-		String error = validateAction(app, action, signatoryName, remarks);
+		if (!mayActOn(actor, app)) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR",
+					"You are not allowed to act on this application at its current stage."));
+			return Roles.isStaff(actor) ? back : "redirect:/leave-approvals";
+		}
+		String error = validateAction(app, actor, action, signatoryName, remarks);
 		if (error != null) {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", error));
 			return back;
@@ -105,9 +119,83 @@ public class LeaveWorkflowController {
 		recordAction(saved, fromStatus, toStatus, action, actor, signatoryName, signatoryTitle, remarks);
 		notifier.notify(saved.getEmployee(), notificationMessage(saved, action, toStatus, remarks),
 				myLeavesLink(saved.getEmployee()));
+		notifyStageActors(saved, toStatus);
 
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", actionLabel(action) + " recorded."));
-		return back;
+		return Roles.isStaff(actor) ? back : "redirect:/leave-approvals";
+	}
+
+	/** CR 016 v2: alert the accounts whose stage the application just entered. */
+	private void notifyStageActors(LeaveApplication app, String toStatus) {
+		String role = stageRole(toStatus);
+		if (role == null) {
+			return;
+		}
+		Employee employee = app.getEmployee();
+		String stage = LeaveConstants.STATUS_FOR_ENDORSEMENT.equals(toStatus) ? "endorsement"
+				: LeaveConstants.STATUS_FOR_COUNCIL_REVIEW.equals(toStatus) ? "Council Review"
+				: "final approval";
+		notifier.notifyRole(role,
+				"Leave application of " + buildCardName(employee) + " (" + nvl(app.getLeaveType())
+						+ ", " + app.getInclusiveDatesDisplay() + ", "
+						+ CREDIT_FMT.format(workingDays(app)) + " day(s)) awaits your " + stage + ".",
+				"/leaves/" + employee.getId() + "/" + employee.getEmpHashCode());
+	}
+
+	/** The dedicated account role that owns a workflow status, or null when HR does. */
+	static String stageRole(String status) {
+		switch (nvl(status)) {
+			case LeaveConstants.STATUS_FOR_ENDORSEMENT: return Roles.SUPERVISOR;
+			case LeaveConstants.STATUS_FOR_COUNCIL_REVIEW: return Roles.COUNCIL;
+			case LeaveConstants.STATUS_FOR_FINAL_APPROVAL: return Roles.VICEMAYOR;
+			default: return null;
+		}
+	}
+
+	/**
+	 * CR 016 v2 role gate: a dedicated actor may act only while the application
+	 * sits at their stage; ADMIN/HR may record every stage (v1 behavior).
+	 */
+	static boolean mayActOn(Employee actor, LeaveApplication app) {
+		if (actor == null || app == null) {
+			return false;
+		}
+		if (Roles.isStaff(actor)) {
+			return true;
+		}
+		return nvl(app.getStatus()).equals(actorStage(actor));
+	}
+
+	/** The single workflow status a dedicated actor account is in charge of. */
+	private static String actorStage(Employee actor) {
+		if (Roles.hasRole(actor, Roles.SUPERVISOR)) return LeaveConstants.STATUS_FOR_ENDORSEMENT;
+		if (Roles.hasRole(actor, Roles.COUNCIL)) return LeaveConstants.STATUS_FOR_COUNCIL_REVIEW;
+		if (Roles.hasRole(actor, Roles.VICEMAYOR)) return LeaveConstants.STATUS_FOR_FINAL_APPROVAL;
+		return null;
+	}
+
+	/** Statuses whose applications belong in this actor's pending queue. */
+	static List<String> actionableStatusesFor(Employee actor) {
+		if (Roles.isStaff(actor)) {
+			return LeaveConstants.PENDING_STATUSES;
+		}
+		String stage = actorStage(actor);
+		return stage == null ? List.of() : List.of(stage);
+	}
+
+	/** Actions offered to this actor for the application's current status. */
+	List<String> allowedActionsFor(LeaveApplication app, Employee actor) {
+		return mayActOn(actor, app) ? allowedActions(app) : List.of();
+	}
+
+	/** Session actor, falling back to the authenticated principal. */
+	private static Employee sessionActor(HttpServletRequest request) {
+		Employee actor = (Employee) request.getSession().getAttribute("actorObj");
+		if (actor != null) {
+			return actor;
+		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return auth != null && auth.getPrincipal() instanceof Employee ? (Employee) auth.getPrincipal() : null;
 	}
 
 	/** HR attaches the supporting documents received for a > 5-day leave. */
@@ -115,11 +203,18 @@ public class LeaveWorkflowController {
 	@Transactional
 	public String uploadSupportingDocs(@PathVariable long id,
 			@RequestParam("supportingDocs") MultipartFile[] files,
-			final RedirectAttributes redirect) {
+			HttpServletRequest request, final RedirectAttributes redirect) {
 
 		// Managed entity: @ElementCollection updates are unreliable on detached merges.
 		LeaveApplication app = leaveApplicationRepository.findById(id).orElseThrow();
 		String back = "redirect:/leaves/" + app.getEmployee().getId() + "/" + app.getEmployee().getEmpHashCode();
+
+		// CR 016 v2: documents are received and attached by HR, not by reviewer accounts.
+		if (!Roles.isStaff(sessionActor(request))) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR",
+					"Only HR can attach supporting documents."));
+			return back;
+		}
 
 		int uploaded = storeSupportingDocs(app, files);
 		if (uploaded == 0) {
@@ -165,8 +260,9 @@ public class LeaveWorkflowController {
 
 	@GetMapping("/leave-workflow/{id}/panel")
 	@ResponseBody
-	public Map<String, Object> workflowPanel(@PathVariable long id) {
+	public Map<String, Object> workflowPanel(@PathVariable long id, HttpServletRequest request) {
 		LeaveApplication app = leaveApplicationRepository.findById(id).orElseThrow();
+		Employee actor = sessionActor(request);
 		LeaveSignatory signatory = leaveSignatoryRepository.findAll().stream()
 				.findFirst().orElseGet(LeaveSignatory::new);
 
@@ -177,16 +273,24 @@ public class LeaveWorkflowController {
 		panel.put("needsDocs", needsDocs(app));
 		panel.put("hasDocs", hasDocs(app));
 		panel.put("docs", docList(app));
+		panel.put("canUploadDocs", Roles.isStaff(actor));
+
+		// CR 016 v2: a dedicated actor signing at their own stage defaults to
+		// their own name; the field remains editable for acting officials.
+		boolean actorOwnsStage = !Roles.isStaff(actor)
+				&& nvl(app.getStatus()).equals(actorStage(actor));
 
 		List<Map<String, Object>> actions = new ArrayList<>();
-		for (String action : allowedActions(app)) {
+		for (String action : allowedActionsFor(app, actor)) {
 			Map<String, Object> a = new LinkedHashMap<>();
 			a.put("action", action);
 			a.put("label", actionLabel(action));
 			a.put("requiresSignatory", requiresSignatory(action));
 			a.put("requiresRemarks", requiresRemarks(action));
-			a.put("signatoryName", suggestedSignatoryName(action, signatory));
-			a.put("signatoryTitle", suggestedSignatoryTitle(action, signatory));
+			a.put("signatoryName", actorOwnsStage && requiresSignatory(action)
+					? buildCardName(actor) : suggestedSignatoryName(action, signatory));
+			a.put("signatoryTitle", actorOwnsStage && requiresSignatory(action)
+					? actorTitle(actor) : suggestedSignatoryTitle(action, signatory));
 			actions.add(a);
 		}
 		panel.put("allowedActions", actions);
@@ -268,6 +372,9 @@ public class LeaveWorkflowController {
 		notifier.notify(saved.getEmployee(),
 				"Your appeal for the " + leaveLabel(saved) + " has been submitted for HR screening.",
 				myLeavesLink(saved.getEmployee()));
+		// CR 016 v2: alert HR that an appeal re-entered the screening queue.
+		notifier.notifyRole(Roles.HR, "Appeal filed by " + buildCardName(saved.getEmployee())
+				+ " on the " + leaveLabel(saved) + " awaits HR screening.", "/leave-applications");
 
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Appeal submitted."));
 		return "redirect:" + myLeavesLink(actor);
@@ -328,9 +435,12 @@ public class LeaveWorkflowController {
 		switch (status) {
 			case LeaveConstants.STATUS_FILED:
 			case LeaveConstants.STATUS_APPEALED:
-				return List.of(LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_RETURN);
+				return List.of(LeaveConstants.ACTION_FORWARD_TO_SUPERVISOR,
+						LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_RETURN);
 			case LeaveConstants.STATUS_RETURNED:
-				return List.of(LeaveConstants.ACTION_ENDORSE);
+				return List.of(LeaveConstants.ACTION_FORWARD_TO_SUPERVISOR, LeaveConstants.ACTION_ENDORSE);
+			case LeaveConstants.STATUS_FOR_ENDORSEMENT:
+				return List.of(LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_DISAPPROVE);
 			case LeaveConstants.STATUS_ENDORSED:
 				return workingDays(app) <= LeaveConstants.SHORT_PATH_MAX_DAYS
 						? List.of(LeaveConstants.ACTION_APPROVE, LeaveConstants.ACTION_DISAPPROVE)
@@ -348,9 +458,10 @@ public class LeaveWorkflowController {
 		}
 	}
 
-	/** Returns an error message, or null when the action is valid for this application. */
-	private String validateAction(LeaveApplication app, String action, String signatoryName, String remarks) {
-		if (!allowedActions(app).contains(action)) {
+	/** Returns an error message, or null when the action is valid for this actor and application. */
+	private String validateAction(LeaveApplication app, Employee actor, String action,
+			String signatoryName, String remarks) {
+		if (!allowedActionsFor(app, actor).contains(action)) {
 			return "Action not allowed while the application is " + nvl(app.getStatus()) + ".";
 		}
 		if (requiresSignatory(action) && isBlank(signatoryName)) {
@@ -372,6 +483,8 @@ public class LeaveWorkflowController {
 		switch (action) {
 			case LeaveConstants.ACTION_RETURN:
 				return LeaveConstants.STATUS_RETURNED;
+			case LeaveConstants.ACTION_FORWARD_TO_SUPERVISOR:
+				return LeaveConstants.STATUS_FOR_ENDORSEMENT;
 			case LeaveConstants.ACTION_ENDORSE:
 				return LeaveConstants.STATUS_ENDORSED;
 			case LeaveConstants.ACTION_APPROVE:
@@ -410,7 +523,8 @@ public class LeaveWorkflowController {
 	static String actionLabel(String action) {
 		switch (nvl(action)) {
 			case LeaveConstants.ACTION_RETURN: return "Return to Employee";
-			case LeaveConstants.ACTION_ENDORSE: return "Endorse to Supervisor";
+			case LeaveConstants.ACTION_FORWARD_TO_SUPERVISOR: return "Forward to Supervisor (HR Screening)";
+			case LeaveConstants.ACTION_ENDORSE: return "Supervisor Endorsement";
 			case LeaveConstants.ACTION_APPROVE: return "Approve (HR)";
 			case LeaveConstants.ACTION_SEND_TO_ADMIN_REVIEW: return "Forward for Administrative Review";
 			case LeaveConstants.ACTION_ADMIN_ENDORSE: return "Administrative Review Passed";
@@ -468,8 +582,10 @@ public class LeaveWorkflowController {
 		switch (action) {
 			case LeaveConstants.ACTION_RETURN:
 				return "Your " + label + " was returned by HR" + reasonSuffix(remarks);
+			case LeaveConstants.ACTION_FORWARD_TO_SUPERVISOR:
+				return "Your " + label + " passed HR screening and awaits your supervisor's endorsement.";
 			case LeaveConstants.ACTION_ENDORSE:
-				return "Your " + label + " has been endorsed to your supervisor.";
+				return "Your " + label + " has been endorsed by your supervisor.";
 			case LeaveConstants.ACTION_APPROVE:
 			case LeaveConstants.ACTION_FINAL_APPROVE:
 				return "Your " + label + " has been APPROVED.";
@@ -536,6 +652,12 @@ public class LeaveWorkflowController {
 
 	private static double workingDays(LeaveApplication app) {
 		return app.getWorkingDays() == null ? 0 : app.getWorkingDays();
+	}
+
+	/** The actor's position title, used to prefill their signatory title. */
+	private static String actorTitle(Employee actor) {
+		return actor != null && actor.getPositionTitle() != null
+				? nvl(actor.getPositionTitle().getPositionTitleName()) : "";
 	}
 
 	private static String buildCardName(Employee employee) {

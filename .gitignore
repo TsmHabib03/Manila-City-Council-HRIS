@@ -6,6 +6,8 @@ target/
 
 # Local-only Spring Boot config overrides (contains local DB password)
 config/
+# ...but the Java security/config package is source code, not local overrides
+!src/main/java/com/ian/web/config/
 
 # Ignore IntelliJ IDEA project files
 .idea/
@@ -71,6 +73,8 @@ screenshots_log.txt
 *.xlsx
 HELP.md
 HRIS_*.md
+# CR 016 v2 deliverable: all-modules process flow documentation (tracked)
+!docs/HRIS_PROCESS_FLOWS.md
 IMPLEMENTATION_SUMMARY.md
 CLAUDE_APPOINTMENTS_FIX.md
 HRIS_UAT_Screenshot_Guide.md

@@ -31,8 +31,9 @@
 						<!-- Pending leave applications (CR Request ID 016) -->
 						<div class="card">
 							<div class="card-header header-elements-inline">
-								<h5 class="card-title">Leave Applications — Decision Flow Queue</h5>
-								<div class="header-elements">
+								<h5 class="card-title"
+									th:text="${approverMode != null ? 'Leaves Awaiting Your Action' : 'Leave Applications — Decision Flow Queue'}">Leave Applications — Decision Flow Queue</h5>
+								<div class="header-elements" th:if="${approverMode == null}">
 									<div class="list-icons">
 										<a th:href="@{/leaves}" class="btn bg-green btn-sm">Employee Leave Records</a>
 										<a th:href="@{/leave-tracker}" class="btn bg-indigo btn-sm ml-1">Leave Tracker</a>
@@ -40,9 +41,13 @@
 								</div>
 							</div>
 
-							<div class="card-body pb-0">
+							<div class="card-body pb-0" th:if="${approverMode == null}">
 								Applications submitted by employees that are still moving through the decision flow.
 								Open one to screen, endorse, review or approve it from its Workflow panel.
+							</div>
+							<div class="card-body pb-0" th:if="${approverMode != null}">
+								Leave applications waiting for your decision. Open one to review it and
+								accept (endorse/approve) or deny it from its Workflow panel.
 							</div>
 
 							<table class="table table-bordered table-hover datatable-highlight" id="table-queue">
@@ -75,10 +80,11 @@
 											<td>
 												<span th:classappend="${app.status == 'RETURNED' or app.status == 'APPEALED' ? 'badge badge-warning'
 													: (app.status == 'FILED' ? 'badge badge-info'
+													: (app.status == 'FOR_ENDORSEMENT' ? 'badge bg-orange'
 													: (app.status == 'ENDORSED' ? 'badge badge-primary'
 													: (app.status == 'FOR_ADMIN_REVIEW' ? 'badge bg-indigo'
 													: (app.status == 'FOR_COUNCIL_REVIEW' ? 'badge bg-purple'
-													: (app.status == 'FOR_FINAL_APPROVAL' ? 'badge bg-teal' : 'badge badge-secondary')))))}"
+													: (app.status == 'FOR_FINAL_APPROVAL' ? 'badge bg-teal' : 'badge badge-secondary'))))))}"
 													th:text="${#strings.replace(app.status,'_',' ')}">status</span>
 											</td>
 										</tr>
@@ -88,8 +94,8 @@
 						</div>
 						<!-- /pending leave applications -->
 
-						<!-- Year-end mandatory leave processing (CR Request ID 016) -->
-						<div class="card">
+						<!-- Year-end mandatory leave processing (CR Request ID 016) — HR/Admin only -->
+						<div class="card" th:if="${approverMode == null}">
 							<div class="card-header header-elements-inline">
 								<h5 class="card-title">Year-End Mandatory/Forced Leave Processing</h5>
 							</div>
@@ -98,8 +104,9 @@
 									At the end of each year every employee's leave balance is reduced by the unused
 									portion of the five (5) mandatory/forced leave days. Employees who already used
 									part of their mandatory leave are only deducted the remainder; employees who used
-									all five days are not deducted. The run is safe to repeat — employees already
-									processed for the year are skipped. It also runs automatically every December 31.
+									all five days are not deducted. Coterminous employees are excluded from the
+									deduction. The run is safe to repeat — employees already processed for the year
+									are skipped. It also runs automatically every December 31.
 								</p>
 								<form th:action="@{/leave-year-end/run}" method="post" class="form-inline"
 									onsubmit="return confirm('Post the year-end mandatory leave deduction for all active employees for the selected year?')">
@@ -135,8 +142,13 @@
 		$(document).ready(function() {
 
 			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
-			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
-			$("#leaveQueueNav").addClass("active");
+			let approverMode = /*[[${approverMode != null}]]*/ false;
+			if (approverMode) {
+				$("#leaveApprovalsNav").addClass("active");
+			} else {
+				$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+				$("#leaveQueueNav").addClass("active");
+			}
 
 			let msgCode = /*[[${msg == null ? '' : msg.code}]]*/'';
 			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';

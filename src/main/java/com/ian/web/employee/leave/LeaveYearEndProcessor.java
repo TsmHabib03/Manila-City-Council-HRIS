@@ -24,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
  * already processed for a year are skipped, so the run is safe to repeat and
  * safe to resume after a restart. Runs from the admin button on
  * /leave-applications and automatically every December 31 (Asia/Manila).
+ *
+ * CR 016 v2: coterminous employees are excluded from the deduction.
  */
 @Slf4j
 @Component
@@ -43,11 +45,17 @@ public class LeaveYearEndProcessor {
 		int processed = 0;
 		int alreadyDone = 0;
 		int fullyUsed = 0;
+		int coterminousSkipped = 0;
 
 		for (Employee employee : employeeRepository.findAll()) {
 			// Active employees only ("ACTIVE" in production data, "A" in dev seeds).
 			String status = employee.getStatus() == null ? "" : employee.getStatus().trim();
 			if (!"ACTIVE".equalsIgnoreCase(status) && !"A".equalsIgnoreCase(status)) {
+				continue;
+			}
+			// CR 016 v2: all employees except coterminous are deducted.
+			if (isCoterminous(employee)) {
+				coterminousSkipped++;
 				continue;
 			}
 			if (leaveCardEntryRepository.existsByEmployeeIdAndEntryTypeAndPeriod(
@@ -81,9 +89,25 @@ public class LeaveYearEndProcessor {
 				+ processed + " employee(s) deducted, "
 				+ alreadyDone + " already processed, "
 				+ fullyUsed + " with all " + (int) LeaveConstants.MANDATORY_LEAVE_DAYS
-				+ " days used (no deduction).";
+				+ " days used (no deduction), "
+				+ coterminousSkipped + " coterminous (excluded).";
 		log.info(summary);
 		return summary;
+	}
+
+	/**
+	 * CR 016 v2: coterminous employees are exempt from the year-end deduction.
+	 * Matches the EmployeeStatus lookup name defensively: COTERMINOUS,
+	 * CO-TERMINOUS, "Co Terminous" etc. all count.
+	 */
+	static boolean isCoterminous(Employee employee) {
+		if (employee == null || employee.getEmployeeStatus() == null
+				|| employee.getEmployeeStatus().getEmployeeStatusName() == null) {
+			return false;
+		}
+		String name = employee.getEmployeeStatus().getEmployeeStatusName()
+				.toUpperCase().replace("-", "").replace(" ", "");
+		return name.contains("COTERM");
 	}
 
 	/** Approved Mandatory/Forced Leave working days with a start date in the given year. */

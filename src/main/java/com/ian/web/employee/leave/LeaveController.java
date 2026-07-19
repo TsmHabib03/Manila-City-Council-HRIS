@@ -25,8 +25,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ian.web.common.model.UXMessage;
+import com.ian.web.config.security.Roles;
 import com.ian.web.employee.Employee;
 import com.ian.web.employee.EmployeeRepository;
+import com.ian.web.notification.Notifier;
 import com.ian.web.systemsettings.leave_type.LeaveType;
 import com.ian.web.systemsettings.leave_type.LeaveTypeRepository;
 
@@ -51,6 +53,7 @@ public class LeaveController {
 	private final LeaveWorkflowActionRepository leaveWorkflowActionRepository;
 	private final LeaveWorkflowController leaveWorkflowController;
 	private final LeaveYearEndProcessor leaveYearEndProcessor;
+	private final Notifier notifier;
 
 	// ── pages ────────────────────────────────────────────────────────────────
 
@@ -61,8 +64,12 @@ public class LeaveController {
 	}
 
 	@GetMapping("/leaves/{employeeId}/{empHashCode}")
-	public String viewEmployeeLeaves(Model model, @PathVariable long employeeId, @PathVariable String empHashCode) {
-		populateLeaveModel(model, employeeId, empHashCode, "HRADMIN");
+	public String viewEmployeeLeaves(Model model, @PathVariable long employeeId, @PathVariable String empHashCode,
+			HttpServletRequest request) {
+		// CR 016 v2: Supervisor / Council / Vice-Mayor accounts open this page from
+		// their queue in a review-only mode — workflow actions but no record edits.
+		Employee actor = (Employee) request.getSession().getAttribute("actorObj");
+		populateLeaveModel(model, employeeId, empHashCode, Roles.isStaff(actor) ? "HRADMIN" : "APPROVER");
 		return "employee/leave/employee-leave-record";
 	}
 
@@ -106,6 +113,25 @@ public class LeaveController {
 		model.addAttribute("pendingApplications", pending);
 		model.addAttribute("pendingStatuses", LeaveConstants.PENDING_STATUSES);
 		model.addAttribute("currentYear", LocalDate.now().getYear());
+		return "employee/leave/leave-application-queue";
+	}
+
+	/**
+	 * CR 016 v2: pending queue for the workflow actor accounts (Supervisor,
+	 * Secretary to the City Council, Vice-Mayor). Shows only the applications
+	 * sitting at the actor's own stage; for ADMIN/HR it mirrors /leave-applications.
+	 */
+	@GetMapping("/leave-approvals")
+	public String viewMyApprovalQueue(Model model, HttpServletRequest request) {
+		Employee actor = (Employee) request.getSession().getAttribute("actorObj");
+		List<String> statuses = LeaveWorkflowController.actionableStatusesFor(actor);
+		List<LeaveApplication> pending = statuses.isEmpty()
+				? List.of()
+				: leaveApplicationRepository.findByStatusInOrderByDateOfFilingDesc(statuses);
+		model.addAttribute("pendingApplications", pending);
+		model.addAttribute("pendingStatuses", LeaveConstants.PENDING_STATUSES);
+		model.addAttribute("currentYear", LocalDate.now().getYear());
+		model.addAttribute("approverMode", true);
 		return "employee/leave/leave-application-queue";
 	}
 
@@ -160,8 +186,7 @@ public class LeaveController {
 			final RedirectAttributes redirect) {
 
 		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
-		boolean isStaff = actorObj != null
-				&& ("ROLE_ADMIN".equals(actorObj.getUserType()) || "ROLE_HR".equals(actorObj.getUserType()));
+		boolean isStaff = Roles.isStaff(actorObj);
 
 		if (!isStaff) {
 			// Employees may only file a brand-new application for themselves. Filing and
@@ -198,9 +223,18 @@ public class LeaveController {
 			application.setSupportingDocUrls(current.getSupportingDocUrls());
 		}
 
+		boolean isNew = application.getId() == 0;
 		leaveLedger.fillCertification(application);
 		LeaveApplication saved = leaveApplicationRepository.save(application);
 		leaveLedger.syncLedgerEntry(saved);
+
+		// CR 016 v2: alert HR that a new application entered the screening queue.
+		if (isNew && !isStaff) {
+			notifier.notifyRole(Roles.HR, "New leave application filed by "
+					+ buildCardName(saved.getEmployee()) + " (" + nvl(saved.getLeaveType())
+					+ ", " + saved.getInclusiveDatesDisplay() + ") awaits HR screening.",
+					"/leave-applications");
+		}
 
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Record Successfully Saved."));
 		return isStaff
@@ -293,11 +327,10 @@ public class LeaveController {
 		Employee employee = app.getEmployee();
 
 		// /leaveForm6Pdf takes only a numeric id (no hash token), so guard against IDOR:
-		// only staff or the application's owner may render it. Mirrors the actorObj
-		// isAdmin/isOwnRecord check used in the PDS controllers.
+		// only workflow actors (staff + CR 016 v2 reviewer accounts) or the
+		// application's owner may render it. Mirrors the PDS controllers' pattern.
 		Employee actorObj = (Employee) request.getSession().getAttribute("actorObj");
-		boolean isStaff = actorObj != null
-				&& ("ROLE_ADMIN".equals(actorObj.getUserType()) || "ROLE_HR".equals(actorObj.getUserType()));
+		boolean isStaff = Roles.isWorkflowActor(actorObj);
 		boolean isOwnRecord = actorObj != null && employee != null && actorObj.getId() == employee.getId();
 		if (!isStaff && !isOwnRecord) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);

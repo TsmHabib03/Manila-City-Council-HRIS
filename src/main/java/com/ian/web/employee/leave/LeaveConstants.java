@@ -28,17 +28,21 @@ public final class LeaveConstants {
 	public static final String STATUS_FOR_COUNCIL_REVIEW = "FOR_COUNCIL_REVIEW";
 	public static final String STATUS_FOR_FINAL_APPROVAL = "FOR_FINAL_APPROVAL";
 	public static final String STATUS_APPEALED = "APPEALED";
+	/** CR 016 v2: HR screening done, awaiting the Supervisor account's endorsement. */
+	public static final String STATUS_FOR_ENDORSEMENT = "FOR_ENDORSEMENT";
 
 	public static final List<String> STATUS_LIST = List.of(
 			STATUS_FILED, STATUS_RETURNED, STATUS_APPROVED, STATUS_DISAPPROVED, STATUS_CANCELLED);
 
 	/** Statuses still moving through the decision flow (not yet final). */
 	public static final List<String> PENDING_STATUSES = List.of(
-			STATUS_FILED, STATUS_APPEALED, STATUS_RETURNED, STATUS_ENDORSED,
+			STATUS_FILED, STATUS_APPEALED, STATUS_RETURNED, STATUS_FOR_ENDORSEMENT, STATUS_ENDORSED,
 			STATUS_FOR_ADMIN_REVIEW, STATUS_FOR_COUNCIL_REVIEW, STATUS_FOR_FINAL_APPROVAL);
 
 	// CR Request ID 016: decision-flow workflow actions (recorded per transition)
 	public static final String ACTION_RETURN = "RETURN";
+	/** CR 016 v2: HR screening passed — hands the request to the Supervisor's queue. */
+	public static final String ACTION_FORWARD_TO_SUPERVISOR = "FORWARD_TO_SUPERVISOR";
 	public static final String ACTION_ENDORSE = "ENDORSE";
 	public static final String ACTION_APPROVE = "APPROVE";
 	public static final String ACTION_SEND_TO_ADMIN_REVIEW = "SEND_TO_ADMIN_REVIEW";

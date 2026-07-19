@@ -31,7 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	// /cancelMyLeave/** and /appealMyLeave/** are intentionally NOT listed here (CR 016):
 	// employees cancel/appeal their own applications; the controller does the owner guard.
 	private static final String[] LEAVE_ADMIN = new String[] {
-			"/leaves", "/leaves/**",
+			"/leaves",
 			"/deleteLeaveApplication/**",
 			"/addLeaveCardEntry", "/updateLeaveCardEntry", "/deleteLeaveCardEntry/**",
 			"/postLeaveAccrual/**",
@@ -39,8 +39,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			"/leave-types", "/save-leave-type", "/delete-leave-type/**",
 			"/leave-signatories", "/saveLeaveSignatories",
 			"/leave-tracker", "/leave-list/**",
-			"/leave-workflow/**", "/leave-applications", "/leave-pending-list",
+			"/leave-applications", "/leave-pending-list",
 			"/leave-year-end/**", "/leaveVerificationReceiptPdf/**"};
+
+	// CR Request ID 016 v2: the Supervisor, Secretary to the City Council and
+	// Vice-Mayor act on the workflow from their own accounts. They may open a
+	// single employee's leave record page (/leaves/{id}/{hash} — never the
+	// plain /leaves roster), their pending queue and the workflow endpoints.
+	// LeaveWorkflowController.mayActOn enforces per-stage authorization and
+	// upload-docs stays HR-only in-method.
+	private static final String[] LEAVE_WORKFLOW = new String[] {
+			"/leave-workflow/**", "/leave-approvals", "/leaves/*/*"};
 
 	// CR Request ID 015 modules: Archive (SALN / Resigned / past Leaves files)
 	// and Training & Seminar are HR records management — staff only.
@@ -67,8 +76,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 			.authorizeRequests()
 				.antMatchers(PUBLIC).permitAll()
-				.antMatchers(LEAVE_ADMIN).hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
-				.antMatchers(ARCHIVE_ADMIN).hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
+				.antMatchers(LEAVE_WORKFLOW).hasAnyAuthority(Roles.WORKFLOW_ROLES)
+				.antMatchers(LEAVE_ADMIN).hasAnyAuthority(Roles.ADMIN, Roles.HR)
+				.antMatchers(ARCHIVE_ADMIN).hasAnyAuthority(Roles.ADMIN, Roles.HR)
 				.anyRequest().authenticated()
 				.and()
 			.formLogin()

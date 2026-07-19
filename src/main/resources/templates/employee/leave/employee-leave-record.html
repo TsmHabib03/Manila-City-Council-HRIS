@@ -258,7 +258,7 @@
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-								<button th:if="${showMode != 'EMPLOYEE'}" type="submit" class="btn bg-primary">Submit</button>
+								<button th:if="${showMode == 'HRADMIN'}" type="submit" class="btn bg-primary">Submit</button>
 							</div>
 						</form>
 					</div>
@@ -467,7 +467,7 @@
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-								<button th:if="${showMode != 'EMPLOYEE'}" type="submit" class="btn bg-teal">Submit</button>
+								<button th:if="${showMode == 'HRADMIN'}" type="submit" class="btn bg-teal">Submit</button>
 							</div>
 						</form>
 					</div>
@@ -498,7 +498,8 @@
 									before it can be forwarded for Administrative Review.
 								</div>
 								<ul id="wf_docs_list" class="list-unstyled mb-2"></ul>
-								<form id="wf_docs_form" th:action="@{/leave-workflow/0/upload-docs}" method="post" enctype="multipart/form-data" class="form-inline">
+								<!-- CR 016 v2: documents are received/attached and receipts printed by HR only -->
+								<form id="wf_docs_form" th:if="${showMode == 'HRADMIN'}" th:action="@{/leave-workflow/0/upload-docs}" method="post" enctype="multipart/form-data" class="form-inline">
 									<input type="file" name="supportingDocs" multiple class="form-control-file mr-2">
 									<button type="submit" class="btn btn-outline-primary btn-sm">Attach</button>
 									<a id="wf_receipt_link" href="#" target="_blank" class="btn bg-indigo btn-sm ml-2" style="display:none;"
@@ -558,9 +559,12 @@
 								<h5 class="card-title" th:text="${showMode == 'EMPLOYEE' ? 'My Leave Applications' : 'Leave Applications (CS Form No. 6)'}">Leave Applications</h5>
 								<div class="header-elements">
 									<div class="list-icons">
-										<th:block th:if="${showMode != 'EMPLOYEE'}">
+										<th:block th:if="${showMode == 'HRADMIN'}">
 											<button id="addNewApplicationBtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_leave_application">File Leave Application</button>
 											<a th:href="@{/leaves}" class="btn bg-green ml-1">Back to Employee List</a>
+										</th:block>
+										<th:block th:if="${showMode == 'APPROVER'}">
+											<a th:href="@{/leave-approvals}" class="btn bg-green">Back to My Queue</a>
 										</th:block>
 										<th:block th:if="${showMode == 'EMPLOYEE'}">
 											<button id="fileMyLeaveBtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_my_leave_application">File Leave Application</button>
@@ -619,7 +623,7 @@
 													th:data-row-approverTitle="${app.approverTitle}"
 													th:data-row-remarks="${app.remarks}"
 													data-toggle="modal" data-target="#modal_leave_application">
-													<span th:text="${showMode == 'EMPLOYEE' ? 'View' : 'View / Edit'}">View / Edit</span>
+													<span th:text="${showMode == 'HRADMIN' ? 'View / Edit' : 'View'}">View / Edit</span>
 												</button>
 												<a th:href="@{'/leaveForm6Pdf/' + ${app.getId()}}" target="_blank"
 													class="btn bg-indigo btn-sm" title="Print CS Form No. 6">Form 6 PDF</a>
@@ -628,6 +632,8 @@
 														th:data-row-id="${app.getId()}"
 														data-toggle="modal" data-target="#modal_leave_workflow"
 														title="Screen, endorse, review and approve this application">Workflow</button>
+												</th:block>
+												<th:block th:if="${showMode == 'HRADMIN'}">
 													<a th:href="@{'/deleteLeaveApplication/' + ${app.getId()}}"
 														class="btn btn-danger btn-sm"
 														onclick="return confirm('Delete this leave application? Any linked leave card entry will also be removed.')">Delete</a>
@@ -658,10 +664,11 @@
 													: (app.status == 'RETURNED' ? 'badge badge-warning'
 													: (app.status == 'FILED' ? 'badge badge-info'
 													: (app.status == 'APPEALED' ? 'badge badge-warning'
+													: (app.status == 'FOR_ENDORSEMENT' ? 'badge bg-orange'
 													: (app.status == 'ENDORSED' ? 'badge badge-primary'
 													: (app.status == 'FOR_ADMIN_REVIEW' ? 'badge bg-indigo'
 													: (app.status == 'FOR_COUNCIL_REVIEW' ? 'badge bg-purple'
-													: (app.status == 'FOR_FINAL_APPROVAL' ? 'badge bg-teal' : 'badge badge-secondary'))))))))}"
+													: (app.status == 'FOR_FINAL_APPROVAL' ? 'badge bg-teal' : 'badge badge-secondary')))))))))}"
 													th:text="${#strings.replace(app.status,'_',' ')}">status</span>
 											</td>
 											<td th:text="${app.certVlBalance}">vl</td>
@@ -683,7 +690,7 @@
 								<h5 class="card-title" th:text="${showMode == 'EMPLOYEE' ? 'My Leave Card' : 'Employee''s Leave Card'}">Employee's Leave Card</h5>
 								<div class="header-elements">
 									<div class="list-icons">
-										<form th:if="${showMode != 'EMPLOYEE'}" th:action="@{'/postLeaveAccrual/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}"
+										<form th:if="${showMode == 'HRADMIN'}" th:action="@{'/postLeaveAccrual/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}"
 											method="post" class="d-inline-block mr-2">
 											<div class="input-group input-group-sm d-inline-flex" style="width: auto;">
 												<input type="month" name="accrualMonth" class="form-control form-control-sm" required>
@@ -693,7 +700,7 @@
 												</div>
 											</div>
 										</form>
-										<button th:if="${showMode != 'EMPLOYEE'}" id="addNewEntryBtn" type="button" class="btn bg-teal btn-sm" data-toggle="modal" data-target="#modal_card_entry">Add Entry</button>
+										<button th:if="${showMode == 'HRADMIN'}" id="addNewEntryBtn" type="button" class="btn bg-teal btn-sm" data-toggle="modal" data-target="#modal_card_entry">Add Entry</button>
 										<a th:href="@{'/leaveCardPdf/' + ${employee.getId()} + '/' + ${employee.getEmpHashCode()}}" target="_blank"
 											class="btn bg-indigo btn-sm ml-1">Leave Card PDF</a>
 									</div>
@@ -800,6 +807,8 @@
 			if (showMode === 'EMPLOYEE') {
 				$("#myAccountNav").addClass("nav-item-expanded nav-item-open");
 				$("#myLeavesNav").addClass("active");
+			} else if (showMode === 'APPROVER') {
+				$("#leaveApprovalsNav").addClass("active");
 			} else {
 				$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
 				$("#leavesListNav").addClass("active");
@@ -917,7 +926,8 @@
 			modal.find("#la_remarks").val(btn.attr('data-row-remarks'));
 
 			$('#leaveApplicationForm').attr('action', contextRoot + '/updateLeaveApplication');
-			if (/*[[${showMode == 'EMPLOYEE'}]]*/false) {
+			// Employees and CR 016 v2 reviewer accounts see the form read-only.
+			if (/*[[${showMode != 'HRADMIN'}]]*/false) {
 				$('#leaveApplicationForm').find('input, select, textarea').not('#la_employeeId, #la_empHashCode, #la_id').prop('disabled', true);
 			}
 		});
@@ -930,6 +940,7 @@
 				case 'DISAPPROVED': return 'badge badge-danger';
 				case 'RETURNED': case 'APPEALED': return 'badge badge-warning';
 				case 'FILED': return 'badge badge-info';
+				case 'FOR_ENDORSEMENT': return 'badge bg-orange';
 				case 'ENDORSED': return 'badge badge-primary';
 				case 'FOR_ADMIN_REVIEW': return 'badge bg-indigo';
 				case 'FOR_COUNCIL_REVIEW': return 'badge bg-purple';

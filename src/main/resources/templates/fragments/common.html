@@ -622,13 +622,23 @@
 									th:href="@{'/my-leaves/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
 									class="nav-link" id="myLeavesNav"><i class="icon-calendar3"></i> My Leave Record</a>
 								</li>
-								<li class="nav-item"><a 									
+								<li class="nav-item"><a
 									th:href="@{'/my201files/' + ${session.actorObj.id} + '/' + ${session.actorObj.getEmpHashCode()}}"
 									class="nav-link" id="my201FileNav"><i class="icon-user-tie"></i> My 201 Files</a>
 								</li>
 							</ul>
 						</li>
-						
+
+						<!-- CR 016 v2: pending-leave queue for the workflow actor accounts (and HR) -->
+						<li class="nav-item"
+							th:if="${session.actorObj != null and (session.actorObj.userType == 'ROLE_SUPERVISOR'
+								or session.actorObj.userType == 'ROLE_COUNCIL'
+								or session.actorObj.userType == 'ROLE_VICEMAYOR'
+								or session.actorObj.userType == 'ROLE_HR')}">
+							<a th:href="@{/leave-approvals}" class="nav-link" id="leaveApprovalsNav">
+								<i class="icon-stack-check"></i> <span>Leave Approvals</span></a>
+						</li>
+
 						<th:block th:if="${session.actorObj == null ? false : session.actorObj.userType == 'ROLE_ADMIN'}">
 						<li class="nav-item nav-item-submenu" id="employeeManagementNav">
 							<a href="#" class="nav-link"><i class="icon-vcard"></i> <span>Employee Management</span></a>

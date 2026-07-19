@@ -52,7 +52,12 @@
 						                    <label for="empUserType">User Type</label>
 						                    <select id="empUserType" name="empUserType" class="form-control">
 												<option value="ROLE_EMPLOYEE">ROLE EMPLOYEE</option>
-						                        <option value="ROLE_ADMIN">ROLE ADMIN</option>						                        
+						                        <option value="ROLE_ADMIN">ROLE ADMIN</option>
+						                        <option value="ROLE_HR">ROLE HR</option>
+						                        <!-- CR 016 v2: leave workflow actor accounts -->
+						                        <option value="ROLE_SUPERVISOR">ROLE SUPERVISOR</option>
+						                        <option value="ROLE_COUNCIL">ROLE COUNCIL (Secretary to the City Council)</option>
+						                        <option value="ROLE_VICEMAYOR">ROLE VICE MAYOR</option>
 						                    </select>
 						                </div> 		                
 						            </div>
@@ -657,7 +662,7 @@
 									<td th:text="${employee.getPlantillaNo()}">Status</td>
 									<td th:text="${employee.positionTitle != null ? employee.positionTitle.positionTitleName : ''}">Status</td>
 									<td th:text="${employee.division != null ? employee.division.divisionName : ''}">Status</td>
-									<td th:text="${employee.userType == 'ROLE_EMPLOYEE' ? 'EMPLOYEE' : 'ADMIN'}">Status</td>
+									<td th:text="${employee.userType == null ? '' : #strings.replace(#strings.substringAfter(employee.userType, 'ROLE_'), '_', ' ')}">Status</td>
 									<td><span class="badge badge-success" th:text="${employee.getStatus()}">Active</span></td>
 									
 								</tr>
