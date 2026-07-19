@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+
+    <!-- common import of css & js goes here -->
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+
+	<title>Human Resource Information System</title>
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+	<!-- /Main Navbar -->
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+		<!-- /Main sidebar -->
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card p-3">
+							<div class="card-header header-elements-inline bg-primary">
+								<h6 class="card-title">Leave Signatories &amp; Endorsement</h6>
+							</div>
+							<div class="card-body">
+								<p class="text-muted">
+									Defaults printed on newly filed leave applications (CS Form No. 6).
+									Existing applications keep the signatories they were saved with.
+								</p>
+								<form id="signatoryForm" th:action="@{/saveLeaveSignatories}" method="post" th:object="${leaveSignatory}">
+									<input type="hidden" th:field="*{id}" id="id">
+
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="certOfficerName">7.A Certifying Officer</label>
+												<input id="certOfficerName" th:field="*{certOfficerName}" type="text" class="form-control required-field-hrisp">
+											</div>
+											<div class="col-sm-6">
+												<label for="certOfficerTitle">Title / Position</label>
+												<input id="certOfficerTitle" th:field="*{certOfficerTitle}" type="text" class="form-control required-field-hrisp">
+											</div>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="recommenderName">7.B Recommending Officer</label>
+												<input id="recommenderName" th:field="*{recommenderName}" type="text" class="form-control required-field-hrisp">
+											</div>
+											<div class="col-sm-6">
+												<label for="recommenderTitle">Title / Position</label>
+												<input id="recommenderTitle" th:field="*{recommenderTitle}" type="text" class="form-control required-field-hrisp">
+											</div>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="approverName">7.C/7.D Approving Authority</label>
+												<input id="approverName" th:field="*{approverName}" type="text" class="form-control required-field-hrisp">
+											</div>
+											<div class="col-sm-6">
+												<label for="approverTitle">Title / Position</label>
+												<input id="approverTitle" th:field="*{approverTitle}" type="text" class="form-control required-field-hrisp">
+											</div>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6">
+												<label for="endorserName">Leave Endorsement (Endorser)</label>
+												<input id="endorserName" th:field="*{endorserName}" type="text" placeholder="Name of endorser" class="form-control">
+											</div>
+											<div class="col-sm-6">
+												<label for="endorserTitle">Title / Position</label>
+												<input id="endorserTitle" th:field="*{endorserTitle}" type="text" placeholder="Position of endorser" class="form-control">
+											</div>
+										</div>
+									</div>
+
+									<div class="text-right">
+										<button type="submit" class="btn bg-primary">Save Signatories</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+			<!-- /Footer -->
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+		$(document).ready(function() {
+
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#systemSettingsNav").addClass("nav-item-expanded nav-item-open");
+			$("#leaveSignatoryNav").addClass("active");
+
+			let msgCode = /*[[${msg == null ? '' : msg.code} ]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+
+			if(msgCode === 'ERROR'){
+				swal({ title: "Error!", text: msgDesc, icon: "error", buttons: false, timer: 2000 });
+			} else if(msgCode === 'SUCCESS'){
+				swal({ title: "Success!", text: msgDesc, icon: "success", buttons: false, timer: 2000 });
+			}
+		});
+	</script>
+</body>
+</html>

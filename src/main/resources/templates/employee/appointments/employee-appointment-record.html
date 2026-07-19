@@ -74,7 +74,7 @@
 									<div class="row">
 										<div class="col-sm-6">
 											<label for="positionTitle">Position Title</label>
-											<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control">
+											<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control hrisp-searchable">
 												<option selected value="">SELECT VALUE</option>
 												<option th:each="pt : ${positionTitleList}" th:value="${pt.id}" th:text="${pt.positionTitleName}">positionTitleName</option>
 											</select>
@@ -94,7 +94,7 @@
 									<div class="row">
 										<div class="col-sm-6">
 											<label for="statusOfAppointment">Status of Appointment <span class="text-danger">*</span></label>
-											<select id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" class="form-control required-field-hrisp">
+											<select id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" class="form-control required-field-hrisp hrisp-searchable" data-tags="true">
 												<option value="">SELECT VALUE</option>
 												<option th:each="s : ${appointmentStatusList}" th:value="${s.appointmentStatusName}" th:text="${s.appointmentStatusName}"></option>
 											</select>
@@ -122,7 +122,7 @@
 										</div>
 										<div class="col-sm-4">
 											<label for="officeAssignment">Office Assignment</label>
-											<select id="officeAssignment" name="officeAssignment" th:field="*{officeAssignment}" class="form-control">
+											<select id="officeAssignment" name="officeAssignment" th:field="*{officeAssignment}" class="form-control hrisp-searchable" data-tags="true">
 												<option value="">SELECT VALUE</option>
 												<option th:each="o : ${officeList}" th:value="${o.officeName}" th:text="${o.officeName}"></option>
 											</select>
@@ -384,15 +384,15 @@
 			$("#modal_form_vertical").find("#pageNo").val(pageNo);
 			$("#modal_form_vertical").find("#signingDate").val(signingDate);
 			$("#modal_form_vertical").find("#entranceDate").val(entranceDate);
-			$("#modal_form_vertical").find("#positionTitle").val(positionTitle);
+			$("#modal_form_vertical").find("#positionTitle").val(positionTitle).trigger('change');
 			$("#modal_form_vertical").find("#salaryGrade").val(salaryGrade);
 			$("#modal_form_vertical").find("#stepInc").val(stepInc);
-			$("#modal_form_vertical").find("#statusOfAppointment").val(statusOfAppointment);
+			hrispSelectVal($("#modal_form_vertical").find("#statusOfAppointment"), statusOfAppointment);
 			$("#modal_form_vertical").find("#statusOfSepeparation").val(statusOfSepeparation);
 			$("#modal_form_vertical").find("#salary").val(salary);
 			$("#modal_form_vertical").find("#eligibility").val(eligibility);
 			$("#modal_form_vertical").find("#highestEducAttainment").val(highestEducAttainment);
-			$("#modal_form_vertical").find("#officeAssignment").val(officeAssignment);
+			hrispSelectVal($("#modal_form_vertical").find("#officeAssignment"), officeAssignment);
 			$("#modal_form_vertical").find("#vice").val(vice);
 			$("#modal_form_vertical").find("#district").val(district);
 			$("#modal_form_vertical").find("#experience").val(experience);

@@ -84,7 +84,7 @@
 										<div class="col-sm-4">
 											<label for="officeName">Office Name</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('officeName')}" th:errors="*{officeName}"></span>
-											<select id="officeName" name="officeName" th:field="*{officeName}" class="form-control">
+											<select id="officeName" name="officeName" th:field="*{officeName}" class="form-control hrisp-searchable" data-tags="true">
 												<option value="">SELECT VALUE</option>
 												<option th:each="o : ${officeList}" th:value="${o.officeName}" th:text="${o.officeName}"></option>
 											</select>
@@ -125,7 +125,7 @@
 											<label for="appointmentStatus">Appointment Status</label>
 											<span class="validationError text-danger" th:if="${#fields.hasErrors('appointmentStatus')}" th:errors="*{appointmentStatus}"></span>
 											
-											<select name="appointmentStatus" id="appointmentStatus" th:field="*{appointmentStatus}" class="form-control">
+											<select name="appointmentStatus" id="appointmentStatus" th:field="*{appointmentStatus}" class="form-control hrisp-searchable" data-tags="true">
 												<option value="">SELECT VALUE</option>
 												<option th:each="s : ${appointmentStatusList}" th:value="${s.appointmentStatusName}" th:text="${s.appointmentStatusName}"></option>
 											</select>
@@ -405,13 +405,13 @@
 				$("#modal_form_vertical").find("#partTime").prop("checked", partTime === 'true');
 	            $("#modal_form_vertical").find("#positionTitle").val(positionTitle);
 	            $("#modal_form_vertical").find("#department").val(department);
-	            $("#modal_form_vertical").find("#officeName").val(officeName);
+	            hrispSelectVal($("#modal_form_vertical").find("#officeName"), officeName);
 	            $("#modal_form_vertical").find("#immediateSupervisor").val(immediateSupervisor);
 	            $("#modal_form_vertical").find("#jobDescription").val(jobDescription);
 	            $("#modal_form_vertical").find("#salary").val(salary);
 	            $("#modal_form_vertical").find("#salaryGrade").val(salaryGrade);
 	            $("#modal_form_vertical").find("#stepNo").val(stepNo);
-	            $("#modal_form_vertical").find("#appointmentStatus").val(appointmentStatus);
+	            hrispSelectVal($("#modal_form_vertical").find("#appointmentStatus"), appointmentStatus);
 	            $("#modal_form_vertical").find("#govtOffice").val(govtOffice);
 	            $("#modal_form_vertical").find("#remarks").val(remarks);
 	            applyActiveState(upToPresent === 'true');

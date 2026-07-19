@@ -84,7 +84,7 @@
 										<div class="row"> 											
 											<div class="col-sm-4">
 												<label for="purpose">Employment Status</label>
-												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control required-field-hrisp">
+												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control required-field-hrisp hrisp-searchable">
 													<option selected value="">SELECT VALUE</option>
 													<option th:each="empStatus : ${employeeStatusList}" th:value="${empStatus.id}" th:text="${empStatus.employeeStatusName}">employeeStatusName</option>
 												</select>
@@ -172,7 +172,7 @@
 										<div class="row">   
 											<div class="col-sm-6">
 												<label for="positionTitle">Position Title</label>
-												<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control  required-field-hrisp">
+												<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control  required-field-hrisp hrisp-searchable">
 									               	<option selected value="">SELECT VALUE</option>
 									               	<option th:each="positionTitle : ${positionTitleList}" th:value="${positionTitle.id}" th:text="${positionTitle.positionTitleName}">positionTitleName</option>
 									            </select>
@@ -210,7 +210,7 @@
 										<div class="row">   
 											<div class="col-sm-6">
 												<label for="statusOfAppointment">Nature of Appointment / Mode of Accession</label>
-												<select id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" class="form-control">
+												<select id="statusOfAppointment" name="statusOfAppointment" th:field="*{statusOfAppointment}" class="form-control hrisp-searchable" data-tags="true">
 													<option value="">SELECT VALUE</option>
 													<option th:each="s : ${appointmentStatusList}" th:value="${s.appointmentStatusName}" th:text="${s.appointmentStatusName}"></option>
 												</select>
@@ -711,16 +711,16 @@
 			$("#modal_form_vertical").find("#lvAbs").val(lvAbs);
 			$("#modal_form_vertical").find("#separationCause").val(separationCause);
 			$("#modal_form_vertical").find("#separationDate").val(separationDate);
-			$("#modal_form_vertical").find("#employeeStatus").val(employeeStatus);
+			$("#modal_form_vertical").find("#employeeStatus").val(employeeStatus).trigger('change');
 			
-			$("#modal_form_vertical").find("#positionTitle").val(positionTitle);
+			$("#modal_form_vertical").find("#positionTitle").val(positionTitle).trigger('change');
 			$("#modal_form_vertical").find("#employmentStatusNotes").val(employmentStatusNotes);
 			$("#modal_form_vertical").find("#plantillaNo").val(plantillaNo);
 			$("#modal_form_vertical").find("#pageNo").val(pageNo);
 			$("#modal_form_vertical").find("#positionTitleNotes").val(positionTitleNotes);
 			$("#modal_form_vertical").find("#vice").val(vice);
 			$("#modal_form_vertical").find("#statusOfSepeparation").val(statusOfSepeparation);
-			$("#modal_form_vertical").find("#statusOfAppointment").val(statusOfAppointment);
+			hrispSelectVal($("#modal_form_vertical").find("#statusOfAppointment"), statusOfAppointment);
 			$("#modal_form_vertical").find("#salaryGrade").val(salaryGrade);
 			$("#modal_form_vertical").find("#stepInc").val(stepInc);
 			$("#modal_form_vertical").find("#signingDate").val(signingDate);

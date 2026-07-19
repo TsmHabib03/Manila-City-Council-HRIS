@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<th:block th:replace="fragments/common::header-meta"></th:block>
+    <th:block th:replace="fragments/common::header-import-css"></th:block>
+    <th:block th:replace="fragments/common::header-import-js"></th:block>
+	<title>Human Resource Information System</title>
+</head>
+
+<body>
+
+	<!-- Main Navbar -->
+	<div th:replace="fragments/common::main-navbar"></div>
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div th:replace="fragments/common::main-sidebarnav"></div>
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Content area -->
+			<div class="content pt-0">
+
+				<div class="row mt-3">
+					<div class="col-xl-12">
+
+						<!-- Pending leave applications (CR Request ID 016) -->
+						<div class="card">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">Leave Applications — Decision Flow Queue</h5>
+								<div class="header-elements">
+									<div class="list-icons">
+										<a th:href="@{/leaves}" class="btn bg-green btn-sm">Employee Leave Records</a>
+										<a th:href="@{/leave-tracker}" class="btn bg-indigo btn-sm ml-1">Leave Tracker</a>
+									</div>
+								</div>
+							</div>
+
+							<div class="card-body pb-0">
+								Applications submitted by employees that are still moving through the decision flow.
+								Open one to screen, endorse, review or approve it from its Workflow panel.
+							</div>
+
+							<table class="table table-bordered table-hover datatable-highlight" id="table-queue">
+								<thead>
+									<tr>
+										<th style="width: 5px;">&nbsp;</th>
+										<th>Date of Filing</th>
+										<th>Employee</th>
+										<th>Type of Leave</th>
+										<th>Working Days</th>
+										<th>Inclusive Dates</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="app : ${pendingApplications}">
+										<tr>
+											<td title="Open leave record">
+												<a th:href="@{'/leaves/' + ${app.employee.getId()} + '/' + ${app.employee.getEmpHashCode()}}"
+													class="list-icons-item"><i class="icon-search4"></i></a>
+											</td>
+											<td th:text="${app.dateOfFiling}">date</td>
+											<td th:text="${app.employee.getFullName()}">employee</td>
+											<td>
+												<span th:text="${app.leaveType}">type</span>
+												<small class="d-block text-muted" th:if="${app.leaveDetailText != null and !app.leaveDetailText.isEmpty()}" th:text="${app.leaveDetailText}"></small>
+											</td>
+											<td th:text="${app.workingDays}">days</td>
+											<td th:text="${app.getInclusiveDatesDisplay()}">dates</td>
+											<td>
+												<span th:classappend="${app.status == 'RETURNED' or app.status == 'APPEALED' ? 'badge badge-warning'
+													: (app.status == 'FILED' ? 'badge badge-info'
+													: (app.status == 'ENDORSED' ? 'badge badge-primary'
+													: (app.status == 'FOR_ADMIN_REVIEW' ? 'badge bg-indigo'
+													: (app.status == 'FOR_COUNCIL_REVIEW' ? 'badge bg-purple'
+													: (app.status == 'FOR_FINAL_APPROVAL' ? 'badge bg-teal' : 'badge badge-secondary')))))}"
+													th:text="${#strings.replace(app.status,'_',' ')}">status</span>
+											</td>
+										</tr>
+									</th:block>
+								</tbody>
+							</table>
+						</div>
+						<!-- /pending leave applications -->
+
+						<!-- Year-end mandatory leave processing (CR Request ID 016) -->
+						<div class="card">
+							<div class="card-header header-elements-inline">
+								<h5 class="card-title">Year-End Mandatory/Forced Leave Processing</h5>
+							</div>
+							<div class="card-body">
+								<p>
+									At the end of each year every employee's leave balance is reduced by the unused
+									portion of the five (5) mandatory/forced leave days. Employees who already used
+									part of their mandatory leave are only deducted the remainder; employees who used
+									all five days are not deducted. The run is safe to repeat — employees already
+									processed for the year are skipped. It also runs automatically every December 31.
+								</p>
+								<form th:action="@{/leave-year-end/run}" method="post" class="form-inline"
+									onsubmit="return confirm('Post the year-end mandatory leave deduction for all active employees for the selected year?')">
+									<label for="ye_year" class="mr-2">Year</label>
+									<input type="number" id="ye_year" name="year" th:value="${currentYear}"
+										min="2000" max="2100" class="form-control mr-2" style="width: 110px;" required>
+									<button type="submit" class="btn btn-primary">Post Year-End Deduction</button>
+								</form>
+							</div>
+						</div>
+						<!-- /year-end processing -->
+
+					</div>
+				</div>
+
+			</div>
+			<!-- /content area -->
+
+			<!-- Footer -->
+			<div th:replace="fragments/common::footer"></div>
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+	<script th:inline="javascript">
+
+		let contextRoot = /*[[${#httpServletRequest.getContextPath()}]]*/ '';
+		let queueDataTable = null;
+
+		$(document).ready(function() {
+
+			$(".nav-item-submenu").removeClass("nav-item-expanded nav-item-open");
+			$("#employeeManagementNav").addClass("nav-item-expanded nav-item-open");
+			$("#leaveQueueNav").addClass("active");
+
+			let msgCode = /*[[${msg == null ? '' : msg.code}]]*/'';
+			let msgDesc = /*[[${msg == null ? '' : msg.message}]]*/'';
+			if (msgCode === 'ERROR') {
+				swal({ title: "Error!", text: msgDesc, icon: "error", buttons: false, timer: 4000 });
+			} else if (msgCode === 'EDIT-SUCCESS' || msgCode === 'SUCCESS') {
+				swal({ title: "Success!", text: msgDesc, icon: "success", buttons: false, timer: 4000 });
+			}
+
+			if (!queueDataTable) {
+				queueDataTable = $('#table-queue').DataTable({
+					"lengthMenu": [10, 25, 50],
+					"ordering": false,
+					"retrieve": true,
+					"language": {
+						"emptyTable": "No pending leave applications — the queue is clear.",
+						"zeroRecords": "No applications match your search."
+					}
+				});
+			}
+
+		});
+
+	</script>
+</body>
+</html>

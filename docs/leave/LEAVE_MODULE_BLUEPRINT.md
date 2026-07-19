@@ -2,7 +2,7 @@
 
 ## Context
 
-The user asked for a local analysis of the three documents in `Leave_Docs/` (per `LEAVE_MANAGEMENT_PROMPT.md`) to produce a leave-module blueprint for this HRIS before any implementation. This document is that blueprint — the deliverable of this step. Nothing is uploaded to the server and no code is changed.
+The user asked for a local analysis of the three documents in `docs/leave/reference/` (per `LEAVE_MANAGEMENT_PROMPT.md`) to produce a leave-module blueprint for this HRIS before any implementation. This document is that blueprint — the deliverable of this step. Nothing is uploaded to the server and no code is changed.
 
 Sources analyzed:
 1. `PROCEDURES-MANUAL-FAD-LEAVE-PROCESSING.pdf` (4 pp.) — workflow. Note: this is a Mines & Geosciences Bureau XIII manual (Doc PM-FAD-02, eff. 2017), used here as a reference template; roles must be mapped to Manila City Council equivalents.

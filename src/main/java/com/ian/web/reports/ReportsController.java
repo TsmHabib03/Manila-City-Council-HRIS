@@ -164,6 +164,16 @@ public class ReportsController {
 		InputStream reportStream4 = Thread.currentThread().getContextClassLoader().getResourceAsStream( "jasper/reports/PDS2026_P4.jasper");
 		Map<String, Object> map4 = populateMapReport2026_P4(otherObj, refList, govList);
 
+		// CR Request ID 015 (2026-07-16): fields the employee left blank print as
+		// "N/A" on the PDS instead of empty boxes. Data fields are always put with
+		// a leading-space prefix ("  " + value), so a whitespace-only value means
+		// "field present but blank"; the exact empty string "" is reserved for
+		// unchecked checkbox marks and intentional blanks, which must stay empty.
+		applyNaToBlankFields(map);
+		applyNaToBlankFields(map2);
+		applyNaToBlankFields(map3);
+		applyNaToBlankFields(map4);
+
 		// Add employee photo to P4 if available
 		InputStream photoStream = null;
 		String profilePhoto = employee.getProfilePhoto();
@@ -1332,6 +1342,18 @@ public class ReportsController {
 	// ── CSC Form No. 212 (Revised 2026) — Long Bond, wider Work Experience/L&D tables ──
 	// Reuses the same base extraction + date-reformatting overlay as the 2025 methods above
 	// (the 2026 templates declare the same parameter names for every field the 2025 form has).
+
+	/** Replaces whitespace-only String params with "N/A"; leaves exact "" (checkbox marks) alone. */
+	private static void applyNaToBlankFields(Map<String, Object> map) {
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+			if (entry.getValue() instanceof String) {
+				String value = (String) entry.getValue();
+				if (!value.isEmpty() && value.trim().isEmpty()) {
+					entry.setValue("  N/A");
+				}
+			}
+		}
+	}
 
 	private Map<String, Object> populateMapReport2026_P1(Employee emp, List<FamilyBg> fbList, List<EducationalBackground> eduList) throws Exception {
 		return populateMapReport2025_P1(emp, fbList, eduList);

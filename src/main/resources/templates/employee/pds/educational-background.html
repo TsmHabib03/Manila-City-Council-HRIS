@@ -51,7 +51,7 @@
 										<div class="row">
 											<div class="col-sm-4">
 												<label for="degreeLevel">Level</label>
-												<select th:field="*{degreeLevel.id}" id="degreeLevel" class="form-control required-field-hrisp">
+												<select th:field="*{degreeLevel.id}" id="degreeLevel" class="form-control required-field-hrisp hrisp-searchable">
 													<option selected value="">SELECT VALUE</option>
 													<option th:each="degreeLevel : ${degreeLevelList}" th:value="${degreeLevel.id}" th:text="${degreeLevel.degreeName}">degreeLevel</option>
 										   		</select>
@@ -102,7 +102,7 @@
 											</div>
 											<div class="col-sm-4">
 												<label for="scholarship">Scholarship</label>
-												<select th:field="*{scholarship.id}" id="scholarship" class="form-control">
+												<select th:field="*{scholarship.id}" id="scholarship" class="form-control hrisp-searchable">
 													<option selected value="">SELECT VALUE</option>
 													<option th:each="scholarship : ${scholarshipList}" th:value="${scholarship.id}" th:text="${scholarship.scholarshipName}">scholarshipName</option>
 										   		</select>
@@ -382,8 +382,8 @@
 
 
 	            $("#modal_form_vertical").find("#id").val(id);
-	            $("#modal_form_vertical").find("#degreeLevel").val(degreeLevel);
-	            $("#modal_form_vertical").find("#scholarship").val(scholarship);
+	            $("#modal_form_vertical").find("#degreeLevel").val(degreeLevel).trigger('change');
+	            $("#modal_form_vertical").find("#scholarship").val(scholarship).trigger('change');
 	            $("#modal_form_vertical").find("#academicHonorsText").val(academicHonorsText);
 	            $("#modal_form_vertical").find("#startDate").val(startDate);
 	            $("#modal_form_vertical").find("#endDate").val(endDate);

@@ -202,7 +202,7 @@
 							                
 											<div class="col-sm-4">
 												<label for="civilStatus">Civil Status</label>
-												<select class="form-control" name="civilStatus" id="civilStatus" th:field="*{civilStatus}">
+												<select class="form-control hrisp-searchable" name="civilStatus" id="civilStatus" th:field="*{civilStatus}">
 													<option value="">SELECT VALUE</option>
 													<option th:each="cs : ${civilStatusList}" th:value="${cs.civilStatusName}" th:text="${cs.civilStatusName}"></option>
 												</select>
@@ -225,7 +225,7 @@
 										<div class="row">    
 											<div class="col-sm-4">
 												<label for="positionTitle">Position Title</label>
-												<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control">
+												<select th:field="*{positionTitle.id}" id="positionTitle" class="form-control hrisp-searchable">
 									               	<option selected value="">SELECT VALUE</option>
 									               	<option th:each="positionTitle : ${positionTitleList}" th:value="${positionTitle.id}" th:text="${positionTitle.positionTitleName}">positionTitleName</option>
 									            </select>
@@ -233,7 +233,7 @@
 											
 											<div class="col-sm-4">
 												<label for="employeeStatus">Employment Status</label>										                        
-												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control">
+												<select th:field="*{employeeStatus.id}" id="employeeStatus" class="form-control hrisp-searchable">
 													<option selected value="">SELECT VALUE</option>
 													<option th:each="empStatus : ${employeeStatusList}" th:value="${empStatus.id}" th:text="${empStatus.employeeStatusName}">employeeStatusName</option>
 												</select>
@@ -241,7 +241,7 @@
 															
 											<div class="col-sm-4">
 												<label for="department">Department</label>										                        
-												<select th:field="*{division.id}" id="division" class="form-control">
+												<select th:field="*{division.id}" id="division" class="form-control hrisp-searchable">
 													<option selected value="">SELECT VALUE</option>
 													<option th:each="division : ${divisionList}" th:value="${division.id}" th:text="${division.divisionName}">division</option>
 												</select>
@@ -253,7 +253,7 @@
 										<div class="row">   
 											<div class="col-sm-12">
 												<label for="birthdate">Please indicate Country</label>
-												<select name="countryOfOrigin" id="countryOfOrigin" th:field="*{countryOfOrigin}" class="form-control" placeholder="Citizenship Country Code" >
+												<select name="countryOfOrigin" id="countryOfOrigin" th:field="*{countryOfOrigin}" class="form-control hrisp-searchable" placeholder="Citizenship Country Code" >
 													<option value="">(Choose Country)</option>
 													<option value="AFG">Afghanistan</option>
 													<option value="ALA">Aland Islands</option>

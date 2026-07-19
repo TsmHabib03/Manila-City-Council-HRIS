@@ -22,15 +22,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	// Leave-module endpoints that mutate records or expose the admin roster/views.
 	// The UI already hides these from employees (showMode != 'EMPLOYEE'); this enforces
 	// it server-side so an authenticated ROLE_EMPLOYEE cannot reach them directly.
-	// Employee self-service uses /my-leaves/** and the hash-gated PDF endpoints, which
+	// /addLeaveApplication and /updateLeaveApplication are intentionally NOT listed here:
+	// employees may file their own leave application through those same URLs, same as
+	// /addEmployee et al. for PDS self-service. LeaveController.saveLeaveApplication does
+	// the in-method own-record + admin-field-reset guard (mirrors EmployeeController.saveEmployee).
+	// Employee self-service also uses /my-leaves/** and the hash-gated PDF endpoints, which
 	// stay at .authenticated().
+	// /cancelMyLeave/** and /appealMyLeave/** are intentionally NOT listed here (CR 016):
+	// employees cancel/appeal their own applications; the controller does the owner guard.
 	private static final String[] LEAVE_ADMIN = new String[] {
 			"/leaves", "/leaves/**",
-			"/addLeaveApplication", "/updateLeaveApplication", "/deleteLeaveApplication/**",
+			"/deleteLeaveApplication/**",
 			"/addLeaveCardEntry", "/updateLeaveCardEntry", "/deleteLeaveCardEntry/**",
 			"/postLeaveAccrual/**",
 			"/holidays", "/save-holiday", "/delete-holiday/**",
-			"/leave-types", "/save-leave-type", "/delete-leave-type/**"};
+			"/leave-types", "/save-leave-type", "/delete-leave-type/**",
+			"/leave-signatories", "/saveLeaveSignatories",
+			"/leave-tracker", "/leave-list/**",
+			"/leave-workflow/**", "/leave-applications", "/leave-pending-list",
+			"/leave-year-end/**", "/leaveVerificationReceiptPdf/**"};
+
+	// CR Request ID 015 modules: Archive (SALN / Resigned / past Leaves files)
+	// and Training & Seminar are HR records management — staff only.
+	private static final String[] ARCHIVE_ADMIN = new String[] {
+			"/archive/**", "/trainings", "/saveTraining", "/deleteTraining/**"};
 
 	private final UserDetailsService userDetailsService;
 
@@ -53,6 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 				.antMatchers(PUBLIC).permitAll()
 				.antMatchers(LEAVE_ADMIN).hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
+				.antMatchers(ARCHIVE_ADMIN).hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
 				.anyRequest().authenticated()
 				.and()
 			.formLogin()

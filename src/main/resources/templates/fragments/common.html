@@ -115,7 +115,8 @@
     <!-- Theme JS files 2-->
     <script th:src="@{/global_assets/js/plugins/tables/datatables/datatables.min.js}"></script>
     <script th:src="@{/global_assets/js/plugins/forms/selects/select2.min.js}"></script>
-    
+    <script th:src="@{/assets/js/hrisp-searchable-select.js}"></script>
+
     <!-- Upload JS Files -->
     <script th:src="@{/global_assets/js/plugins/uploaders/fileinput/plugins/purify.min.js}"></script>
 	<script th:src="@{/global_assets/js/plugins/uploaders/fileinput/plugins/sortable.min.js}"></script>
@@ -178,6 +179,7 @@
     <!-- Theme JS files 2 (WITHOUT fileinput plugin files) -->
     <script th:src="@{/global_assets/js/plugins/tables/datatables/datatables.min.js}"></script>
     <script th:src="@{/global_assets/js/plugins/forms/selects/select2.min.js}"></script>
+    <script th:src="@{/assets/js/hrisp-searchable-select.js}"></script>
 
     <script th:src="@{/assets/js/app.js}"></script>
 
@@ -253,18 +255,90 @@
 					<a href="#" class="navbar-nav-link sidebar-control sidebar-main-toggle d-none d-md-block">
 						<i class="icon-paragraph-justify3"></i>
 					</a>
-				</li>				
+				</li>
 			</ul>
 
-			
-			<span class="ml-md-3 mr-md-auto">&nbsp;</span>			 
-			
+
+			<span class="ml-md-3 mr-md-auto">&nbsp;</span>
+
+			<!-- Notifications bell (CR Request ID 016) -->
+			<ul class="navbar-nav">
+				<li class="nav-item dropdown">
+					<a href="#" class="navbar-nav-link dropdown-toggle caret-0" data-toggle="dropdown" id="notifBell">
+						<i class="icon-bell2"></i>
+						<span class="d-md-none ml-2">Notifications</span>
+						<span class="badge badge-pill bg-warning ml-auto ml-md-0" id="notifBadge" style="display:none;">0</span>
+					</a>
+					<div class="dropdown-menu dropdown-menu-right dropdown-content wmin-md-350">
+						<div class="dropdown-content-header">
+							<span class="font-weight-semibold">Notifications</span>
+						</div>
+						<div class="dropdown-content-body dropdown-scrollable">
+							<ul class="media-list" id="notifList">
+								<li class="text-muted">No notifications.</li>
+							</ul>
+						</div>
+					</div>
+				</li>
+			</ul>
+			<!-- /notifications bell -->
+
 		</div>
 		<!-- /navbar content -->
-		
+
 	</div>
 	<!-- /main navbar -->
-					
+
+	<script th:inline="javascript">
+	(function() {
+		var notifRoot = /*[[${#httpServletRequest.getContextPath()}]]*/'';
+		$(document).ready(function() {
+			if ($('#notifBell').length === 0) { return; }
+			loadNotifications();
+
+			$('#notifBell').parent().on('shown.bs.dropdown', function() {
+				if ($('#notifBadge').is(':visible')) {
+					var csrfM = document.querySelector('meta[name="_csrf"]');
+					var csrfH = document.querySelector('meta[name="_csrf_header"]');
+					var hdrs = {};
+					if (csrfM && csrfH) { hdrs[csrfH.content] = csrfM.content; }
+					$.ajax({
+						url: notifRoot + '/my-notifications/mark-read',
+						type: 'POST',
+						headers: hdrs,
+						success: function() { $('#notifBadge').hide(); }
+					});
+				}
+			});
+
+			function loadNotifications() {
+				$.get(notifRoot + '/my-notifications', function(data) {
+					if (data.unread > 0) {
+						$('#notifBadge').text(data.unread).show();
+					} else {
+						$('#notifBadge').hide();
+					}
+					var list = $('#notifList').empty();
+					if (!data.items || data.items.length === 0) {
+						list.append('<li class="text-muted">No notifications.</li>');
+						return;
+					}
+					$.each(data.items, function(i, n) {
+						var item = $('<li class="media">');
+						var body = $('<div class="media-body">');
+						var msg = n.link
+							? $('<a>').attr('href', notifRoot + n.link).addClass(n.read ? 'text-muted' : 'font-weight-semibold').text(n.message)
+							: $('<span>').addClass(n.read ? 'text-muted' : 'font-weight-semibold').text(n.message);
+						body.append(msg);
+						body.append($('<div class="text-muted font-size-sm">').text(n.createdAt));
+						item.append(body);
+						list.append(item);
+					});
+				});
+			}
+		});
+	})();
+	</script>
 
 </th:block>
 
@@ -565,8 +639,25 @@
 								<li class="nav-item"><a th:href="@{/employee-reports}" class="nav-link" id="clearanceListNav"><i class="icon-paste2"></i> Reports</a></li>
 								-->
 								<li class="nav-item"><a th:href="@{/appointments}" class="nav-link" id="appointmentsListNav"><i class="icon-user-tie"></i> Appointments</a></li>
-							<li class="nav-item"><a th:href="@{/leaves}" class="nav-link" id="leavesListNav"><i class="icon-calendar3"></i> Leave Management</a></li>
+							<li class="nav-item"><a th:href="@{/leave-applications}" class="nav-link" id="leaveQueueNav"><i class="icon-stack-check"></i> Leave Applications</a></li>
+								<li class="nav-item"><a th:href="@{/leaves}" class="nav-link" id="leavesListNav"><i class="icon-calendar3"></i> Leave Management</a></li>
+									<li class="nav-item"><a th:href="@{/leave-tracker}" class="nav-link" id="leaveTrackerNav"><i class="icon-calendar52"></i> Leave Tracker</a></li>
 								<li class="nav-item"><a th:href="@{/201files}" class="nav-link" id="docs201ListNav"><i class="icon-magazine"></i> 201 Files</a></li>
+									<li class="nav-item"><a th:href="@{/trainings}" class="nav-link" id="trainingNav"><i class="icon-graduation2"></i> Training and Seminar</a></li>
+									<li class="nav-item nav-item-submenu" id="archiveNav">
+										<a href="#" class="nav-link"><i class="icon-box"></i> Archive</a>
+										<ul class="nav nav-group-sub">
+											<li class="nav-item">
+												<a th:href="@{/archive/SALN}" class="nav-link" id="archiveSalnNav"><i class="icon-folder-open"></i> SALN</a>
+											</li>
+											<li class="nav-item">
+												<a th:href="@{/archive/RESIGNED}" class="nav-link" id="archiveResignedNav"><i class="icon-folder-open"></i> Resigned Employees</a>
+											</li>
+											<li class="nav-item">
+												<a th:href="@{/archive/LEAVES}" class="nav-link" id="archiveLeavesNav"><i class="icon-folder-open"></i> Leaves</a>
+											</li>
+										</ul>
+									</li>
 								<li class="nav-item nav-item-submenu" id="employeeReportsNav" style="display:none">
 									<a href="#" class="nav-link"><i class="icon-vcard"></i> Reports</a>
 									<ul class="nav nav-group-sub">
@@ -641,6 +732,7 @@
 								<li class="nav-item"><a th:href="@{/appointment-statuses}" class="nav-link" id="appointmentStatusNav"><i class="icon-stamp"></i>Appointment Status</a></li>
 								<li class="nav-item"><a th:href="@{/service-record-signatory}" class="nav-link" id="srSignatoryNav"><i class="icon-stamp"></i>Service Record Signatory</a></li>
 								<li class="nav-item"><a th:href="@{/clearance-approver-settings}" class="nav-link" id="clearanceApproversNav"><i class="icon-stamp"></i>Clearance Approvers</a></li>
+								<li class="nav-item"><a th:href="@{/leave-signatories}" class="nav-link" id="leaveSignatoryNav"><i class="icon-stamp"></i>Leave Signatories</a></li>
 								
 							</ul>
 						</li>							
