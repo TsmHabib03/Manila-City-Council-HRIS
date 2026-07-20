@@ -402,9 +402,11 @@ public class LeaveController {
 			row.put("vlEarned", fmt(e.getVlEarned()));
 			row.put("vlDeducted", fmt(e.getVlDeducted()));
 			row.put("vlBalance", fmt(e.getVlBalance()));
+			row.put("vlDeductedNoPay", fmt(e.getVlDeductedNoPay()));
 			row.put("slEarned", fmt(e.getSlEarned()));
 			row.put("slDeducted", fmt(e.getSlDeducted()));
 			row.put("slBalance", fmt(e.getSlBalance()));
+			row.put("slDeductedNoPay", fmt(e.getSlDeductedNoPay()));
 			row.put("remarks", nvl(e.getRemarks()));
 			rows.add(row);
 		}
