@@ -3,7 +3,7 @@
 City Council of Manila — Human Resource Information System.
 Requested under CR Request ID 016 (revision 2): *"HRIS Process flow for all
 modules and features for documentation."* Current as of July 2026 (post
-CR-015 / CR-016 v2 / CR-017).
+CR-015 / CR-016 v2 / CR-017 / CR-020).
 
 ---
 
@@ -18,9 +18,9 @@ re-encoded with BCrypt on the next successful login.
 | ROLE_ADMIN | Full system administration | Dashboard |
 | ROLE_HR | HR records management, leave screening, every workflow stage | Dashboard |
 | ROLE_EMPLOYEE | Self-service: own PDS, clearance, service record, leave | Dashboard (My Account menu) |
-| ROLE_SUPERVISOR *(CR 016 v2)* | Endorses/denies leaves awaiting endorsement | Leave Approvals |
-| ROLE_COUNCIL *(CR 016 v2)* | Secretary to the City Council — Council Review of > 15-day leaves | Leave Approvals |
-| ROLE_VICEMAYOR *(CR 016 v2)* | Final approval/denial of > 5-day leaves | Leave Approvals |
+| ROLE_SUPERVISOR *(CR 016 v2)* | Endorses/denies/returns-to-HR (CR 020) leaves awaiting endorsement | Leave Approvals |
+| ROLE_COUNCIL *(CR 016 v2)* | Secretary to the City Council — Council Review of every docs-required leave; finalizes < 15-day leaves herself (CR 020) | Leave Approvals |
+| ROLE_VICEMAYOR *(CR 016 v2)* | Final approval/denial/return-to-HR (CR 020) of leaves ≥ 15 days | Leave Approvals |
 
 ```mermaid
 flowchart LR
@@ -80,11 +80,13 @@ flowchart TD
     C -->|deny| X[DISAPPROVED]
     D -->|<= 5| E[HR approves - APPROVED]
     D -->|> 5, docs required| F[Administrative Review - recorded by HR]
-    F -->|> 15| G[Council Review - Council account]
-    F -->|<= 15| H[FOR_FINAL_APPROVAL - Vice-Mayor account]
-    G --> H
-    H -->|approve| I[APPROVED - leave card deduction posts]
+    F --> G[Council Review - Council account]
+    G -->|< 15 days: approves directly| I[APPROVED - leave card deduction posts]
+    G -->|>= 15 days: endorses| H[FOR_FINAL_APPROVAL - Vice-Mayor account]
+    H -->|approve| I
     H -->|deny| X
+    C -->|return to HR| R
+    H -->|return to HR| R
     X -->|employee appeals| B
     A -.employee may cancel while pending.-> K[CANCELLED]
 ```

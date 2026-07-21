@@ -48,6 +48,8 @@ public final class LeaveConstants {
 	public static final String ACTION_SEND_TO_ADMIN_REVIEW = "SEND_TO_ADMIN_REVIEW";
 	public static final String ACTION_ADMIN_ENDORSE = "ADMIN_ENDORSE";
 	public static final String ACTION_COUNCIL_ENDORSE = "COUNCIL_ENDORSE";
+	/** CR Request ID 020: Council finalizes leaves under the Council threshold herself. */
+	public static final String ACTION_COUNCIL_APPROVE = "COUNCIL_APPROVE";
 	public static final String ACTION_FINAL_APPROVE = "FINAL_APPROVE";
 	public static final String ACTION_DISAPPROVE = "DISAPPROVE";
 	public static final String ACTION_CANCEL = "CANCEL";
@@ -58,7 +60,12 @@ public final class LeaveConstants {
 
 	/** Leaves of at most this many working days may be approved directly by HR. */
 	public static final double SHORT_PATH_MAX_DAYS = 5;
-	/** Leaves longer than this many working days additionally require Council Review. */
+	/**
+	 * Every leave requiring docs passes through Council Review; leaves at or
+	 * above this many working days must be endorsed on to the Vice-Mayor for
+	 * final approval, below it the Council Secretary finalizes it herself
+	 * (CR Request ID 020).
+	 */
 	public static final double COUNCIL_THRESHOLD_DAYS = 15;
 	/** Mandatory/forced leave days every employee must use (or forfeit) per year. */
 	public static final double MANDATORY_LEAVE_DAYS = 5;

@@ -22,6 +22,7 @@
 	<parameter name="ENDORSER_TITLE" class="java.lang.String"/>
 	<parameter name="DOCUMENT_LIST" class="java.lang.String"/>
 	<parameter name="VERIFIED_BY" class="java.lang.String"/>
+	<parameter name="VERIFIED_BY_TITLE" class="java.lang.String"/>
 	<parameter name="VERIFIED_AT" class="java.lang.String"/>
 
 	<title>
@@ -181,17 +182,17 @@
 				<textElement><font size="9" isBold="true"/></textElement>
 				<text><![CDATA[Verified by:]]></text>
 			</staticText>
-			<textField isBlankWhenNull="true">
+			<textField isBlankWhenNull="true" isStretchWithOverflow="true">
 				<reportElement x="110" y="310" width="240" height="12"/>
 				<box><bottomPen lineWidth="0.5"/></box>
 				<textElement textAlignment="Center"><font size="9" isBold="true"/></textElement>
 				<textFieldExpression><![CDATA[$P{VERIFIED_BY}]]></textFieldExpression>
 			</textField>
-			<staticText>
+			<textField isBlankWhenNull="true">
 				<reportElement x="110" y="322" width="240" height="10"/>
 				<textElement textAlignment="Center"><font size="7"/></textElement>
-				<text><![CDATA[HR / Administrative Division]]></text>
-			</staticText>
+				<textFieldExpression><![CDATA[$P{VERIFIED_BY_TITLE}]]></textFieldExpression>
+			</textField>
 
 			<staticText>
 				<reportElement x="370" y="310" width="80" height="12"/>

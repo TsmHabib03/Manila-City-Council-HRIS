@@ -33,4 +33,7 @@ public class LeaveSignatory {
 	private String approverTitle = LeaveConstants.DEFAULT_APPROVER_TITLE;
 	private String endorserName;
 	private String endorserTitle;
+	/** "Verified by" signatory (CR Request ID 020); printed on both CS Form 6 and the Leave Verification Receipt. */
+	private String verifierName;
+	private String verifierTitle;
 }

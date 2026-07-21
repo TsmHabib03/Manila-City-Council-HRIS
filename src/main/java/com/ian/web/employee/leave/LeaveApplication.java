@@ -104,6 +104,9 @@ public class LeaveApplication {
 	/** Leave Endorsement signatory (CR Request ID 015); defaulted from settings. */
 	private String endorserName;
 	private String endorserTitle;
+	/** "Verified by" signatory (CR Request ID 020); printed on both CS Form 6 and the Leave Verification Receipt. */
+	private String verifierName;
+	private String verifierTitle;
 
 	private String remarks;
 

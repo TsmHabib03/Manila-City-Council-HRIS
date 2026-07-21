@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # CR 016 v2 end-to-end verification: real actor accounts (Supervisor, Council
 # Secretary, Vice-Mayor), per-stage authorization, notifications, docs gate,
-# appeal/cancel, year-end coterminous exclusion.
+# appeal/cancel, year-end coterminous exclusion. Extended for CR 020: every
+# docs-required leave now routes through Council Review (Council finalizes
+# leaves under 15 working days herself instead of always forwarding to the
+# Vice-Mayor), and Supervisor/Vice-Mayor can return an application to HR.
 #
 # Run against a dev-profile app on a SCRATCH database (data.sql seeds the six
 # dev logins). Usage:  BASE=http://localhost:8082 bash scripts/verify_cr016_v2.sh
@@ -131,7 +134,9 @@ check "supervisor blocked after endorsement" "ENDORSED" "$(status_of "$ID1")"
 wf hr_user "$ID1" APPROVE
 check "HR approves short leave" "APPROVED" "$(status_of "$ID1")"
 
-# ── extended path (7 days): docs gate + admin review + VM final approval ─────
+# ── extended path (7 days): docs gate + admin review + Council final approval ─
+# CR 020: every docs-required leave now routes through Council Review; Council
+# finalizes it herself when under 15 working days instead of forwarding to VM.
 ID2=$(file_leave "Vacation Leave" 7 2026-09-01 2026-09-09)
 say "-- extended-path application id=$ID2"
 wf hr_user "$ID2" FORWARD_TO_SUPERVISOR
@@ -149,16 +154,24 @@ curl -s -b "$JARS/hr_user.jar" -c "$JARS/hr_user.jar" -L -o /dev/null \
 get hr_user "/leave-workflow/$ID2/panel" >/dev/null
 contains "document attached" '"hasDocs":true' "$JARS/last.html"
 
-VM_BEFORE=$(unread vice_mayor)
+CO_BEFORE2=$(unread council_sec)
 wf hr_user "$ID2" SEND_TO_ADMIN_REVIEW
 check "with docs -> FOR_ADMIN_REVIEW" "FOR_ADMIN_REVIEW" "$(status_of "$ID2")"
 wf hr_user "$ID2" ADMIN_ENDORSE "GLORIA S. TIRADO"
-check "7-day: admin review -> FOR_FINAL_APPROVAL (no council)" "FOR_FINAL_APPROVAL" "$(status_of "$ID2")"
-VM_AFTER=$(unread vice_mayor)
-[ "$VM_AFTER" -gt "$VM_BEFORE" ] && ok "vice-mayor notified at final approval" || bad "vice-mayor not notified ($VM_BEFORE -> $VM_AFTER)"
+check "7-day: admin review -> FOR_COUNCIL_REVIEW (CR 020, no longer skipped)" "FOR_COUNCIL_REVIEW" "$(status_of "$ID2")"
+CO_AFTER2=$(unread council_sec)
+[ "$CO_AFTER2" -gt "$CO_BEFORE2" ] && ok "council secretary notified for a <15-day leave" || bad "council secretary not notified ($CO_BEFORE2 -> $CO_AFTER2)"
 
-wf vice_mayor "$ID2" FINAL_APPROVE "ANGELA LEI ATIENZA"
-check "vice-mayor approves on own account" "APPROVED" "$(status_of "$ID2")"
+get council_sec "/leave-workflow/$ID2/panel" >/dev/null
+contains "council panel offers COUNCIL_APPROVE under 15 days" '"action":"COUNCIL_APPROVE"' "$JARS/last.html"
+if grep -q '"action":"COUNCIL_ENDORSE"' "$JARS/last.html"; then bad "council panel must not offer COUNCIL_ENDORSE under 15 days"; else ok "council panel has no COUNCIL_ENDORSE under 15 days"; fi
+
+# vice-mayor never sees a <15-day leave
+wf vice_mayor "$ID2" FINAL_APPROVE "WRONG ACTOR"
+check "vice-mayor blocked at council stage (<15 days never reaches VM)" "FOR_COUNCIL_REVIEW" "$(status_of "$ID2")"
+
+wf council_sec "$ID2" COUNCIL_APPROVE "ATTY. HANS ROGER S. LUNA"
+check "council finalizes <15-day leave on her own account (CR 020)" "APPROVED" "$(status_of "$ID2")"
 
 # ── long path (20 days): council review by council account ───────────────────
 ID3=$(file_leave "Vacation Leave" 20 2026-10-01 2026-10-28)
@@ -183,6 +196,29 @@ wf council_sec "$ID3" COUNCIL_ENDORSE "ATTY. HANS ROGER S. LUNA"
 check "council endorses on own account" "FOR_FINAL_APPROVAL" "$(status_of "$ID3")"
 wf vice_mayor "$ID3" FINAL_APPROVE "ANGELA LEI ATIENZA"
 check "20-day leave approved by VM" "APPROVED" "$(status_of "$ID3")"
+
+# ── mid-flow return to HR (CR 020) ───────────────────────────────────────────
+ID6=$(file_leave "Vacation Leave" 3 2026-08-10 2026-08-12)
+say "-- supervisor return-to-HR application id=$ID6"
+wf hr_user "$ID6" FORWARD_TO_SUPERVISOR
+wf supervisor "$ID6" RETURN "" "Missing documents"
+check "supervisor returns to HR" "RETURNED" "$(status_of "$ID6")"
+wf hr_user "$ID6" FORWARD_TO_SUPERVISOR
+check "HR re-forwards a RETURNED leave to supervisor" "FOR_ENDORSEMENT" "$(status_of "$ID6")"
+
+ID7=$(file_leave "Vacation Leave" 20 2026-10-05 2026-11-01)
+say "-- vice-mayor return-to-HR application id=$ID7"
+wf hr_user "$ID7" FORWARD_TO_SUPERVISOR
+wf supervisor "$ID7" ENDORSE "SUPERVISOR, DEPARTMENT"
+CSRF=$(csrf_of hr_user)
+curl -s -b "$JARS/hr_user.jar" -c "$JARS/hr_user.jar" -L -o /dev/null \
+  -F "_csrf=$CSRF" -F "supportingDocs=@$JARS/doc.txt" "$BASE/leave-workflow/$ID7/upload-docs"
+wf hr_user "$ID7" SEND_TO_ADMIN_REVIEW
+wf hr_user "$ID7" ADMIN_ENDORSE "GLORIA S. TIRADO"
+wf council_sec "$ID7" COUNCIL_ENDORSE "ATTY. HANS ROGER S. LUNA"
+check "20-day leave reaches FOR_FINAL_APPROVAL" "FOR_FINAL_APPROVAL" "$(status_of "$ID7")"
+wf vice_mayor "$ID7" RETURN "" "Needs an updated medical certificate"
+check "vice-mayor returns to HR" "RETURNED" "$(status_of "$ID7")"
 
 # ── denial + appeal + cancel ─────────────────────────────────────────────────
 ID4=$(file_leave "Sick Leave" 4 2026-11-03 2026-11-06)

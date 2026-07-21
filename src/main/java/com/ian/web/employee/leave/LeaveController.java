@@ -378,6 +378,7 @@ public class LeaveController {
 		map.put("APPROVER_TITLE", nvl(app.getApproverTitle()));
 		map.put("ENDORSER_NAME", nvl(app.getEndorserName()));
 		map.put("ENDORSER_TITLE", nvl(app.getEndorserTitle()));
+		map.put("VERIFIED_BY", nvl(app.getVerifierName()));
 
 		response.setContentType("application/pdf");
 		response.setHeader("Content-Disposition", "inline; filename=CS-Form-6-" + applicationId + ".pdf");
@@ -505,6 +506,8 @@ public class LeaveController {
 		application.setApproverTitle(s != null ? nvl(s.getApproverTitle()) : LeaveConstants.DEFAULT_APPROVER_TITLE);
 		application.setEndorserName(s != null ? nvl(s.getEndorserName()) : "");
 		application.setEndorserTitle(s != null ? nvl(s.getEndorserTitle()) : "");
+		application.setVerifierName(s != null ? nvl(s.getVerifierName()) : "");
+		application.setVerifierTitle(s != null ? nvl(s.getVerifierTitle()) : "");
 	}
 
 	private static String buildCardName(Employee employee) {

@@ -413,7 +413,11 @@ public class LeaveWorkflowController {
 			}
 		}
 		map.put("DOCUMENT_LIST", docs.length() > 0 ? docs.toString() : "(none)");
-		map.put("VERIFIED_BY", actor != null ? buildCardName(actor) : "");
+		String verifiedBy = nvl(app.getVerifierName());
+		map.put("VERIFIED_BY", !verifiedBy.isEmpty() ? verifiedBy
+				: (actor != null ? buildCardName(actor) : ""));
+		String verifiedByTitle = nvl(app.getVerifierTitle());
+		map.put("VERIFIED_BY_TITLE", !verifiedByTitle.isEmpty() ? verifiedByTitle : "HR / Administrative Division");
 		map.put("VERIFIED_AT", ACTION_TIME.format(LocalDateTime.now()));
 
 		recordAction(app, null, null, LeaveConstants.ACTION_RECEIPT_PRINTED, actor, null, null, null);
@@ -440,7 +444,13 @@ public class LeaveWorkflowController {
 			case LeaveConstants.STATUS_RETURNED:
 				return List.of(LeaveConstants.ACTION_FORWARD_TO_SUPERVISOR, LeaveConstants.ACTION_ENDORSE);
 			case LeaveConstants.STATUS_FOR_ENDORSEMENT:
-				return List.of(LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_DISAPPROVE);
+				// CR 020's "Supervisor must have approve, disapprove, return to HR
+				// and endorse" reads "approve" as endorse, not a separate terminal
+				// action — the CR's own next sentence says HR creates a receipt
+				// "for the next approver to validate," meaning more approval
+				// stages still follow the supervisor's decision.
+				return List.of(LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_DISAPPROVE,
+						LeaveConstants.ACTION_RETURN);
 			case LeaveConstants.STATUS_ENDORSED:
 				return workingDays(app) <= LeaveConstants.SHORT_PATH_MAX_DAYS
 						? List.of(LeaveConstants.ACTION_APPROVE, LeaveConstants.ACTION_DISAPPROVE)
@@ -448,9 +458,12 @@ public class LeaveWorkflowController {
 			case LeaveConstants.STATUS_FOR_ADMIN_REVIEW:
 				return List.of(LeaveConstants.ACTION_ADMIN_ENDORSE, LeaveConstants.ACTION_DISAPPROVE);
 			case LeaveConstants.STATUS_FOR_COUNCIL_REVIEW:
-				return List.of(LeaveConstants.ACTION_COUNCIL_ENDORSE, LeaveConstants.ACTION_DISAPPROVE);
+				return workingDays(app) >= LeaveConstants.COUNCIL_THRESHOLD_DAYS
+						? List.of(LeaveConstants.ACTION_COUNCIL_ENDORSE, LeaveConstants.ACTION_DISAPPROVE)
+						: List.of(LeaveConstants.ACTION_COUNCIL_APPROVE, LeaveConstants.ACTION_DISAPPROVE);
 			case LeaveConstants.STATUS_FOR_FINAL_APPROVAL:
-				return List.of(LeaveConstants.ACTION_FINAL_APPROVE, LeaveConstants.ACTION_DISAPPROVE);
+				return List.of(LeaveConstants.ACTION_FINAL_APPROVE, LeaveConstants.ACTION_DISAPPROVE,
+						LeaveConstants.ACTION_RETURN);
 			case LeaveConstants.STATUS_APPROVED:
 				return List.of(LeaveConstants.ACTION_REOPEN);
 			default:
@@ -489,14 +502,15 @@ public class LeaveWorkflowController {
 				return LeaveConstants.STATUS_ENDORSED;
 			case LeaveConstants.ACTION_APPROVE:
 			case LeaveConstants.ACTION_FINAL_APPROVE:
+			case LeaveConstants.ACTION_COUNCIL_APPROVE:
 				return LeaveConstants.STATUS_APPROVED;
 			case LeaveConstants.ACTION_SEND_TO_ADMIN_REVIEW:
 				return LeaveConstants.STATUS_FOR_ADMIN_REVIEW;
 			case LeaveConstants.ACTION_ADMIN_ENDORSE:
-				// Council Review only for leaves of more than 15 working days.
-				return workingDays(app) > LeaveConstants.COUNCIL_THRESHOLD_DAYS
-						? LeaveConstants.STATUS_FOR_COUNCIL_REVIEW
-						: LeaveConstants.STATUS_FOR_FINAL_APPROVAL;
+				// Every docs-required leave passes through Council Review; Council
+				// either finalizes it herself or endorses on to the Vice-Mayor
+				// depending on COUNCIL_THRESHOLD_DAYS (see allowedActions).
+				return LeaveConstants.STATUS_FOR_COUNCIL_REVIEW;
 			case LeaveConstants.ACTION_COUNCIL_ENDORSE:
 				return LeaveConstants.STATUS_FOR_FINAL_APPROVAL;
 			case LeaveConstants.ACTION_DISAPPROVE:
@@ -512,6 +526,7 @@ public class LeaveWorkflowController {
 		return LeaveConstants.ACTION_ENDORSE.equals(action)
 				|| LeaveConstants.ACTION_ADMIN_ENDORSE.equals(action)
 				|| LeaveConstants.ACTION_COUNCIL_ENDORSE.equals(action)
+				|| LeaveConstants.ACTION_COUNCIL_APPROVE.equals(action)
 				|| LeaveConstants.ACTION_FINAL_APPROVE.equals(action);
 	}
 
@@ -522,13 +537,14 @@ public class LeaveWorkflowController {
 
 	static String actionLabel(String action) {
 		switch (nvl(action)) {
-			case LeaveConstants.ACTION_RETURN: return "Return to Employee";
+			case LeaveConstants.ACTION_RETURN: return "Return for Corrections";
 			case LeaveConstants.ACTION_FORWARD_TO_SUPERVISOR: return "Forward to Supervisor (HR Screening)";
 			case LeaveConstants.ACTION_ENDORSE: return "Supervisor Endorsement";
 			case LeaveConstants.ACTION_APPROVE: return "Approve (HR)";
 			case LeaveConstants.ACTION_SEND_TO_ADMIN_REVIEW: return "Forward for Administrative Review";
 			case LeaveConstants.ACTION_ADMIN_ENDORSE: return "Administrative Review Passed";
 			case LeaveConstants.ACTION_COUNCIL_ENDORSE: return "Council Review Passed";
+			case LeaveConstants.ACTION_COUNCIL_APPROVE: return "Council Final Approval";
 			case LeaveConstants.ACTION_FINAL_APPROVE: return "Final Approval (Vice-Mayor)";
 			case LeaveConstants.ACTION_DISAPPROVE: return "Disapprove";
 			case LeaveConstants.ACTION_CANCEL: return "Cancelled by Employee";
@@ -543,7 +559,9 @@ public class LeaveWorkflowController {
 		switch (nvl(action)) {
 			case LeaveConstants.ACTION_ENDORSE: return nvl(s.getEndorserName());
 			case LeaveConstants.ACTION_ADMIN_ENDORSE: return nvl(s.getCertOfficerName());
-			case LeaveConstants.ACTION_COUNCIL_ENDORSE: return nvl(s.getRecommenderName());
+			case LeaveConstants.ACTION_COUNCIL_ENDORSE:
+			case LeaveConstants.ACTION_COUNCIL_APPROVE:
+				return nvl(s.getRecommenderName());
 			case LeaveConstants.ACTION_FINAL_APPROVE: return nvl(s.getApproverName());
 			default: return "";
 		}
@@ -553,7 +571,9 @@ public class LeaveWorkflowController {
 		switch (nvl(action)) {
 			case LeaveConstants.ACTION_ENDORSE: return nvl(s.getEndorserTitle());
 			case LeaveConstants.ACTION_ADMIN_ENDORSE: return nvl(s.getCertOfficerTitle());
-			case LeaveConstants.ACTION_COUNCIL_ENDORSE: return nvl(s.getRecommenderTitle());
+			case LeaveConstants.ACTION_COUNCIL_ENDORSE:
+			case LeaveConstants.ACTION_COUNCIL_APPROVE:
+				return nvl(s.getRecommenderTitle());
 			case LeaveConstants.ACTION_FINAL_APPROVE: return nvl(s.getApproverTitle());
 			default: return "";
 		}
@@ -581,20 +601,19 @@ public class LeaveWorkflowController {
 		String label = leaveLabel(app);
 		switch (action) {
 			case LeaveConstants.ACTION_RETURN:
-				return "Your " + label + " was returned by HR" + reasonSuffix(remarks);
+				return "Your " + label + " was returned for further review" + reasonSuffix(remarks);
 			case LeaveConstants.ACTION_FORWARD_TO_SUPERVISOR:
 				return "Your " + label + " passed HR screening and awaits your supervisor's endorsement.";
 			case LeaveConstants.ACTION_ENDORSE:
 				return "Your " + label + " has been endorsed by your supervisor.";
 			case LeaveConstants.ACTION_APPROVE:
 			case LeaveConstants.ACTION_FINAL_APPROVE:
+			case LeaveConstants.ACTION_COUNCIL_APPROVE:
 				return "Your " + label + " has been APPROVED.";
 			case LeaveConstants.ACTION_SEND_TO_ADMIN_REVIEW:
 				return "Your " + label + " was forwarded for Administrative Review.";
 			case LeaveConstants.ACTION_ADMIN_ENDORSE:
-				return LeaveConstants.STATUS_FOR_COUNCIL_REVIEW.equals(toStatus)
-						? "Your " + label + " passed Administrative Review and was forwarded for Council Review."
-						: "Your " + label + " passed Administrative Review and awaits final approval.";
+				return "Your " + label + " passed Administrative Review and was forwarded for Council Review.";
 			case LeaveConstants.ACTION_COUNCIL_ENDORSE:
 				return "Your " + label + " passed Council Review and awaits final approval.";
 			case LeaveConstants.ACTION_DISAPPROVE:

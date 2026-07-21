@@ -96,9 +96,27 @@ class LeaveWorkflowRolesTest {
 	}
 
 	@Test
-	void forEndorsementOffersEndorseAndDisapprove() {
+	void forEndorsementOffersEndorseDisapproveAndReturn() {
 		assertThat(controller.allowedActions(app(LeaveConstants.STATUS_FOR_ENDORSEMENT, 3.0)))
-				.containsExactly(LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_DISAPPROVE);
+				.containsExactly(LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_DISAPPROVE,
+						LeaveConstants.ACTION_RETURN);
+	}
+
+	@Test
+	void councilReviewSplitsOnFifteenDays() {
+		assertThat(controller.allowedActions(app(LeaveConstants.STATUS_FOR_COUNCIL_REVIEW, 14.0)))
+				.containsExactly(LeaveConstants.ACTION_COUNCIL_APPROVE, LeaveConstants.ACTION_DISAPPROVE);
+		assertThat(controller.allowedActions(app(LeaveConstants.STATUS_FOR_COUNCIL_REVIEW, 15.0)))
+				.containsExactly(LeaveConstants.ACTION_COUNCIL_ENDORSE, LeaveConstants.ACTION_DISAPPROVE);
+		assertThat(controller.allowedActions(app(LeaveConstants.STATUS_FOR_COUNCIL_REVIEW, 20.0)))
+				.containsExactly(LeaveConstants.ACTION_COUNCIL_ENDORSE, LeaveConstants.ACTION_DISAPPROVE);
+	}
+
+	@Test
+	void forFinalApprovalOffersApproveDisapproveAndReturn() {
+		assertThat(controller.allowedActions(app(LeaveConstants.STATUS_FOR_FINAL_APPROVAL, 20.0)))
+				.containsExactly(LeaveConstants.ACTION_FINAL_APPROVE, LeaveConstants.ACTION_DISAPPROVE,
+						LeaveConstants.ACTION_RETURN);
 	}
 
 	@Test
@@ -113,12 +131,14 @@ class LeaveWorkflowRolesTest {
 	void allowedActionsForFiltersByRole() {
 		LeaveApplication pending = app(LeaveConstants.STATUS_FOR_ENDORSEMENT, 3.0);
 		assertThat(controller.allowedActionsFor(pending, actor(Roles.SUPERVISOR)))
-				.containsExactly(LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_DISAPPROVE);
+				.containsExactly(LeaveConstants.ACTION_ENDORSE, LeaveConstants.ACTION_DISAPPROVE,
+						LeaveConstants.ACTION_RETURN);
 		assertThat(controller.allowedActionsFor(pending, actor(Roles.VICEMAYOR))).isEmpty();
 		assertThat(controller.allowedActionsFor(pending, actor(Roles.EMPLOYEE))).isEmpty();
 		assertThat(controller.allowedActionsFor(app(LeaveConstants.STATUS_FOR_FINAL_APPROVAL, 8.0),
 				actor(Roles.VICEMAYOR)))
-				.containsExactly(LeaveConstants.ACTION_FINAL_APPROVE, LeaveConstants.ACTION_DISAPPROVE);
+				.containsExactly(LeaveConstants.ACTION_FINAL_APPROVE, LeaveConstants.ACTION_DISAPPROVE,
+						LeaveConstants.ACTION_RETURN);
 	}
 
 	// ── queue statuses per role ──────────────────────────────────────────────

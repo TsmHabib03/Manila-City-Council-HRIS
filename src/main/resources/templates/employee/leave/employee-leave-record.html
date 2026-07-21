@@ -245,6 +245,16 @@
 												<input id="la_endorserTitle" th:field="*{endorserTitle}" type="text" class="form-control">
 											</div>
 										</div>
+										<div class="row mt-2">
+											<div class="col-sm-6">
+												<label for="la_verifierName">Verified By (CS Form 6 &amp; Leave Verification Receipt)</label>
+												<input id="la_verifierName" th:field="*{verifierName}" type="text" class="form-control">
+											</div>
+											<div class="col-sm-6">
+												<label for="la_verifierTitle">Title</label>
+												<input id="la_verifierTitle" th:field="*{verifierTitle}" type="text" class="form-control">
+											</div>
+										</div>
 									</div>
 								</div>
 
@@ -620,6 +630,8 @@
 													th:data-row-approverName="${app.approverName}"
 													th:data-row-endorserName="${app.endorserName}"
 													th:data-row-endorserTitle="${app.endorserTitle}"
+													th:data-row-verifierName="${app.verifierName}"
+													th:data-row-verifierTitle="${app.verifierTitle}"
 													th:data-row-approverTitle="${app.approverTitle}"
 													th:data-row-remarks="${app.remarks}"
 													data-toggle="modal" data-target="#modal_leave_application">
@@ -923,6 +935,8 @@
 			modal.find("#la_approverTitle").val(btn.attr('data-row-approverTitle'));
 			modal.find("#la_endorserName").val(btn.attr('data-row-endorserName'));
 			modal.find("#la_endorserTitle").val(btn.attr('data-row-endorserTitle'));
+			modal.find("#la_verifierName").val(btn.attr('data-row-verifierName'));
+			modal.find("#la_verifierTitle").val(btn.attr('data-row-verifierTitle'));
 			modal.find("#la_remarks").val(btn.attr('data-row-remarks'));
 
 			$('#leaveApplicationForm').attr('action', contextRoot + '/updateLeaveApplication');
