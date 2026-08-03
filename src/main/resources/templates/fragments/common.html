@@ -657,14 +657,12 @@
 									<li class="nav-item nav-item-submenu" id="archiveNav">
 										<a href="#" class="nav-link"><i class="icon-box"></i> Archive</a>
 										<ul class="nav nav-group-sub">
-											<li class="nav-item">
-												<a th:href="@{/archive/SALN}" class="nav-link" id="archiveSalnNav"><i class="icon-folder-open"></i> SALN</a>
-											</li>
-											<li class="nav-item">
-												<a th:href="@{/archive/RESIGNED}" class="nav-link" id="archiveResignedNav"><i class="icon-folder-open"></i> Resigned Employees</a>
-											</li>
-											<li class="nav-item">
-												<a th:href="@{/archive/LEAVES}" class="nav-link" id="archiveLeavesNav"><i class="icon-folder-open"></i> Leaves</a>
+											<!-- Folder list is admin-managed (CR Request ID 023): archive-list.html:309
+											     builds the nav-highlight id as "archive" + Code-titlecased + "Nav", so
+											     new folder codes must stay alphanumeric to match. -->
+											<li class="nav-item" th:each="s : ${archiveSections}">
+												<a th:href="@{'/archive/' + ${s.code}}" class="nav-link"
+													th:id="'archive' + ${#strings.substring(s.code,0,1)} + ${#strings.toLowerCase(#strings.substring(s.code,1))} + 'Nav'"><i class="icon-folder-open"></i> <span th:text="${s.displayName}">Folder</span></a>
 											</li>
 										</ul>
 									</li>

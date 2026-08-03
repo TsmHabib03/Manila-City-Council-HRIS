@@ -2,7 +2,6 @@ package com.ian.web.employee.archive;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,22 +31,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ArchiveController {
 
-	static final Map<String, String> SECTIONS = Map.of(
-			"SALN", "SALN",
-			"RESIGNED", "Resigned Employees",
-			"LEAVES", "Leaves");
-
 	private final ArchiveFileRepository archiveFileRepository;
 	private final ArchiveLabelRepository archiveLabelRepository;
+	private final ArchiveSectionRepository archiveSectionRepository;
 	private final StorageService storageService;
 
 	@GetMapping("/archive/{section}")
 	public String viewArchive(Model model, @PathVariable String section) {
-		if (!SECTIONS.containsKey(section)) {
+		if (!archiveSectionRepository.existsByCode(section)) {
 			return "redirect:/dashboard";
 		}
 		model.addAttribute("section", section);
-		model.addAttribute("sectionTitle", SECTIONS.get(section));
+		model.addAttribute("sectionTitle", archiveSectionRepository.findByCode(section)
+				.map(ArchiveSection::getDisplayName).orElse(section));
+		model.addAttribute("sectionList", archiveSectionRepository.findAllByOrderBySortOrderAscDisplayNameAsc());
 		model.addAttribute("fileList", archiveFileRepository.findBySectionOrderByIdDesc(section));
 		model.addAttribute("labelList", archiveLabelRepository.findBySectionOrderByLabelNameAsc(section));
 		return "employee/archive/archive-list";
@@ -68,9 +65,10 @@ public class ArchiveController {
 			HttpServletRequest request,
 			final RedirectAttributes redirect) throws Exception {
 
-		if (!SECTIONS.containsKey(section) || docFile == null || docFile.isEmpty()) {
+		boolean validSection = archiveSectionRepository.existsByCode(section);
+		if (!validSection || docFile == null || docFile.isEmpty()) {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Please choose a file to upload."));
-			return "redirect:/archive/" + (SECTIONS.containsKey(section) ? section : "SALN");
+			return "redirect:/archive/" + (validSection ? section : "SALN");
 		}
 
 		String original = docFile.getOriginalFilename() == null ? "file" : docFile.getOriginalFilename();
@@ -145,9 +143,10 @@ public class ArchiveController {
 			@RequestParam("labelName") String labelName,
 			final RedirectAttributes redirect) {
 
-		if (!SECTIONS.containsKey(section) || labelName == null || labelName.isBlank()) {
+		boolean validSection = archiveSectionRepository.existsByCode(section);
+		if (!validSection || labelName == null || labelName.isBlank()) {
 			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Label name is required."));
-			return "redirect:/archive/" + (SECTIONS.containsKey(section) ? section : "SALN");
+			return "redirect:/archive/" + (validSection ? section : "SALN");
 		}
 		ArchiveLabel labelEntity = id > 0
 				? archiveLabelRepository.findById(id).orElseGet(ArchiveLabel::new)
@@ -179,5 +178,67 @@ public class ArchiveController {
 		archiveLabelRepository.deleteById(id);
 		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Label deleted."));
 		return "redirect:/archive/" + section;
+	}
+
+	/**
+	 * Adds a new Archive folder or renames an existing one (id > 0). The code
+	 * is normalized on creation and immutable afterwards; only displayName
+	 * can change on rename, so ArchiveFile/ArchiveLabel rows keyed by code
+	 * never need to be touched.
+	 */
+	@PostMapping("/archive/saveSection")
+	public String saveSection(
+			@RequestParam(value = "id", required = false, defaultValue = "0") long id,
+			@RequestParam(value = "code", required = false) String code,
+			@RequestParam("displayName") String displayName,
+			final RedirectAttributes redirect) {
+
+		if (displayName == null || displayName.isBlank()) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Folder name is required."));
+			return "redirect:/dashboard";
+		}
+
+		if (id > 0) {
+			ArchiveSection section = archiveSectionRepository.findById(id).orElseThrow();
+			section.setDisplayName(displayName.trim());
+			archiveSectionRepository.save(section);
+			redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Folder renamed."));
+			return "redirect:/archive/" + section.getCode();
+		}
+
+		String normalizedCode = code == null ? "" : code.trim().toUpperCase().replaceAll("[^A-Z0-9]", "");
+		if (normalizedCode.isBlank()) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "Folder code is required."));
+			return "redirect:/dashboard";
+		}
+		if (archiveSectionRepository.existsByCode(normalizedCode)) {
+			redirect.addFlashAttribute("msg", new UXMessage("ERROR", "A folder with that code already exists."));
+			return "redirect:/dashboard";
+		}
+		int nextOrder = archiveSectionRepository.findAllByOrderBySortOrderAscDisplayNameAsc().size();
+		archiveSectionRepository.save(new ArchiveSection(0, normalizedCode, displayName.trim(), nextOrder));
+
+		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Folder created."));
+		return "redirect:/archive/" + normalizedCode;
+	}
+
+	/** Deletes an Archive folder, but only if it has no files left in it. */
+	@GetMapping("/archive/deleteSection/{id}")
+	public String deleteSection(@PathVariable long id, final RedirectAttributes redirect) {
+		ArchiveSection section = archiveSectionRepository.findById(id).orElseThrow();
+
+		if (!archiveFileRepository.findBySectionOrderByIdDesc(section.getCode()).isEmpty()) {
+			redirect.addFlashAttribute("msg",
+					new UXMessage("ERROR", "Cannot delete a folder that still has files. Move or delete its files first."));
+			return "redirect:/archive/" + section.getCode();
+		}
+
+		for (ArchiveLabel label : archiveLabelRepository.findBySectionOrderByLabelNameAsc(section.getCode())) {
+			archiveLabelRepository.deleteById(label.getId());
+		}
+		archiveSectionRepository.deleteById(id);
+
+		redirect.addFlashAttribute("msg", new UXMessage("EDIT-SUCCESS", "Folder deleted."));
+		return "redirect:/dashboard";
 	}
 }

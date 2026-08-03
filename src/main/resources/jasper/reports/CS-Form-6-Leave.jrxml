@@ -178,7 +178,7 @@
 			<staticText><reportElement x="88" y="464" width="68" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[INCLUSIVE DATES]]></text></staticText>
 			<staticText><reportElement x="83" y="478" width="169" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[________________________________________]]></text></staticText>
 			<textField isBlankWhenNull="true"><reportElement x="83" y="476" width="168" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5"/></textElement><textFieldExpression><![CDATA[$P{INCLUSIVE_DATES}]]></textFieldExpression></textField>
-			<staticText><reportElement x="85" y="492" width="95" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[VERIFIED BY]]></text></staticText>
+			<staticText><reportElement x="85" y="492" width="95" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[IMMEDIATE SUPERVISOR]]></text></staticText>
 			<staticText><reportElement x="83" y="506" width="169" height="9"/><textElement textAlignment="Center"><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[________________________________________]]></text></staticText>
 			<textField isBlankWhenNull="true" isStretchWithOverflow="true"><reportElement x="83" y="504" width="168" height="10"/><textElement textAlignment="Center"><font fontName="Arial" size="7.5" isBold="true"/></textElement><textFieldExpression><![CDATA[$P{VERIFIED_BY}]]></textFieldExpression></textField>
 			<staticText><reportElement x="323" y="436" width="76" height="9"/><textElement><font fontName="Arial" size="7.56"/></textElement><text><![CDATA[6.D  COMMUTATION ]]></text></staticText>
