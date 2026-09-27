@@ -1,21 +1,29 @@
 #!/usr/bin/env bash
 #
-# deploy.sh — build the HRIS WAR and deploy it to the production server.
+# deploy.sh — build the HRIS WAR and deploy it to a production server.
+#
+# The target host is NOT hardcoded. Supply it via environment variables so
+# no server address lives in this repository:
+#
+#   HRISP_DEPLOY_SERVER   user@host          (required)
+#   HRISP_DEPLOY_KEY      ssh private key    (optional, defaults to ~/.ssh/id_rsa)
+#   HRISP_DEPLOY_WARPATH  remote war path    (optional, see below)
 #
 # This app does NOT run under a system Tomcat (no /var/lib/tomcat/webapps).
-# It runs as an embedded-Tomcat fat WAR launched by ~/hrisp-web01/restart.sh,
-# which executes  java -jar /home/habib/hrisp-web01/target/hrisp.war.
+# It runs as an embedded-Tomcat fat WAR launched by <warpath>/../restart.sh,
+# which executes  java -jar <warpath>/hrisp.war.
 # Therefore the WAR MUST be uploaded to that target/ path, not a webapps dir.
 #
 # The maven jasperreports-plugin recompiles every .jrxml -> .jasper during the
 # build, so editing the PDS templates and running this script is all that's needed.
 #
-# Usage:  bash deploy.sh
+# Usage:  HRISP_DEPLOY_SERVER=user@host bash deploy.sh
 set -euo pipefail
 
-SERVER="habib@35.185.180.249"
-KEY="$HOME/.ssh/id_rsa"
-REMOTE_WAR="/home/habib/hrisp-web01/target/hrisp.war"
+: "${HRISP_DEPLOY_SERVER:?Set HRISP_DEPLOY_SERVER to user@host (previous host has been decommissioned)}"
+SERVER="$HRISP_DEPLOY_SERVER"
+KEY="${HRISP_DEPLOY_KEY:-$HOME/.ssh/id_rsa}"
+REMOTE_WAR="${HRISP_DEPLOY_WARPATH:-$HOME/hrisp-web01/target/hrisp.war}"
 LOCAL_WAR="target/hrisp.war"
 
 echo "==> [1/4] Building (mvn clean package -DskipTests) ..."
