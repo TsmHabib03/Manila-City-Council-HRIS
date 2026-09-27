@@ -111,3 +111,6 @@ png_cit_crop.png
 crop_*.png
 
 data/
+
+# Screenshot assets for README (generated locally, not source)
+readMeAssets/
