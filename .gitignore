@@ -112,5 +112,5 @@ crop_*.png
 
 data/
 
-# Screenshot assets for README (generated locally, not source)
-readMeAssets/
+# Screenshot assets for README (readMeAssets/) are intentionally TRACKED
+# so the images embed correctly on GitHub.

@@ -265,8 +265,9 @@ that path. Treat `deploy.sh` as the source of truth for server address/SSH key �
 | `archive/` | Legacy material kept for reference (PDS/JRXML calibration scripts, superseded UAT drafts); not needed to build or run |
 | `config/` | **Git-ignored** local Spring Boot overrides (local DB password) |
 
-> `readMeAssets/` (the screenshots embedded above) is generated locally and **git-ignored** —
-> see [`readMeAssets/INDEX.md`](readMeAssets/INDEX.md) for the full 73-shot manifest.
+> `readMeAssets/` holds the screenshots embedded above — see
+> [`readMeAssets/INDEX.md`](readMeAssets/INDEX.md) for the full 73-shot manifest
+> (file → screen → route → role).
 
 ---
 
@@ -289,5 +290,6 @@ that path. Treat `deploy.sh` as the source of truth for server address/SSH key �
   `config/` directory — never hardcode them, and keep it that way.
 - Report/attachment routes that take an id (e.g. `/leaveForm6Pdf/{id}`) are guarded against IDOR
   with per-record hash tokens; employee self-service routes enforce an own-record check.
-- Screenshots and UAT captures contain real employee data (names, positions, birth dates,
-  ID photos); the `readMeAssets/` folder is intentionally excluded from version control.
+- Screenshots under `readMeAssets/` and in `docs/uat/` are **development/UAT captures** of a
+  local dev database; they are included for documentation purposes only and are not a live
+  data source.
